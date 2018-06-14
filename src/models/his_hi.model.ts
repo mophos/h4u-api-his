@@ -146,11 +146,11 @@ export class HisHiModel {
         return db.raw(sql, [vn]);
     }
 
-    getVacine(db: Knex, vn: any) {
+    getVaccine(db: Knex, vn: any) {
         let sql = `
         select 
-        cv.NEW as vacine_code, 
-        h.namehpt as vacine_name
+        cv.NEW as vaccine_code, 
+        h.namehpt as vaccine_name
         from 
         hi.epi e 
         inner join 

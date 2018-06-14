@@ -320,6 +320,124 @@ export class His {
   }
 
   async his_hi(db, hn, dateServe, registerId, requestId) {
+    if (hn) {
+      try {
+        let rs_name: any = await hisHiModel.getPtDetail(db, hn);
+        let rs_bloodgrp: any = await hisHiModel.getBloodgrp(db, hn);
+        let rs_allergy: any = await hisHiModel.getAllergyDetail(db, hn);
+        let rs_disease: any = await hisHiModel.getDisease(db, hn);
+        let rs_hosp: any = await hisHiModel.getHospital(db);
+
+        let obj_name: any = {};
+        let obj_hospital: any = [];
+        let obj_allergy: any = [];
+        let obj_disease: any = [];
+        let objProfile: any = {};
+
+        obj_name.title_name = rs_name[0].title_name;
+        obj_name.first_name = rs_name[0].first_name;
+        obj_name.last_name = rs_name[0].last_name;
+        let hcode = rs_hosp[0].hcode;
+        let hname = rs_hosp[0].hname;
+
+        obj_allergy.allergy = rs_allergy;
+        obj_disease.disease = rs_disease;
+
+        objProfile.name = obj_name;
+        objProfile.blood_group = rs_bloodgrp[0].blood_group;
+        //objProfile.allergy = obj_allergy;
+        objProfile.allergy = rs_allergy;
+        objProfile.disease = rs_disease;
+
+
+        let rs: any = await hisHiModel.getSeq(db, dateServe, hn);
+
+        // let screening: any = {};
+
+        let services: any = [];
+        let activities: any = [];
+        let pp: any = [];
+        // obj_screening.screening = rs_screening;
+        let anc: any = {};
+
+        for (let item of rs) {
+
+          let objService: any = {};
+          let objActivities: any = {};
+          let objPp: any = {};
+          objService.date_serve = moment(item.date).format("YYYY-MM-DD");
+          // console.log(item.time.toString().length);
+
+          let time: string;
+          if (item.time.toString().length === 3) {
+            time = '0' + item.time;
+
+          } else {
+            time = item.time.toString();
+          }
+
+          objService.time_serve = moment(time, "HH:mm:ss").format("HH:mm:ss");// moment(item.time).locale('th').format('HH:mm');
+
+          objService.clinic = item.department;
+          objService.seq = item.seq;
+          // screening
+          let screening: any = await hisHiModel.getScreening(db, item.seq);
+          objService.screening = screening[0];
+
+          // activities
+          objActivities.pe = await hisHiModel.getPe(db, item.seq);
+          objActivities.diagnosis = await hisHiModel.getDiagnosis(db, item.seq);
+          let drugs: any[] = await hisHiModel.getDrugs(db, item.seq);
+          objActivities.drugs = drugs[0];
+          let refer: any = await hisHiModel.getRefer(db, item.seq);
+          objActivities.refer = refer[0];
+          //objActivities.refer = await activitiesModell.getRefer(db, item.seq);
+
+          let appointment: any[] = await hisHiModel.getAppointment(db, item.seq);
+          objActivities.appointment = appointment[0];
+          let lab: any[] = await hisHiModel.getLabs(db, item.seq);
+          objActivities.lab = lab[0];
+
+          // pp
+          anc = await hisHiModel.getAnc(db, item.seq);
+          objPp.anc = anc[0][0];
+
+          let vaccine: any[] = await hisHiModel.getVaccine(db, item.seq);
+          objPp.vaccine = vaccine[0];
+
+          pp.push(objPp); // add objPp to pp
+          objActivities.pp = pp[0] // add pp to objActivities
+
+          activities.push(objActivities);
+          objService.activities = activities;
+
+          services.push(objService);
+
+        }
+
+        if (rs_name.length) {
+          return ({
+            ok: true,
+            rows: {
+              hcode: hcode,
+              hname: hname,
+              hn: hn,
+              registerId: registerId,
+              requestId: requestId,
+              profile: objProfile,
+              services: services
+            }
+          });
+        }
+        else {
+          return ({ ok: false });
+        }
+      } catch (error) {
+        return ({ ok: false, error: error.message });
+      }
+    } else {
+      return ({ ok: false, error: 'Incorrect data!' });
+    }
   }
 
 }
