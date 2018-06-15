@@ -170,6 +170,7 @@ export class His {
           hcode: rs_hosp[0].hcode,
           hname: rs_hosp[0].hname,
           hn: hn,
+          cid: rs_name[0].cid,
           register_id: registerId,
           request_id: requestId,
           profile: profile,

@@ -19,7 +19,7 @@ export class HisJhcisModel {
 
   getProfile(db: Knex, hn: any) {
     return db('person as p')
-      .select('p.pid AS hn', 't.titlename AS title_name', 'p.fname AS first_name', 'p.lname AS last_name', 'p.idcard as cid')
+      .select('p.idcard as cid','p.pid AS hn', 't.titlename AS title_name', 'p.fname AS first_name', 'p.lname AS last_name', 'p.idcard as cid')
       .innerJoin('ctitle as t', 't.titlecode', 'p.prename')
       .where('p.pid', hn);
   }
