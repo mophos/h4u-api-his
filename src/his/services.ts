@@ -366,6 +366,8 @@ export class Services {
         obj_name.title_name = rs_name[0].title_name;
         obj_name.first_name = rs_name[0].first_name;
         obj_name.last_name = rs_name[0].last_name;
+        let cid = rs_name[0].cid;
+
         let hcode = rs_hosp[0].hcode;
         let hname = rs_hosp[0].hname;
 
@@ -380,6 +382,7 @@ export class Services {
 
 
         let rs: any = await hisHiModel.getSeq(db, dateServe, hn);
+        // console.log(rs[0]);
 
         // let screening: any = {};
 
@@ -389,7 +392,11 @@ export class Services {
         // obj_screening.screening = rs_screening;
         let anc: any = {};
 
+<<<<<<< HEAD
         // for (let item of rs) {
+=======
+        for (let item of rs[0]) {
+>>>>>>> 461ab76276c53b284dce45c2f38f27c0d3ea139e
 
         //   let objService: any = {};
         //   let objActivities: any = {};
@@ -451,6 +458,7 @@ export class Services {
               hcode: hcode,
               hname: hname,
               hn: hn,
+              cid: cid,
               uid: uid,
               requestId: requestId,
               profile: objProfile,
