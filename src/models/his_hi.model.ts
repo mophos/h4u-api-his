@@ -204,4 +204,44 @@ export class HisHiModel {
             .where('vn', vn);
     }
 
+    getEpiAll(db: Knex, hn: any) {
+        let sql = `select 
+        o.vstdttm as date_serve,
+        o.drxtime as time_serve,
+        cv.NEW as vaccine_code, 
+        h.namehpt as vaccine_name
+        from 
+        hi.epi e 
+        inner join 
+        hi.ovst o on e.vn = o.vn 
+        inner join 
+        hi.cvt_vacc cv on e.vac = cv.OLD  
+        left join 
+        hi.hpt as h on e.vac=h.codehpt
+        where 
+        o.hn=?
+        
+        UNION
+
+        select 
+        o.vstdttm as date_serve,
+        o.drxtime as time_serve,
+        vc.stdcode as vacine_code, 
+        vc.\`name\` as vacine_name
+        from 
+        hi.ovst o 
+        inner join 
+        hi.prsc pc on o.vn = pc.vn  
+        inner join 
+        hi.prscdt pd on pc.prscno = pd.prscno  
+        inner join 
+        hi.meditem m on pd.meditem = m.meditem 
+        inner join 
+        hi.vaccine vc on vc.meditem = m.meditem  
+        where 
+        o.hn=?
+        `;
+        return db.raw(sql, [hn, hn]);
+    }
+
 }

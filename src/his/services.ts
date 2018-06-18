@@ -308,7 +308,7 @@ export class Services {
             appointment: appointment,
             refer: rs_refer,
           }
-          
+
           activities.push(objActivities);
 
           const obj = {
@@ -392,64 +392,60 @@ export class Services {
         // obj_screening.screening = rs_screening;
         let anc: any = {};
 
-<<<<<<< HEAD
-        // for (let item of rs) {
-=======
         for (let item of rs[0]) {
->>>>>>> 461ab76276c53b284dce45c2f38f27c0d3ea139e
 
-        //   let objService: any = {};
-        //   let objActivities: any = {};
-        //   let objPp: any = {};
-        //   objService.date_serve = moment(item.date).format("YYYY-MM-DD");
-        //   // console.log(item.time.toString().length);
+          let objService: any = {};
+          let objActivities: any = {};
+          let objPp: any = {};
+          objService.date_serve = moment(item.date).format("YYYY-MM-DD");
+          // console.log(item.time.toString().length);
 
-        //   let time: string;
-        //   if (item.time.toString().length === 3) {
-        //     time = '0' + item.time;
+          let time: string;
+          if (item.time.toString().length === 3) {
+            time = '0' + item.time;
 
-        //   } else {
-        //     time = item.time.toString();
-        //   }
+          } else {
+            time = item.time.toString();
+          }
 
-        //   objService.time_serve = moment(time, "HH:mm:ss").format("HH:mm:ss");// moment(item.time).locale('th').format('HH:mm');
+          objService.time_serve = moment(time, "HH:mm:ss").format("HH:mm:ss");// moment(item.time).locale('th').format('HH:mm');
 
-        //   objService.clinic = item.department;
-        //   objService.seq = item.seq;
-        //   // screening
-        //   let screening: any = await hisHiModel.getScreening(db, item.seq);
-        //   objService.screening = screening[0];
+          objService.clinic = item.department;
+          objService.seq = item.seq;
+          // screening
+          let screening: any = await hisHiModel.getScreening(db, item.seq);
+          objService.screening = screening[0];
 
-        //   // activities
-        //   objActivities.pe = await hisHiModel.getPe(db, item.seq);
-        //   objActivities.diagnosis = await hisHiModel.getDiagnosis(db, item.seq);
-        //   let drugs: any[] = await hisHiModel.getDrugs(db, item.seq);
-        //   objActivities.drugs = drugs[0];
-        //   let refer: any = await hisHiModel.getRefer(db, item.seq);
-        //   objActivities.refer = refer[0];
-        //   //objActivities.refer = await activitiesModell.getRefer(db, item.seq);
+          // activities
+          objActivities.pe = await hisHiModel.getPe(db, item.seq);
+          objActivities.diagnosis = await hisHiModel.getDiagnosis(db, item.seq);
+          let drugs: any[] = await hisHiModel.getDrugs(db, item.seq);
+          objActivities.drugs = drugs[0];
+          let refer: any = await hisHiModel.getRefer(db, item.seq);
+          objActivities.refer = refer[0];
+          //objActivities.refer = await activitiesModell.getRefer(db, item.seq);
 
-        //   let appointment: any[] = await hisHiModel.getAppointment(db, item.seq);
-        //   objActivities.appointment = appointment[0];
-        //   let lab: any[] = await hisHiModel.getLabs(db, item.seq);
-        //   objActivities.lab = lab[0];
+          let appointment: any[] = await hisHiModel.getAppointment(db, item.seq);
+          objActivities.appointment = appointment[0];
+          let lab: any[] = await hisHiModel.getLabs(db, item.seq);
+          objActivities.lab = lab[0];
 
-        //   // pp
-        //   anc = await hisHiModel.getAnc(db, item.seq);
-        //   objPp.anc = anc[0][0];
+          // pp
+          anc = await hisHiModel.getAnc(db, item.seq);
+          objPp.anc = anc[0][0];
 
-        //   let vaccine: any[] = await hisHiModel.getVaccine(db, item.seq);
-        //   objPp.vaccine = vaccine[0];
+          let vaccine: any[] = await hisHiModel.getVaccine(db, item.seq);
+          objPp.vaccine = vaccine[0];
 
-        //   pp.push(objPp); // add objPp to pp
-        //   objActivities.pp = pp[0] // add pp to objActivities
+          pp.push(objPp); // add objPp to pp
+          objActivities.pp = pp[0] // add pp to objActivities
 
-        //   activities.push(objActivities);
-        //   objService.activities = activities;
+          activities.push(objActivities);
+          objService.activities = activities;
 
-        //   services.push(objService);
+          services.push(objService);
 
-        // }
+        }
 
         if (rs_name.length) {
           return ({
