@@ -19,7 +19,7 @@ export class HisJhcisModel {
 
   getProfile(db: Knex, hn: any) {
     return db('person as p')
-      .select('p.idcard as cid','p.pid AS hn', 't.titlename AS title_name', 'p.fname AS first_name', 'p.lname AS last_name', 'p.idcard as cid')
+      .select('p.idcard as cid', 'p.pid AS hn', 't.titlename AS title_name', 'p.fname AS first_name', 'p.lname AS last_name', 'p.idcard as cid')
       .innerJoin('ctitle as t', 't.titlecode', 'p.prename')
       .where('p.pid', hn);
   }
@@ -122,11 +122,18 @@ export class HisJhcisModel {
   }
 
 
-  getVaccine(db: Knex, visitno) {
+  getVaccineService(db: Knex, visitno) {
     return db('visitepi as v')
       .select('v.vaccinecode as vaccine_code', 'd.drugname as vaccine_name')
       .leftJoin('cdrug as d', 'v.vaccinecode', 'd.drugcode')
       .where('visitno', visitno)
+  }
+
+  getVaccine(db: Knex, hn) {
+    return db('visitepi as v')
+      .select('v.vaccinecode as vaccine_code', 'd.drugname as vaccine_name','v.dateepi as date_serve')
+      .leftJoin('cdrug as d', 'v.vaccinecode', 'd.drugcode')
+      .where('v.pid', hn)
   }
 
 

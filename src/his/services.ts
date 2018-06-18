@@ -8,8 +8,8 @@ const hisHiModel = new HisHiModel();
 const hisJhosModel = new HisJhosModel();
 import * as moment from 'moment';
 
-export class His {
-  async his_jhcis(db, hn, dateServe, registerId, requestId) {
+export class Services {
+  async his_jhcis(db, hn, dateServe, uid, requestId) {
     let data = {};
     let profile: any = {};
     if (hn) {
@@ -122,7 +122,7 @@ export class His {
             lab.push(obj);
           }
 
-          const rs_vacc = await hisJhcisModel.getVaccine(db, v.visitno);
+          const rs_vacc = await hisJhcisModel.getVaccineService(db, v.visitno);
           for (const rv of rs_vacc) {
             const obj = {
               "vaccine_code": rv.vaccine_code,
@@ -171,19 +171,10 @@ export class His {
           hname: rs_hosp[0].hname,
           hn: hn,
           cid: rs_name[0].cid,
-          register_id: registerId,
+          uid: uid,
           request_id: requestId,
           profile: profile,
           services: services
-          // rs_disease:rs_disease
-
-          // hcode: hcode,
-          // hname: hname,
-          // hn: hn,
-          // registerId: registerId,
-          // requestId: requestId,
-          // profile: objProfile,
-          // services: services
         }
 
         return ({ ok: true, rows: data });
@@ -191,15 +182,15 @@ export class His {
 
       } catch (error) {
         console.log(error);
-
+        return ({ ok: false, error: error });
       }
     }
   }
 
-  async his_jhos(db, hn, dateServe, registerId, requestId) {
+  async his_jhos(db, hn, dateServe, uid, requestId) {
   }
 
-  async his_hosxp(db, hn, dateServe, registerId, requestId) {
+  async his_hosxp(db, hn, dateServe, uid, requestId) {
     if (hn) {
       try {
         let rs_name: any = await hisHosxpv3Model.getPtDetail(db, hn);
@@ -302,7 +293,7 @@ export class His {
               hcode: hcode,
               hname: hname,
               hn: hn,
-              registerId: registerId,
+              uid: uid,
               requestId: requestId,
               profile: objProfile,
               services: services
@@ -320,7 +311,7 @@ export class His {
     }
   }
 
-  async his_hi(db, hn, dateServe, registerId, requestId) {
+  async his_hi(db, hn, dateServe, uid, requestId) {
     if (hn) {
       try {
         let rs_name: any = await hisHiModel.getPtDetail(db, hn);
@@ -423,7 +414,7 @@ export class His {
               hcode: hcode,
               hname: hname,
               hn: hn,
-              registerId: registerId,
+              uid: uid,
               requestId: requestId,
               profile: objProfile,
               services: services
