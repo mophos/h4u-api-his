@@ -41,10 +41,19 @@ export class HisHiModel {
 
 
     getSeq(db: Knex, date_serve: any, hn: any) {
-        return db('ovst as o')
-            .select('o.vn as seq', 'o.vstdttm as date', 'o.nrxtime as time', 'c.namecln as department')
-            .innerJoin('cln as c', 'c.cln', 'o.cln')
-            .whereRaw(`DATE(o.vstdttm) = ${date_serve} and o.hn = ${hn}`);
+
+        let sql = `
+        select o.vn as seq, o.vstdttm as date, o.nrxtime as time, c.namecln as department
+        FROM ovst as o 
+        Inner Join cln as c ON c.cln = o.cln 
+        WHERE DATE(o.vstdttm) = ? and o.hn =?
+        `;
+        return db.raw(sql, [date_serve, hn]);
+
+        // return db('ovst as o')
+        //     .select('o.vn as seq', 'o.vstdttm as date', 'o.nrxtime as time', 'c.namecln as department')
+        //     .innerJoin('cln as c', 'c.cln', 'o.cln')
+        // .whereRaw(`DATE(o.vstdttm) = ${date_serve} and o.hn = ${hn}`);
     }
 
     getDate(db: Knex, vn: any) {
