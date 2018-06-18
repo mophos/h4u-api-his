@@ -1,10 +1,34 @@
 import Knex = require('knex');
+import * as moment from 'moment';
 const dbName = process.env.HIS_DB_NAME;
+
 export class HisHosxpv3Model {
+  getTableName(knex: Knex) {
+    return knex
+      .select('TABLE_NAME')
+      .from('information_schema.tables')
+      .where('TABLE_SCHEMA', '=', dbName);
+  }
 
   getHospital(db: Knex) {
     return db('opdconfig as o')
       .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
+  }
+
+  getServices(db: Knex, hn, dateServe) {
+    return db('ovst as v')
+      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serve, k.department as clinic,
+          v.vn as seq, v.vn`))
+      .innerJoin('kskdepartment as k', 'k.depcode','v.main_dep')
+      .where('v.hn', hn)
+      .where('v.vstdate', dateServe)
+  }
+
+  getSeq(db: Knex, dateServe: any, hn: any) {
+    return db('ovst as o')
+    .select('o.vn as seq','o.vn as visitno','o.vstdate as date','o.vsttime as time','k.department')
+    .leftOuterJoin('kskdepartment as k','k.depcode','o.main_dep')
+    .whereRaw(`DATE(o.vstdate) = ${dateServe} and o.hn = ${hn}`);
   }
 
   getPtDetail(db: Knex, hn: any) {
@@ -38,12 +62,6 @@ export class HisHosxpv3Model {
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
       .where('pa.hn', hn);
   }
-  getSeq(db: Knex, date_serve: any, hn: any) {
-    return db('ovst as o')
-    .select('o.vn as seq','o.vstdate as date','o.vsttime as time','k.department')
-    .leftOuterJoin('kskdepartment as k','k.depcode','o.main_dep')
-    .whereRaw(`DATE(o.vstdate) = ${date_serve} and o.hn = ${hn}`);
-  }
 
   getDate(db: Knex, vn: any) {
     return db('ovst as o')
@@ -70,100 +88,79 @@ export class HisHosxpv3Model {
       .where('vn', vn);
   }
   getPe(db: Knex, vn: any) {
-    return db('opdscreen as s')
-      .select('s.pe as PE')
-      .where('vn', vn);
+    return db('opdscreen as v')
+      .select('v.pe as pe')
+      .where('v.vn', vn);
   }
 
   getDiagnosis(db: Knex, vn: any) {
     return db('ovstdiag as o')
-      .select('o.icd10 as ICD10_code', 'i.name as ICD10_desc', 'o.diagtype as diage_type')
+      .select('o.icd10 as icd10_code', 'i.name as icd10_desc', 'o.diagtype as diage_type')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
       .where('vn', vn);
   }
 
   getRefer(db: Knex, vn: any) {
-    let sql = `SELECT r.refer_hospcode, c.name as refer_cause
-    FROM referout r 
-    LEFT OUTER JOIN refer_cause c on c.id = r.refer_cause
-    WHERE r.vn = ? `;
-    return db.raw(sql, [vn]);
-    // return db('referout as r')
-    //     .select('o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
-    //     .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
-    //     .leftJoin('rfrcs as f', 'f.rfrcs', '=', 'o.rfrcs')
-    //     .where('vn', vn);
+    return db('referout as r')
+      .select('r.refer_hospcode', 'c.name as refer_cause')
+      .innerJoin('refer_cause as c', 'c.id', 'r.refer_cause')
+      .where('r.vn', vn);
   }
 
-
-  getDrugs(db: Knex, vn: any) {
-    // let sql = `
-    // select pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
-    // FROM prsc as p 
-    // Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
-    // Left Join medusage as m ON m.dosecode = pd.medusage
-    // Left Join meditem as med ON med.meditem = pd.meditem
-    // WHERE p.vn = ?
-    // `;
-    let sql = `select s.name as drug_name,o.qty,s.units ,u.name1 as usage_line1,u.name2 as usage_line2,u.name3 as usage_line3  
-    from opitemrece o  
-    left outer join s_drugitems s on s.icode=o.icode  
-    left outer join drugusage u on u.drugusage=o.drugusage  
-    where o.drugusage <> '' and o.vn=?
-    `;
-    return db.raw(sql, [vn]);
+  getDrugs(db: Knex, vn:any) {
+    return db('opitemrece as o')
+      .select('o.vn', 'o.icode as drugcode', 's.name as drug_name', 'o.qty', 's.units as unit',
+        'u.name1 as usage_line1', 'u.name2 as usage_line2', 'u.name3 as usage_line3')
+      .innerJoin('s_drugitems as s', 's.icode', 'o.icode')
+      .innerJoin('drugusage as u', 'u.drugusage', 'o.drugusage')
+      .where('o.vn', vn)
   }
 
-  getLabs(db: Knex, vn: any) {
-    let sql = `select l.lab_items_name_ref as lab_name,l.lab_order_result as lab_result,
-    l.lab_items_normal_value_ref as standard_result
-    from lab_order l  
-    LEFT OUTER JOIN lab_head h on h.lab_order_number = l.lab_order_number
-    where h.vn = ? `;
-    return db.raw(sql, [vn]);
+  getLabs(db: Knex, vn:any) {
+    return db('lab_order as l')
+      .select(db.raw(`l.lab_items_name_ref AS lab_name,
+    l.lab_order_result as lab_result,
+    l.lab_items_normal_value_ref as standard_result`))
+      .innerJoin('lab_head as h', 'h.lab_order_number', 'l.lab_order_number')
+      .where('h.vn', vn)
   }
 
-  getAnc(db: Knex, vn: any) {
-    let sql = `SELECT a.preg_no as ga, a.current_preg_age as anc_no, s.service_result as result
-from person_anc a  
-left outer join person p on p.person_id = a.person_id
-LEFT OUTER JOIN patient e on e.cid=p.cid
-LEFT OUTER JOIN ovst o on o.hn = e.hn
-left outer join person_anc_service s on s.person_anc_id=a.person_anc_id
-where (a.discharge <> 'Y' or a.discharge IS NULL) 
-and o.vn = ? `;
-    return db.raw(sql, [vn]);
+  getAnc(db: Knex, vn: any, hn) {
+    return db('person_anc as a')
+      .select('a.preg_no as ga', 'a.current_preg_age as anc_no', 's.service_result as result')
+      .innerJoin('person as p', 'p.person_id', 'a.person_id')
+      .innerJoin('patient as e', 'e.cid', 'p.cid')
+      .innerJoin('ovst as v', 'v.hn', 'e.hn')
+      .innerJoin('person_anc_service as s', 's.person_anc_id', 'a.person_anc_id')
+      .whereRaw('a.discharge <> "Y" or a.discharge IS NULL')
+      .where('v.vn', vn)
+      .where('e.hn', hn)
   }
 
   getVaccine(db: Knex, vn: any) {
-    let sql = `SELECT v.vaccine_code, v.vaccine_name
+    let sql = `o.vstdate as date_serve,SELECT v.vaccine_code, v.vaccine_name
     FROM person_vaccine_list l 
     LEFT OUTER JOIN person p on p.person_id=l.person_id
     LEFT OUTER JOIN patient e on e.cid=p.cid
     LEFT OUTER JOIN ovst o on o.hn = e.hn
     LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
-    where o.vn = ?
+    where o.hn = ?
     UNION
-    SELECT v.vaccine_code, v.vaccine_name
+    SELECT o.vstdate as date_serve,v.vaccine_code, v.vaccine_name
     FROM ovst_vaccine l 
     LEFT OUTER JOIN ovst o on o.vn=l.vn
     LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
-    where o.vn = ? `;
+    where o.hn = ? `;
     return db.raw(sql, [vn, vn]);
   }
 
 
   getAppointment(db: Knex, vn: any) {
-    // return db('oapp as o')
-    //     .select('o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
-    //     .where('vn', vn);
-
-    let sql = `select o.nextdate as date,o.nexttime as time,c.name as department,o.app_cause as detail
-    from oapp o  
-    left outer join ovst v on o.vn=v.vn  and o.hn = v.hn  
-    left outer join clinic c on o.clinic=c.clinic  
-    where o.vn = ? `;
-    return db.raw(sql, [vn]);
+    return db('oapp as o')
+      .select('o.nextdate as date', 'o.nexttime as time', 'c.name as department', 'o.app_cause as detail')
+      .innerJoin('ovst as v', 'v.vn', 'o.vn')
+      .innerJoin('clinic as c', 'c.clinic', 'o.clinic')
+      .where('o.vn', vn);
   }
 
 }
