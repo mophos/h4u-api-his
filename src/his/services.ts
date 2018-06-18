@@ -392,11 +392,7 @@ export class Services {
         // obj_screening.screening = rs_screening;
         let anc: any = {};
 
-<<<<<<< HEAD
-        // for (let item of rs) {
-=======
         for (let item of rs[0]) {
->>>>>>> 461ab76276c53b284dce45c2f38f27c0d3ea139e
 
         //   let objService: any = {};
         //   let objActivities: any = {};
