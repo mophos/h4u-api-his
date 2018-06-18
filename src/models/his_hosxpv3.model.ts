@@ -138,19 +138,19 @@ export class HisHosxpv3Model {
   }
 
   getVaccine(db: Knex, vn: any) {
-    let sql = `SELECT v.vaccine_code, v.vaccine_name
+    let sql = `o.vstdate as date_serve,SELECT v.vaccine_code, v.vaccine_name
     FROM person_vaccine_list l 
     LEFT OUTER JOIN person p on p.person_id=l.person_id
     LEFT OUTER JOIN patient e on e.cid=p.cid
     LEFT OUTER JOIN ovst o on o.hn = e.hn
     LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
-    where o.vn = ?
+    where o.hn = ?
     UNION
-    SELECT v.vaccine_code, v.vaccine_name
+    SELECT o.vstdate as date_serve,v.vaccine_code, v.vaccine_name
     FROM ovst_vaccine l 
     LEFT OUTER JOIN ovst o on o.vn=l.vn
     LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
-    where o.vn = ? `;
+    where o.hn = ? `;
     return db.raw(sql, [vn, vn]);
   }
 
