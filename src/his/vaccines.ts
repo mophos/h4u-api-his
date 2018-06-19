@@ -80,7 +80,7 @@ export class Vaccines {
     }
 
     // const vaccines = vaccine;
-    console.log(vaccines);
+    // console.log(vaccines);
 
     const data = {
       "request_id": requestId,
