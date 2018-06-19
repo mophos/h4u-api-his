@@ -9,6 +9,7 @@ export class HisHiModel {
             .select('s.hcode as hcode', 'h.namehosp as hname')
             .leftJoin('hospcode as h', 'h.off_id', '=', 's.hcode')
     }
+
     getPtDetail(db: Knex, hn: any) {
         return db('pt')
             .select('pop_id as cid', 'pname as title_name', 'fname as first_name', 'lname as last_name')
@@ -26,6 +27,7 @@ export class HisHiModel {
             .select('bloodgrp as blood_group')
             .where('hn', hn);
     }
+
     getSex(db: Knex, hn: any) {
         return db('pt')
             .select('male')
@@ -39,7 +41,6 @@ export class HisHiModel {
             .where('c.pid', hn);
     }
 
-
     getSeq(db: Knex, date_serve: any, hn: any) {
 
         let sql = `
@@ -49,11 +50,6 @@ export class HisHiModel {
         WHERE DATE(o.vstdttm) = ? and o.hn =?
         `;
         return db.raw(sql, [date_serve, hn]);
-
-        // return db('ovst as o')
-        //     .select('o.vn as seq', 'o.vstdttm as date', 'o.nrxtime as time', 'c.namecln as department')
-        //     .innerJoin('cln as c', 'c.cln', 'o.cln')
-        // .whereRaw(`DATE(o.vstdttm) = ${date_serve} and o.hn = ${hn}`);
     }
 
     getDate(db: Knex, vn: any) {

@@ -38,20 +38,17 @@ export class Vaccines {
   async his_jhos(db, hn, hcode) {
   }
 
-  async his_hosxp(db, hn, requestId) {
-    const rs: any = await hisHosxpv3Model.getVaccine(db, hn);
-    console.log('HOSxP - rs: ', rs);
-    
+  async his_hosxpv3(db, hn, requestId) {
+    const rs: any = await hisHosxpv3Model.getEpi(db, hn);
     const vaccines = [];
     rs.forEach(v => {
-      const obj: any = {
+      const objEpi: any = {
         "date_serve": moment(v.date_serve).format('YYYY-MM-DD'),
-        "time_serve": null,
+        "time_serve": v.time_serve,
         "vaccine_code": v.vaccine_code,
         "vaccine_name": v.vaccine_name
-
       }
-      vaccines.push(obj);
+      vaccines.push(objEpi);
     });
     const data = {
       "request_id": requestId,
@@ -83,7 +80,7 @@ export class Vaccines {
     }
 
     // const vaccines = vaccine;
-    console.log(vaccines);
+    // console.log(vaccines);
 
     const data = {
       "request_id": requestId,
