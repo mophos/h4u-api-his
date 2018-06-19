@@ -213,6 +213,7 @@ export class Services {
         obj_name.last_name = rs_name[0].last_name;
         let hcode = rs_hosp[0].hcode;
         let hname = rs_hosp[0].hname;
+        let cid = rs_name[0].cid;
 
         obj_allergy.allergy = rs_allergy;
         obj_disease.disease = rs_disease;
@@ -331,6 +332,7 @@ export class Services {
               hname: hname,
               hn: hn,
               uid: uid,
+              cid: cid,
               requestId: requestId,
               profile: objProfile,
               services: services
