@@ -41,7 +41,7 @@ export class Vaccines {
   async his_hosxp(db, hn, requestId) {
     const rs: any = await hisHosxpv3Model.getVaccine(db, hn);
     console.log('HOSxP - rs: ', rs);
-    
+
     const vaccines = [];
     rs.forEach(v => {
       const obj: any = {
@@ -83,7 +83,7 @@ export class Vaccines {
     }
 
     // const vaccines = vaccine;
-    console.log(vaccines);
+    // console.log(vaccines);
 
     const data = {
       "request_id": requestId,
