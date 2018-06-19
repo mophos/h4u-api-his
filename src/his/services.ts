@@ -26,8 +26,8 @@ export class Services {
 
         for (const v of rs_disease) {
           let obj = {
-            ICD10_code: v.ICD10_code,
-            ICD10_desc: v.ICD10_desc
+            icd10_code: v.icd10_code,
+            icd10_desc: v.icd10_desc
           }
           disease.push(obj);
         }
@@ -53,7 +53,7 @@ export class Services {
         console.log(rs_services);
 
         for (const v of rs_services) {
-          const activities = [];
+          let activities = {};
           const pe = [{ pe: v.pe }]
           const diagnosis = [];
           const drugs = [];
@@ -137,7 +137,7 @@ export class Services {
             vaccine: vaccine
           }
 
-          const objActivities = {
+          activities = {
             pe: pe,
             diagnosis: diagnosis,
             drugs: drugs,
@@ -146,7 +146,7 @@ export class Services {
             lab: lab,
             pp: pp
           }
-          activities.push(objActivities);
+          // activities.push(objActivities);
 
 
           const obj = {
@@ -223,21 +223,21 @@ export class Services {
         objProfile.disease = rs_disease;
 
         let services: any = [];
-        let activities: any = [];
+        let activities: any = {};
         let pp: any = [];
         let anc: any = {};
 
         for (const v of rs_services) {
-          const activities = [];
+          // const activities = {};
           const pe = [];
           const diagnosis = [];
           const drugs = [];
           const lab = [];
           const anc = [];
           const vaccine = [];
-          const appointment = [];
-          const refer = {};
-          const screening = {};
+          let appointment: any = {};
+          let refer: any = {};
+          let screening = {};
           console.log('vn : ', v.vn);
 
           // screening
@@ -277,18 +277,21 @@ export class Services {
 
           const rs_app = await hisHosxpv3Model.getAppointment(db, v.vn);
           //console.log('AppointMent : ', rs_app)
-          let objAppointment = {}
+          // let objAppointment = {}
           if (rs_app.length) {
-            objAppointment = {
+            appointment = {
               "date": rs_app[0].date,
               "time": rs_app[0].time,
               "department": rs_app[0].department,
               "detail": rs_app[0].detail
             }
-            appointment.push(objAppointment);
           }
 
           const rs_refer = await hisHosxpv3Model.getRefer(db, v.vn);
+          refer.hcode_to = rs_refer[0].hcode_to;
+          refer.reason = rs_refer[0].reason
+
+
           const rs_pe = await hisHosxpv3Model.getPe(db, v.vn);
           // const rs_anc = await hisHosxpv3Model.getAnc(db, v.vn, hn);
           // const rs_vaccine = await hisHosxpv3Model.getVaccine(db, v.vn);
@@ -300,24 +303,24 @@ export class Services {
             vaccine: vaccine
           }
 
-          const objActivities = {
+          activities = {
             pe: rs_pe,
             diagnosis: diagnosis,
             drugs: drugs,
             lab: lab,
             pp: pp,
             appointment: appointment,
-            refer: rs_refer,
+            refer: refer,
           }
 
-          activities.push(objActivities);
+          // activities.push(objActivities);
 
           const obj = {
             date_serve: v.date_serve,
             time_serve: v.time_serve,
             clinic: rs_hosp[0].hname,
             seq: v.seq,
-            screening: rs_screening,
+            screening: rs_screening[0],
             activities: activities
           }
           services.push(obj);
@@ -389,7 +392,7 @@ export class Services {
         // let screening: any = {};
 
         let services: any = [];
-        let activities: any = [];
+        let activities: any = {};
         let pp: any = [];
         // obj_screening.screening = rs_screening;
         let anc: any = {};
@@ -397,7 +400,7 @@ export class Services {
         for (let item of rs[0]) {
 
           let objService: any = {};
-          let objActivities: any = {};
+          // let objActivities: any = {};
           let objPp: any = {};
           objService.date_serve = moment(item.date).format("YYYY-MM-DD");
           // console.log(item.time.toString().length);
@@ -419,18 +422,18 @@ export class Services {
           objService.screening = screening[0];
 
           // activities
-          objActivities.pe = await hisHiModel.getPe(db, item.seq);
-          objActivities.diagnosis = await hisHiModel.getDiagnosis(db, item.seq);
+          activities.pe = await hisHiModel.getPe(db, item.seq);
+          activities.diagnosis = await hisHiModel.getDiagnosis(db, item.seq);
           let drugs: any[] = await hisHiModel.getDrugs(db, item.seq);
-          objActivities.drugs = drugs[0];
+          activities.drugs = drugs[0];
           let refer: any = await hisHiModel.getRefer(db, item.seq);
-          objActivities.refer = refer[0];
-          //objActivities.refer = await activitiesModell.getRefer(db, item.seq);
+          activities.refer = refer[0];
+          //activities.refer = await activitiesModell.getRefer(db, item.seq);
 
           let appointment: any[] = await hisHiModel.getAppointment(db, item.seq);
-          objActivities.appointment = appointment[0];
+          activities.appointment = appointment[0];
           let lab: any[] = await hisHiModel.getLabs(db, item.seq);
-          objActivities.lab = lab[0];
+          activities.lab = lab[0];
 
           // pp
           anc = await hisHiModel.getAnc(db, item.seq);
@@ -440,9 +443,8 @@ export class Services {
           objPp.vaccine = vaccine[0];
 
           pp.push(objPp); // add objPp to pp
-          objActivities.pp = pp[0] // add pp to objActivities
+          activities.pp = pp[0] // add pp to objActivities
 
-          activities.push(objActivities);
           objService.activities = activities;
 
           services.push(objService);

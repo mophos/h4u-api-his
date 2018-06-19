@@ -36,7 +36,7 @@ export class HisHiModel {
 
     getDisease(db: Knex, hn: any) {
         return db('chronic as c')
-            .select('c.chronic as ICD10_code', 'i.name_t as ICD10_desc')
+            .select('c.chronic as icd10_code', 'i.name_t as icd10_desc')
             .innerJoin('icd101 as i', 'i.icd10', '=', 'c.chronic')
             .where('c.pid', hn);
     }
@@ -73,7 +73,7 @@ export class HisHiModel {
 
     getScreening(db: Knex, vn: any) {
         return db('ovst as o')
-            .select('o.bw as weigth', 'o.bw as height', 'o.dbp as dbp', 'o.sbp as sbp', 'o.bmi as bmi')
+            .select('o.bw as weight', 'o.bw as height', 'o.dbp as dbp', 'o.sbp as sbp', 'o.bmi as bmi')
             .where('vn', vn);
     }
 
@@ -85,7 +85,7 @@ export class HisHiModel {
 
     getDiagnosis(db: Knex, vn: any) {
         return db('ovstdx as o')
-            .select('o.icd10 as ICD10_code', 'o.icd10name as ICD10_desc', 'o.cnt as diage_type')
+            .select('o.icd10 aicd', 'o.icd10name as icd10_desc', 'o.cnt as diage_type')
             .where('vn', vn);
     }
 

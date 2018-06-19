@@ -34,7 +34,7 @@ export class HisJhosModel {
 
   getDisease(db: Knex, hn: any) {
     return db('person_chronic as pc')
-      .select('pc.icd10 as ICD10_code', 'i.name as ICD10_desc')
+      .select('pc.icd10 as icd10_code', 'i.name as icd10_desc')
       .leftOuterJoin('patient as pa', 'pa.hn', '=', 'pc.hn')
       .leftOuterJoin('person as pe', 'pe.cid', '=', 'pa.cid')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
@@ -70,7 +70,7 @@ export class HisJhosModel {
 
   getScreening(db: Knex, vn: any) {
     return db('opdscreen as o')
-      .select('o.bw as weigth', 'o.height', 'o.bpd as dbp', 'o.bps as sbp', 'o.bmi')
+      .select('o.bw as weight', 'o.height', 'o.bpd as dbp', 'o.bps as sbp', 'o.bmi')
       .where('vn', vn);
   }
   getPe(db: Knex, vn: any) {
@@ -81,7 +81,7 @@ export class HisJhosModel {
 
   getDiagnosis(db: Knex, vn: any) {
     return db('ovstdiag as o')
-      .select('o.icd10 as ICD10_code', 'i.name as ICD10_desc', 'o.diagtype as diage_type')
+      .select('o.icd10 as icd10_code', 'i.name as icd10_desc', 'o.diagtype as diage_type')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
       .where('vn', vn);
   }

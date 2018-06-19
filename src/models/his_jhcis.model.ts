@@ -50,7 +50,7 @@ export class HisJhcisModel {
 
   getDisease(db: Knex, hn: any) {
     return db('personchronic as pc')
-      .select('pc.chroniccode as ICD10_code', 'cd.diseasenamethai as ICD10_desc')
+      .select('pc.chroniccode as icd10_code', 'cd.diseasenamethai as icd10_desc')
       .innerJoin('cdisease as cd', 'pc.chroniccode', 'cd.diseasecode')
       .where('pc.pid', hn);
   }
@@ -167,7 +167,7 @@ export class HisJhcisModel {
   getScreening(db: Knex, vn: any) {
     // xxx
     return db('opdscreen as o')
-      .select('o.bw as weigth', 'o.height', 'o.bpd as dbp', 'o.bps as sbp', 'o.bmi')
+      .select('o.bw as weight', 'o.height', 'o.bpd as dbp', 'o.bps as sbp', 'o.bmi')
       .where('vn', vn);
   }
   getPe(db: Knex, vn: any) {
@@ -178,7 +178,7 @@ export class HisJhcisModel {
 
   getDiagnosis(db: Knex, seq: any) {
     return db('visitdiag as vd')
-      .select('vd.diagcode as ICD10_code', 'cd.diseasenamethai as ICD10_desc', 'vd.dxtype as diage_type')
+      .select('vd.diagcode as icd10_code', 'cd.diseasenamethai as icd10_desc', 'vd.dxtype as diage_type')
       .innerJoin('cdisease as cd', 'vd.diagcode', 'cd.diseasecode')
       .where('vd.visitno', seq);
   }
