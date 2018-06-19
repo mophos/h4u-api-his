@@ -19,16 +19,16 @@ export class HisHosxpv3Model {
     return db('ovst as v')
       .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serve, k.department as clinic,
           v.vn as seq, v.vn`))
-      .innerJoin('kskdepartment as k', 'k.depcode','v.main_dep')
+      .innerJoin('kskdepartment as k', 'k.depcode', 'v.main_dep')
       .where('v.hn', hn)
       .where('v.vstdate', dateServe)
   }
 
   getSeq(db: Knex, dateServe: any, hn: any) {
     return db('ovst as o')
-    .select('o.vn as seq','o.vn as visitno','o.vstdate as date','o.vsttime as time','k.department')
-    .leftOuterJoin('kskdepartment as k','k.depcode','o.main_dep')
-    .whereRaw(`DATE(o.vstdate) = ${dateServe} and o.hn = ${hn}`);
+      .select('o.vn as seq', 'o.vn as visitno', 'o.vstdate as date', 'o.vsttime as time', 'k.department')
+      .leftOuterJoin('kskdepartment as k', 'k.depcode', 'o.main_dep')
+      .whereRaw(`DATE(o.vstdate) = ${dateServe} and o.hn = ${hn}`);
   }
 
   getPtDetail(db: Knex, hn: any) {
@@ -107,7 +107,7 @@ export class HisHosxpv3Model {
       .where('r.vn', vn);
   }
 
-  getDrugs(db: Knex, vn:any) {
+  getDrugs(db: Knex, vn: any) {
     return db('opitemrece as o')
       .select('o.vn', 'o.icode as drugcode', 's.name as drug_name', 'o.qty', 's.units as unit',
         'u.name1 as usage_line1', 'u.name2 as usage_line2', 'u.name3 as usage_line3')
@@ -116,7 +116,7 @@ export class HisHosxpv3Model {
       .where('o.vn', vn)
   }
 
-  getLabs(db: Knex, vn:any) {
+  getLabs(db: Knex, vn: any) {
     return db('lab_order as l')
       .select(db.raw(`l.lab_items_name_ref AS lab_name,
     l.lab_order_result as lab_result,
@@ -138,21 +138,39 @@ export class HisHosxpv3Model {
   }
 
   getVaccine(db: Knex, vn: any) {
-    let sql = `o.vstdate as date_serve,SELECT v.vaccine_code, v.vaccine_name
-    FROM person_vaccine_list l 
-    LEFT OUTER JOIN person p on p.person_id=l.person_id
-    LEFT OUTER JOIN patient e on e.cid=p.cid
-    LEFT OUTER JOIN ovst o on o.hn = e.hn
-    LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
-    where o.hn = ?
-    UNION
-    SELECT o.vstdate as date_serve,v.vaccine_code, v.vaccine_name
-    FROM ovst_vaccine l 
-    LEFT OUTER JOIN ovst o on o.vn=l.vn
-    LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
-    where o.hn = ? `;
-    return db.raw(sql, [vn, vn]);
+    return db('person_vaccine_list as l')
+    .select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+    .innerJoin('person as p', 'p.person_id', 'l.person_id')
+    .innerJoin('patient as e', 'e.cid', 'p.cid')
+    .innerJoin('ovst as o', 'o.hn', 'e.hn')
+    .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
+    .where('o.vn', vn)
+    .union(function () {
+      this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+        .innerJoin('ovst as o', 'o.vn', 'l.vn')
+        .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
+        .from('ovst_vaccine as l')
+        .where('o.vn', vn);
+    })
   }
+
+  getEpi(db: Knex, hn: any) {
+    return db('person_vaccine_list as l')
+      .select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+      .innerJoin('person as p', 'p.person_id', 'l.person_id')
+      .innerJoin('patient as e', 'e.cid', 'p.cid')
+      .innerJoin('ovst as o', 'o.hn', 'e.hn')
+      .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
+      .where('o.hn', hn)
+      .union(function () {
+        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+          .innerJoin('ovst as o', 'o.vn', 'l.vn')
+          .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
+          .from('ovst_vaccine as l')
+          .where('o.hn', hn);
+      })
+  }
+
 
 
   getAppointment(db: Knex, vn: any) {

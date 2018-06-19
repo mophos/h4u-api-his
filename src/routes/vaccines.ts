@@ -17,7 +17,7 @@ router.get('/view/:hn/:requestId', async (req: Request, res: Response) => {
     if (provider == 'jhcis') {
         rs = await vaccines.his_jhcis(db, hn, requestId);
     } else if (provider == 'hosxpv3') {
-        rs = await vaccines.his_hosxp(db, hn, requestId);
+        rs = await vaccines.his_hosxpv3(db, hn, requestId);
     } else if (provider == 'hi') {
         rs = await vaccines.his_hi(db, hn, requestId);
     } else if (provider == 'jhos') {
