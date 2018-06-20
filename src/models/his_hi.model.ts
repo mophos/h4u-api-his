@@ -85,7 +85,7 @@ export class HisHiModel {
 
     getDiagnosis(db: Knex, vn: any) {
         return db('ovstdx as o')
-            .select('o.icd10 aicd', 'o.icd10name as icd10_desc', 'o.cnt as diage_type')
+            .select('o.icd10 as icd10_code', 'o.icd10name as icd10_desc', 'o.cnt as diage_type')
             .where('vn', vn);
     }
 
