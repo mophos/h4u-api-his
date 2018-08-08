@@ -60,7 +60,7 @@ let checkAuth = (req, res, next) => {
     });
 }
 
-let dbConnection: MySqlConnectionConfig = {
+let dbConnection: Knex.MySqlConnectionConfig = {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
