@@ -381,7 +381,7 @@ export class Services {
 
         objProfile.name = obj_name;
         objProfile.blood_group = rs_bloodgrp[0].blood_group;
-        //objProfile.allergy = obj_allergy;
+        objProfile.allergy = obj_allergy;
         objProfile.allergy = rs_allergy;
         objProfile.disease = rs_disease;
 
@@ -393,7 +393,7 @@ export class Services {
 
         let services: any = [];
         let activities: any = {};
-        let pp: any = [];
+        // let pp: any = [];
         // obj_screening.screening = rs_screening;
         let anc: any = {};
 
@@ -401,7 +401,7 @@ export class Services {
 
           let objService: any = {};
           // let objActivities: any = {};
-          let objPp: any = {};
+          // let objPp: any = {};
           objService.date_serve = moment(item.date).format("YYYY-MM-DD");
           // console.log(item.time.toString().length);
 
@@ -422,30 +422,34 @@ export class Services {
           objService.screening = screening[0];
 
           // activities
-          activities.pe = await hisHiModel.getPe(db, item.seq);
-          activities.diagnosis = await hisHiModel.getDiagnosis(db, item.seq);
+          // activities.pe = await hisHiModel.getPe(db, item.seq);
+
+          objService.diagnosis = await hisHiModel.getDiagnosis(db, item.seq);
+
           let drugs: any[] = await hisHiModel.getDrugs(db, item.seq);
-          activities.drugs = drugs[0];
+
+          objService.drugs = drugs[0];
+
           let refer: any = await hisHiModel.getRefer(db, item.seq);
-          activities.refer = refer[0];
+          objService.refer = refer[0];
           //activities.refer = await activitiesModell.getRefer(db, item.seq);
 
           let appointment: any[] = await hisHiModel.getAppointment(db, item.seq);
-          activities.appointment = appointment[0];
+          objService.appointment = appointment[0];
+
           let lab: any[] = await hisHiModel.getLabs(db, item.seq);
-          activities.lab = lab[0];
+          objService.lab = lab[0];
 
           // pp
-          anc = await hisHiModel.getAnc(db, item.seq);
-          objPp.anc = anc[0][0];
+          // anc = await hisHiModel.getAnc(db, item.seq);
+          // objService.anc = anc[0][0];
 
           let vaccine: any[] = await hisHiModel.getVaccine(db, item.seq);
-          objPp.vaccine = vaccine[0];
+          objService.vaccine = vaccine[0];
 
-          pp.push(objPp); // add objPp to pp
-          activities.pp = pp[0] // add pp to objActivities
-
-          objService.activities = activities;
+          // pp.push(objPp); // add objPp to pp
+          // activities.pp = pp[0] // add pp to objActivities
+          // objService.activities = activities;
 
           services.push(objService);
 
