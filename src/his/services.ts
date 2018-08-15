@@ -207,7 +207,23 @@ export class Services {
         let obj_allergy: any = [];
         let obj_disease: any = [];
         let objProfile: any = {};
+        let vaccines: any = []; 
 
+        const rs_vaccine: any = await hisHosxpv3Model.getEpi(db, hn);
+        console.log('Vaccine : ', rs_vaccine);
+
+        for (const rv of rs_vaccine) {
+          const objVcc = {
+            "provider_code": rv.provider_code,
+            "provider_name": rv.provider_name,
+            "date_serve": moment(rv.date_serve).format('YYYY-MM-DD'),
+            "time_serve": rv.time_serve,
+            "vaccine_code": rv.vaccine_code,
+            "vaccine_name": rv.vaccine_name
+          }
+          vaccines.push(objVcc);
+        }
+ 
         obj_name.title_name = rs_name[0].title_name;
         obj_name.first_name = rs_name[0].first_name;
         obj_name.last_name = rs_name[0].last_name;
@@ -221,6 +237,7 @@ export class Services {
         objProfile.blood_group = rs_bloodgrp[0].blood_group;
         objProfile.allergy = rs_allergy;
         objProfile.chronic = rs_disease;
+        objProfile.vaccines = vaccines;
 
         let services: any = [];
         let activities: any = {};
@@ -234,7 +251,7 @@ export class Services {
           const drugs = [];
           const lab = [];
           const anc = [];
-          const vaccine = [];
+          //const vaccine = [];
           const procedure = [];
           let appointment: any = {};
           let refer: any = {};
@@ -261,7 +278,7 @@ export class Services {
 
           const rs_procedure = await hisHosxpv3Model.getProcedure(db, v.vn)
           for (const rp of rs_procedure[0]) {
-            const obj = {
+            const objProcedure = {
               "provider_code": rp.provider_code,
               "provider_name": rp.provider_name,
               "seq": rp.vn,
@@ -274,25 +291,8 @@ export class Services {
               "end_date": rp.end_date,
               "end_time": rp.end_time
             }
-            procedure.push(obj);
+            procedure.push(objProcedure);
           }
-
-          // for (const rp of rs_procedure) {
-          //   const arrProcedure = {
-          //     "provider_code": rp.provider_code,
-          //     "provider_name": rp.provider_name,
-          //     "seq": rp.vn,
-          //     "date_serv": rp.start_date,
-          //     "time_serv": rp.start_time,
-          //     "procedure_code": rp.procedure_code,
-          //     "procedure_name": rp.procedure_name,
-          //     "start_date": rp.start_date,
-          //     "start_time": rp.start_time,
-          //     "end_date": rp.end_date,
-          //     "end_time": rp.end_time
-          //   }
-          //   procedure.push(arrProcedure);
-          // }
 
           const rs_drugs = await hisHosxpv3Model.getDrugs(db, v.vn);
           for (const rd of rs_drugs) {
@@ -314,7 +314,7 @@ export class Services {
 
           const rs_lab = await hisHosxpv3Model.getLabs(db, v.vn);
           for (const rl of rs_lab) {
-            const obj = {
+            const objLab = {
               "provider_code": rl.provider_code,
               "provider_name": rl.provider_name,
               "seq": rl.vn,
@@ -324,7 +324,7 @@ export class Services {
               "lab_result": rl.lab_result,
               "standard_result": rl.standard_result
             }
-            lab.push(obj);
+            lab.push(objLab);
           }
 
           const rs_app = await hisHosxpv3Model.getAppointment(db, v.vn);
@@ -366,7 +366,7 @@ export class Services {
 
           const pp = {
             anc: anc,
-            vaccine: vaccine
+            //vaccine: vaccine
           }
 
           activities = {
