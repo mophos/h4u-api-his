@@ -215,12 +215,12 @@ export class Services {
         let hname = rs_hosp[0].hname;
         let cid = rs_name[0].cid;
 
-        obj_allergy.allergy = rs_allergy;
-        obj_disease.disease = rs_disease;
+        //obj_allergy.allergy = rs_allergy;
+        //obj_disease.disease = rs_disease;
         objProfile.name = obj_name;
         objProfile.blood_group = rs_bloodgrp[0].blood_group;
         objProfile.allergy = rs_allergy;
-        objProfile.disease = rs_disease;
+        objProfile.chronic = rs_disease;
 
         let services: any = [];
         let activities: any = {};
@@ -235,26 +235,73 @@ export class Services {
           const lab = [];
           const anc = [];
           const vaccine = [];
+          const procedure = [];
           let appointment: any = {};
           let refer: any = {};
           let screening = {};
-          console.log('vn : ', v.vn);
+          // console.log('vn : ', v.vn);
 
           // screening
           const rs_screening = await hisHosxpv3Model.getScreening(db, v.vn);
+
           const rs_diagnosis = await hisHosxpv3Model.getDiagnosis(db, v.vn);
           for (const rg of rs_diagnosis) {
             const objDiagnosis = {
+              provider_code: rg.provider_code,
+              provider_name: rg.provider_name,
+              seq: rg.vn,
+              date_serv: rg.date_serv,
+              time_serv: rg.time_serv,
               icd10_code: rg.icd10_code,
-              icd10_desc: rg.icd10_desc,
-              diag_type: rg.diag_type
+              icd10_name: rg.icd10_desc,
+              diag_type: rg.diag_type,
             }
             diagnosis.push(objDiagnosis);
           }
 
+          const rs_procedure = await hisHosxpv3Model.getProcedure(db, v.vn)
+          for (const rp of rs_procedure[0]) {
+            const obj = {
+              "provider_code": rp.provider_code,
+              "provider_name": rp.provider_name,
+              "seq": rp.vn,
+              "date_serv": rp.start_date,
+              "time_serv": rp.start_time,
+              "procedure_code": rp.procedure_code,
+              "procedure_name": rp.procedure_name,
+              "start_date": rp.start_date,
+              "start_time": rp.start_time,
+              "end_date": rp.end_date,
+              "end_time": rp.end_time
+            }
+            procedure.push(obj);
+          }
+
+          // for (const rp of rs_procedure) {
+          //   const arrProcedure = {
+          //     "provider_code": rp.provider_code,
+          //     "provider_name": rp.provider_name,
+          //     "seq": rp.vn,
+          //     "date_serv": rp.start_date,
+          //     "time_serv": rp.start_time,
+          //     "procedure_code": rp.procedure_code,
+          //     "procedure_name": rp.procedure_name,
+          //     "start_date": rp.start_date,
+          //     "start_time": rp.start_time,
+          //     "end_date": rp.end_date,
+          //     "end_time": rp.end_time
+          //   }
+          //   procedure.push(arrProcedure);
+          // }
+
           const rs_drugs = await hisHosxpv3Model.getDrugs(db, v.vn);
           for (const rd of rs_drugs) {
             const objDrug = {
+              "provider_code": rd.provider_code,
+              "provider_name": rd.provider_name,
+              "seq": rd.vn,
+              "date_serv": rd.date_serv,
+              "time_serv": rd.time_serv,
               "drug_name": rd.drug_name,
               "qty": rd.qty,
               "unit": rd.unit,
@@ -268,6 +315,11 @@ export class Services {
           const rs_lab = await hisHosxpv3Model.getLabs(db, v.vn);
           for (const rl of rs_lab) {
             const obj = {
+              "provider_code": rl.provider_code,
+              "provider_name": rl.provider_name,
+              "seq": rl.vn,
+              "date_serv": rl.date_serv,
+              "time_serv": rl.time_serv,
               "lab_name": rl.lab_name,
               "lab_result": rl.lab_result,
               "standard_result": rl.standard_result
@@ -276,22 +328,36 @@ export class Services {
           }
 
           const rs_app = await hisHosxpv3Model.getAppointment(db, v.vn);
-          //console.log('AppointMent : ', rs_app)
-          // let objAppointment = {}
           if (rs_app.length) {
             appointment = {
-              "date": rs_app[0].date,
-              "time": rs_app[0].time,
-              "department": rs_app[0].department,
+              "provider_code": rs_app[0].provider_code,
+              "provider_name": rs_app[0].provider_name,
+              "seq": rs_app[0].vn,
+              "date_serv": rs_app[0].date_serv,
+              "time_serv": rs_app[0].time_serv,
+              "clinic": rs_app[0].department,
+              "appoint_date": rs_app[0].date,
+              "appoint_time": rs_app[0].time,
               "detail": rs_app[0].detail
             }
           }
 
           const rs_refer = await hisHosxpv3Model.getRefer(db, v.vn);
-          refer.hcode_to = rs_refer[0].hcode_to;
-          refer.reason = rs_refer[0].reason
-
-
+          if (rs_refer.length) {
+            refer = {
+              "provider_code": rs_refer[0].provider_code,
+              "provider_name": rs_refer[0].provider_name,
+              "seq": rs_refer[0].seq,
+              "date_serv": rs_refer[0].date_serv,
+              "time_serv": rs_refer[0].time_serv,
+              "to_provider_code": rs_refer[0].depto_provider_codeartment,
+              "to_provider_name": rs_refer[0].to_provider_name,
+              "reason": rs_refer[0].refer_cause,
+              "start_date": rs_refer[0].date_serv
+            }
+          }
+          // refer.to_provider_code = rs_refer[0].to_provider_code;
+          // refer.reason = rs_refer[0].reason
           const rs_pe = await hisHosxpv3Model.getPe(db, v.vn);
           // const rs_anc = await hisHosxpv3Model.getAnc(db, v.vn, hn);
           // const rs_vaccine = await hisHosxpv3Model.getVaccine(db, v.vn);
@@ -311,6 +377,7 @@ export class Services {
             pp: pp,
             appointment: appointment,
             refer: refer,
+            procedure: procedure,
           }
 
           // activities.push(objActivities);

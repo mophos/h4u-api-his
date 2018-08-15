@@ -43,6 +43,8 @@ export class Vaccines {
     const vaccines = [];
     rs.forEach(v => {
       const objEpi: any = {
+        // "provider_code": v.provider_code,
+        // "provider_name": v.provider_name,
         "date_serve": moment(v.date_serve).format('YYYY-MM-DD'),
         "time_serve": v.time_serve,
         "vaccine_code": v.vaccine_code,
