@@ -237,7 +237,7 @@ export class Services {
         objProfile.blood_group = rs_bloodgrp[0].blood_group;
         objProfile.allergy = rs_allergy;
         objProfile.chronic = rs_disease;
-        objProfile.vaccines = vaccines;
+        objProfile.vaccine = vaccines;
 
         let services: any = [];
         let activities: any = {};
@@ -264,6 +264,8 @@ export class Services {
           const rs_diagnosis = await hisHosxpv3Model.getDiagnosis(db, v.vn);
           for (const rg of rs_diagnosis) {
             const objDiagnosis = {
+              requestId: requestId,
+              uid: uid,
               provider_code: rg.provider_code,
               provider_name: rg.provider_name,
               seq: rg.vn,
