@@ -470,6 +470,35 @@ export class Services {
     }
   }
 
+  async his_homc(db, hn, dateServe, uid, requestId) {
+    if (hn) {
+      try {
+        let objProfile: any = {};
+        let objService: any = {};
+
+      }catch (error) {
+        return ({ ok: false, error: error.message });
+      }
+    } else {
+      return ({ ok: false, error: 'Incorrect data!' });
+    }
+  }
+
+  async his_mbase(db, hn, dateServe, uid, requestId) {
+    if (hn) {
+      try {
+        let objProfile: any = {};
+        let objService: any = {};
+        
+      }catch (error) {
+        return ({ ok: false, error: error.message });
+      }
+    } else {
+      return ({ ok: false, error: 'Incorrect data!' });
+    }
+  }
+  
+
   async his_hi(db, hn, dateServe, uid, requestId) {
     if (hn) {
       try {
