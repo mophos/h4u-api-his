@@ -595,8 +595,9 @@ export class Services {
               "diage_type": dia.diage_type
             }
             diagnosis.push(objdiag);
+            objService.diagnosis = diagnosis;
           }
-          objService.diagnosis = diagnosis;
+          
 
           let rs_drugs: any[] = await hisHiModel.getDrugs(db, item.seq);
           let drugs: any = [];
@@ -617,8 +618,8 @@ export class Services {
               "usage_line3": rd.usage_line3
             }
             drugs.push(objdrug);
-          }
-          objService.drugs = drugs;
+            objService.drugs = drugs;
+          }          
 
           let rs_refer: any[] = await hisHiModel.getRefer(db, item.seq);
           let refer: any = [];
@@ -637,11 +638,11 @@ export class Services {
               "start_date": moment(item.date).format("YYYY-MM-DD")
             }
             refer.push(objRefer);
+            objService.refer = refer;
           }
-          objService.refer = refer;
-
+          
           let rs_appointment: any[] = await hisHiModel.getAppointment(db, item.seq);
-          console.log(rs_appointment);
+          // console.log(rs_appointment);
           // objService.appointment = rs_appointment[0];
           let appointment: any = [];
           for (const app of rs_appointment) {
@@ -659,8 +660,9 @@ export class Services {
               "detail": app.detail
             }
             appointment.push(objapp);
+            objService.appointment = appointment;
           }
-          objService.appointment = appointment;
+          
 
           let rs_lab: any[] = await hisHiModel.getLabs(db, item.seq);
           let lab: any = [];
@@ -678,10 +680,8 @@ export class Services {
               "standard_result": rl.standard_result
             }
             lab.push(objlab);
+            objService.lab = lab;
           }
-          objService.lab = lab;
-
-
           // pp
           // anc = await hisHiModel.getAnc(db, item.seq);
           // objService.anc = anc[0][0];
@@ -704,10 +704,9 @@ export class Services {
               "vaccine_name": rv.vaccine_name
             }
             vaccines.push(objvaccine);
+            objService.vaccines = vaccines;
           }
-          // objProfile.vaccine = vaccine;
-          objService.vaccines = vaccines;
-
+          // objProfile.vaccine = vaccine;         
           let rs_allergy: any = await hisHiModel.getAllergyDetail(db, hn);
           let allergy: any = [];
           for (const al of rs_allergy) {
@@ -723,11 +722,9 @@ export class Services {
               "symptom": al.detail
             }
             allergy.push(objallergy);
+            objService.allergy = allergy;
           }
-          // objProfile.allergy = allergy;
-          objService.allergy = allergy;
-
-
+          // objProfile.allergy = allergy;       
           let rs_chronic: any = await hisHiModel.getDisease(db, hn);
           let chronic: any = [];
           for (const ch of rs_chronic) {
@@ -744,17 +741,13 @@ export class Services {
               "start_date": ch.start_date
             }
             chronic.push(objchronic);
+            objService.chronic = chronic;
           }
           // objProfile.chronic = chronic;
-          objService.chronic = chronic;
-
-
           // pp.push(objPp); // add objPp to pp
           // activities.pp = pp[0] // add pp to objActivities
           // objService.activities = activities;
-
           services = objService;
-
         }
 
         if (rs_name.length) {
