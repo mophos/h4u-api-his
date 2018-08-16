@@ -58,7 +58,9 @@ export class HisHosxpv3Model {
 
   getDisease(db: Knex, hn: any) {
     return db('person_chronic as pc')
-      .select('pc.regdate as start_date','pc.icd10 as icd10_code', 'i.name as icd_name')
+    .select(db.raw('(select hospitalcode from opdconfig) as provider_code'),
+      db.raw('(select hospitalname from opdconfig) as provider_name'),
+      'pc.regdate as start_date', 'pc.icd10 as icd10_code', 'i.name as icd_name')
       .leftOuterJoin('patient as pa', 'pa.hn', '=', 'pc.hn')
       .leftOuterJoin('person as pe', 'pe.cid', '=', 'pa.cid')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')

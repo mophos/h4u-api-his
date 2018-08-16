@@ -207,13 +207,23 @@ export class Services {
         let obj_allergy: any = [];
         let obj_disease: any = [];
         let objProfile: any = {};
+        let objService: any = {};
         let vaccines: any = []; 
+        let services: any = {};
+        let activities: any = {};
+        let pp: any = [];
+        let anc: any = {};
+        let allergy: any = [];
+        let chronic: any = [];
+        let hcode = rs_hosp[0].hcode;
+        let hname = rs_hosp[0].hname;
+        let cid = rs_name[0].cid;
 
         const rs_vaccine: any = await hisHosxpv3Model.getEpi(db, hn);
-        console.log('Vaccine : ', rs_vaccine);
-
         for (const rv of rs_vaccine) {
           const objVcc = {
+            "request_id": requestId,
+            "uid": uid,
             "provider_code": rv.provider_code,
             "provider_name": rv.provider_name,
             "date_serve": moment(rv.date_serve).format('YYYY-MM-DD'),
@@ -223,26 +233,35 @@ export class Services {
           }
           vaccines.push(objVcc);
         }
- 
-        obj_name.title_name = rs_name[0].title_name;
-        obj_name.first_name = rs_name[0].first_name;
-        obj_name.last_name = rs_name[0].last_name;
-        let hcode = rs_hosp[0].hcode;
-        let hname = rs_hosp[0].hname;
-        let cid = rs_name[0].cid;
-
+        objService.vaccines = vaccines;
+        
+        for (const rc of rs_disease) {
+          const objCho = {
+            "request_id": requestId,
+            "uid": uid,
+            "provider_code": rc.provider_code,
+            "provider_name": rc.provider_name,
+            "date_serve": moment(rc.date_serve).format('YYYY-MM-DD'),
+            "time_serve": rc.time_serve,
+            "icd10_code": rc.icd10_code,
+            "icd10_name": rc.icd_name,
+            "start_date": rc.start_date
+          }
+          chronic.push(objCho);
+        }
+        objService.chronic = chronic;
+        objService.allergy = rs_allergy;
+        //objService.chronic = rs_disease;
+        // obj_name.title_name = rs_name[0].title_name;
+        // obj_name.first_name = rs_name[0].first_name;
+        // obj_name.last_name = rs_name[0].last_name;
         //obj_allergy.allergy = rs_allergy;
         //obj_disease.disease = rs_disease;
-        objProfile.name = obj_name;
-        objProfile.blood_group = rs_bloodgrp[0].blood_group;
-        objProfile.allergy = rs_allergy;
-        objProfile.chronic = rs_disease;
-        objProfile.vaccine = vaccines;
-
-        let services: any = [];
-        let activities: any = {};
-        let pp: any = [];
-        let anc: any = {};
+        // objProfile.name = obj_name;
+        // objProfile.blood_group = rs_bloodgrp[0].blood_group;
+        // objProfile.allergy = rs_allergy;
+        // objProfile.chronic = rs_disease;
+        // objProfile.vaccine = vaccines;
 
         for (const v of rs_services) {
           // const activities = {};
@@ -253,8 +272,8 @@ export class Services {
           const anc = [];
           //const vaccine = [];
           const procedure = [];
-          let appointment: any = {};
-          let refer: any = {};
+          let appointment: any = [];
+          let refer: any = [];
           let screening = {};
           // console.log('vn : ', v.vn);
 
@@ -277,10 +296,13 @@ export class Services {
             }
             diagnosis.push(objDiagnosis);
           }
+          objService.diagnosis = diagnosis;
 
           const rs_procedure = await hisHosxpv3Model.getProcedure(db, v.vn)
           for (const rp of rs_procedure[0]) {
             const objProcedure = {
+              "request_id": requestId,
+              "uid": uid,
               "provider_code": rp.provider_code,
               "provider_name": rp.provider_name,
               "seq": rp.vn,
@@ -295,10 +317,13 @@ export class Services {
             }
             procedure.push(objProcedure);
           }
+          objService.procedure = procedure;
 
           const rs_drugs = await hisHosxpv3Model.getDrugs(db, v.vn);
           for (const rd of rs_drugs) {
             const objDrug = {
+              "request_id": requestId,
+              "uid": uid,
               "provider_code": rd.provider_code,
               "provider_name": rd.provider_name,
               "seq": rd.vn,
@@ -313,10 +338,13 @@ export class Services {
             }
             drugs.push(objDrug);
           }
+          objService.drugs = drugs;
 
           const rs_lab = await hisHosxpv3Model.getLabs(db, v.vn);
           for (const rl of rs_lab) {
             const objLab = {
+              "request_id": requestId,
+              "uid": uid,
               "provider_code": rl.provider_code,
               "provider_name": rl.provider_name,
               "seq": rl.vn,
@@ -328,10 +356,13 @@ export class Services {
             }
             lab.push(objLab);
           }
+          objService.lab = lab;
 
           const rs_app = await hisHosxpv3Model.getAppointment(db, v.vn);
           if (rs_app.length) {
             appointment = {
+              "request_id": requestId,
+              "uid": uid,
               "provider_code": rs_app[0].provider_code,
               "provider_name": rs_app[0].provider_name,
               "seq": rs_app[0].vn,
@@ -343,10 +374,13 @@ export class Services {
               "detail": rs_app[0].detail
             }
           }
+          objService.appointment = appointment;
 
           const rs_refer = await hisHosxpv3Model.getRefer(db, v.vn);
           if (rs_refer.length) {
             refer = {
+              "request_id": requestId,
+              "uid": uid,
               "provider_code": rs_refer[0].provider_code,
               "provider_name": rs_refer[0].provider_name,
               "seq": rs_refer[0].seq,
@@ -358,55 +392,57 @@ export class Services {
               "start_date": rs_refer[0].date_serv
             }
           }
-          // refer.to_provider_code = rs_refer[0].to_provider_code;
-          // refer.reason = rs_refer[0].reason
-          const rs_pe = await hisHosxpv3Model.getPe(db, v.vn);
+          objService.refer = refer;
+
+          // const rs_pe = await hisHosxpv3Model.getPe(db, v.vn);
           // const rs_anc = await hisHosxpv3Model.getAnc(db, v.vn, hn);
-          // const rs_vaccine = await hisHosxpv3Model.getVaccine(db, v.vn);
-
-          // console.log('ANC : ', rs_anc);
-
-          const pp = {
-            anc: anc,
-            //vaccine: vaccine
-          }
-
-          activities = {
-            pe: rs_pe,
-            diagnosis: diagnosis,
-            drugs: drugs,
-            lab: lab,
-            pp: pp,
-            appointment: appointment,
-            refer: refer,
-            procedure: procedure,
-          }
-
+          // const pp = {
+          //   anc: anc,
+          //   //vaccine: vaccine
+          // }
+          // activities = {
+          //  // pe: rs_pe,
+          //   diagnosis: diagnosis,
+          //   drugs: drugs,
+          //   lab: lab,
+          //   pp: pp,
+          //   appointment: appointment,
+          //   refer: refer,
+          //   procedure: procedure,
+          // }
           // activities.push(objActivities);
-
-          const obj = {
-            date_serve: v.date_serve,
-            time_serve: v.time_serve,
-            clinic: rs_hosp[0].hname,
-            seq: v.seq,
-            screening: rs_screening[0],
-            activities: activities
-          }
-          services.push(obj);
-
+          // const obj = {
+          //   // date_serve: v.date_serve,
+          //   // time_serve: v.time_serve,
+          //   // clinic: rs_hosp[0].hname,
+          //   // seq: v.seq,
+          //   // screening: rs_screening[0],
+          //   // activities: activities,
+          //   drugs: drugs,
+          //   diagnosis: diagnosis,
+          //   procedure: procedure,
+          //   appointment: appointment,
+          //   refer: refer,
+          //   lab: lab,
+          //   vaccines: vaccines,
+          //   allergy: allergy,
+          //   chronic : chronic,
+          // }
+          //services.push(obj);
+          services = objService;
         }
 
         if (rs_name.length) {
           return ({
             ok: true,
             rows: {
-              hcode: hcode,
-              hname: hname,
-              hn: hn,
-              uid: uid,
-              cid: cid,
-              requestId: requestId,
-              profile: objProfile,
+              // hcode: hcode,
+              // hname: hname,
+              // hn: hn,
+              // uid: uid,
+              // cid: cid,
+              // requestId: requestId,
+              // profile: objProfile,
               services: services
             }
           });
