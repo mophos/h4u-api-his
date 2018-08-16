@@ -217,15 +217,15 @@ export class Services {
         let chronic: any = [];
         let hcode = rs_hosp[0].hcode;
         let hname = rs_hosp[0].hname;
-        let cid = rs_name[0].cid;
+        // let cid = rs_name[0].cid;
 
         const rs_vaccine: any = await hisHosxpv3Model.getEpi(db, hn);
         for (const rv of rs_vaccine) {
           const objVcc = {
             "request_id": requestId,
             "uid": uid,
-            "provider_code": rv.provider_code,
-            "provider_name": rv.provider_name,
+            "provider_code": hcode,
+            "provider_name": hname,
             "date_serve": moment(rv.date_serve).format('YYYY-MM-DD'),
             "time_serve": rv.time_serve,
             "vaccine_code": rv.vaccine_code,
@@ -239,8 +239,8 @@ export class Services {
           const objCho = {
             "request_id": requestId,
             "uid": uid,
-            "provider_code": rc.provider_code,
-            "provider_name": rc.provider_name,
+            "provider_code": hcode,
+            "provider_name": hname,
             "date_serve": moment(rc.date_serve).format('YYYY-MM-DD'),
             "time_serve": rc.time_serve,
             "icd10_code": rc.icd10_code,
@@ -250,7 +250,19 @@ export class Services {
           chronic.push(objCho);
         }
         objService.chronic = chronic;
-        objService.allergy = rs_allergy;
+
+        for (const ra of rs_allergy) {
+          const objAllergy = {
+            "request_id": requestId,
+            "uid": uid,
+            "provider_code": hcode,
+            "provider_name": hname,
+            "drug_name": ra.drug_name,
+            "symptom": ra.symptom
+          }
+          allergy.push(objAllergy);
+        }
+        objService.allergy = allergy;
         //objService.chronic = rs_disease;
         // obj_name.title_name = rs_name[0].title_name;
         // obj_name.first_name = rs_name[0].first_name;
@@ -285,8 +297,8 @@ export class Services {
             const objDiagnosis = {
               requestId: requestId,
               uid: uid,
-              provider_code: rg.provider_code,
-              provider_name: rg.provider_name,
+              provider_code: hcode,
+              provider_name: hname,
               seq: rg.vn,
               date_serv: rg.date_serv,
               time_serv: rg.time_serv,
@@ -303,8 +315,8 @@ export class Services {
             const objProcedure = {
               "request_id": requestId,
               "uid": uid,
-              "provider_code": rp.provider_code,
-              "provider_name": rp.provider_name,
+              "provider_code": hcode,
+              "provider_name": hname,
               "seq": rp.vn,
               "date_serv": rp.start_date,
               "time_serv": rp.start_time,
@@ -324,8 +336,8 @@ export class Services {
             const objDrug = {
               "request_id": requestId,
               "uid": uid,
-              "provider_code": rd.provider_code,
-              "provider_name": rd.provider_name,
+              "provider_code": hcode,
+              "provider_name": hname,
               "seq": rd.vn,
               "date_serv": rd.date_serv,
               "time_serv": rd.time_serv,
@@ -345,8 +357,8 @@ export class Services {
             const objLab = {
               "request_id": requestId,
               "uid": uid,
-              "provider_code": rl.provider_code,
-              "provider_name": rl.provider_name,
+              "provider_code": hcode,
+              "provider_name": hname,
               "seq": rl.vn,
               "date_serv": rl.date_serv,
               "time_serv": rl.time_serv,
@@ -363,8 +375,8 @@ export class Services {
             appointment = {
               "request_id": requestId,
               "uid": uid,
-              "provider_code": rs_app[0].provider_code,
-              "provider_name": rs_app[0].provider_name,
+              "provider_code": hcode,
+              "provider_name": hname,
               "seq": rs_app[0].vn,
               "date_serv": rs_app[0].date_serv,
               "time_serv": rs_app[0].time_serv,
@@ -381,8 +393,8 @@ export class Services {
             refer = {
               "request_id": requestId,
               "uid": uid,
-              "provider_code": rs_refer[0].provider_code,
-              "provider_name": rs_refer[0].provider_name,
+              "provider_code": hcode,
+              "provider_name": hname,
               "seq": rs_refer[0].seq,
               "date_serv": rs_refer[0].date_serv,
               "time_serv": rs_refer[0].time_serv,
