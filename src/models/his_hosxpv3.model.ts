@@ -1,5 +1,6 @@
 import Knex = require('knex');
 import * as moment from 'moment';
+import { REQUEST_TOO_LONG } from 'http-status-codes';
 const dbName = process.env.HIS_DB_NAME;
 
 export class HisHosxpv3Model {
@@ -39,7 +40,8 @@ export class HisHosxpv3Model {
 
   getAllergyDetail(db: Knex, hn: any) {
     return db('opd_allergy')
-      .select('agent as drug_name', 'symptom as symptom_desc')
+    .select(db.raw('(select hospitalcode from opdconfig) as provider_code'),
+    db.raw('(select hospitalname from opdconfig) as provider_name'),'agent as drug_name', 'symptom')
       .where('hn', hn);
   }
 
@@ -56,7 +58,7 @@ export class HisHosxpv3Model {
 
   getDisease(db: Knex, hn: any) {
     return db('person_chronic as pc')
-      .select('pc.icd10 as icd10_code', 'i.name as icd10_desc')
+      .select('pc.regdate as start_date','pc.icd10 as icd10_code', 'i.name as icd_name')
       .leftOuterJoin('patient as pa', 'pa.hn', '=', 'pc.hn')
       .leftOuterJoin('person as pe', 'pe.cid', '=', 'pa.cid')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
@@ -95,22 +97,48 @@ export class HisHosxpv3Model {
 
   getDiagnosis(db: Knex, vn: any) {
     return db('ovstdiag as o')
-      .select('o.icd10 as icd10_code', 'i.name as icd10_desc', 'o.diagtype as diage_type')
+      .select(db.raw('(select hospitalcode from opdconfig) as provider_code'),
+      db.raw('(select hospitalname from opdconfig) as provider_name'), 'o.vn', 'o.vstdate as date_serv',
+      'o.vsttime as time_serv', 'o.icd10 as icd10_code', 'i.name as icd10_desc', 't.name as diag_type')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
+      .leftOuterJoin('diagtype as t', 't.diagtype', 'o.diagtype')
       .where('vn', vn);
+  }
+
+  getProcedure(db: Knex, vn: any) {
+    return db.raw(`SELECT d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
+    time(d.begin_date_time) as start_time, date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
+    FROM doctor_operation as d
+    LEFT OUTER JOIN er_oper_code as e on e.er_oper_code=d.er_oper_code
+    WHERE d.vn = ?'
+    UNION
+    SELECT e.er_oper_code as procedure_code,c.name as procedure_name,o.vstdate as start_date, 
+    time(e.begin_time) as start_time,o.vstdate as end_date,TIME(e.end_time) as end_date
+    FROM er_regist_oper as e
+    LEFT OUTER JOIN ovst o on o.vn=e.vn
+    LEFT OUTER JOIN er_oper_code as c on c.er_oper_code=e.er_oper_code
+    WHERE e.vn = ?`
+    );
   }
 
   getRefer(db: Knex, vn: any) {
     return db('referout as r')
-      .select('r.refer_hospcode', 'c.name as refer_cause')
+      .select(db.raw('(select hospitalcode from opdconfig) as provider_code'),
+      db.raw('(select hospitalname from opdconfig) as provider_name'), 'o.vn as seq', 'o.vstdate as date_serv',
+      'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name',
+      'c.name as refer_cause')
       .innerJoin('refer_cause as c', 'c.id', 'r.refer_cause')
+      .innerJoin('ovst as o ', 'o.vn', 'r.vn')
+      .innerJoin('hospcode as h', 'h.hospcode', 'r.refer_hospcode')
       .where('r.vn', vn);
   }
 
   getDrugs(db: Knex, vn: any) {
     return db('opitemrece as o')
-      .select('o.vn', 'o.icode as drugcode', 's.name as drug_name', 'o.qty', 's.units as unit',
-        'u.name1 as usage_line1', 'u.name2 as usage_line2', 'u.name3 as usage_line3')
+      .select(db.raw('(select hospitalcode from opdconfig) as provider_code'),
+      db.raw('(select hospitalname from opdconfig) as provider_name'), 'o.vn','o.vstdate as date_serv','o.vsttime as time_serv',
+      'o.icode as drugcode', 's.name as drug_name', 'o.qty', 's.units as unit',
+      'u.name1 as usage_line1', 'u.name2 as usage_line2', 'u.name3 as usage_line3', )
       .innerJoin('s_drugitems as s', 's.icode', 'o.icode')
       .innerJoin('drugusage as u', 'u.drugusage', 'o.drugusage')
       .where('o.vn', vn)
@@ -118,10 +146,12 @@ export class HisHosxpv3Model {
 
   getLabs(db: Knex, vn: any) {
     return db('lab_order as l')
-      .select(db.raw(`l.lab_items_name_ref AS lab_name,
-    l.lab_order_result as lab_result,
-    l.lab_items_normal_value_ref as standard_result`))
+      .select(db.raw(`(select hospitalcode from opdconfig) as provider_code,
+      (select hospitalname from opdconfig) as provider_name,o.vstdate as date_serv,o.vsttime as time_serv,
+      o.vn,l.lab_items_name_ref as lab_name, l.lab_order_result as lab_result,
+      l.lab_items_normal_value_ref as standard_result`))
       .innerJoin('lab_head as h', 'h.lab_order_number', 'l.lab_order_number')
+      .innerJoin('ovst as o', 'o.vn', 'h.vn')
       .where('h.vn', vn)
   }
 
@@ -171,11 +201,11 @@ export class HisHosxpv3Model {
       })
   }
 
-
-
   getAppointment(db: Knex, vn: any) {
     return db('oapp as o')
-      .select('o.nextdate as date', 'o.nexttime as time', 'c.name as department', 'o.app_cause as detail')
+      .select(db.raw('(select hospitalcode from opdconfig) as provider_code'),
+      db.raw('(select hospitalname from opdconfig) as provider_name'),'o.vn', 'v.vstdate as date_serv', 'v.vsttime as time_serv',
+      'c.name as department', 'o.nextdate as date', 'o.nexttime as time', 'o.app_cause as detail')
       .innerJoin('ovst as v', 'v.vn', 'o.vn')
       .innerJoin('clinic as c', 'c.clinic', 'o.clinic')
       .where('o.vn', vn);

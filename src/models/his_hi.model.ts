@@ -36,7 +36,7 @@ export class HisHiModel {
 
     getDisease(db: Knex, hn: any) {
         return db('chronic as c')
-            .select('c.chronic as icd10_code', 'i.name_t as icd10_desc')
+            .select('c.chronic as icd10_code', 'i.name_t as icd10_desc', 'c.date_diag as start_date')
             .innerJoin('icd101 as i', 'i.icd10', '=', 'c.chronic')
             .where('c.pid', hn);
     }

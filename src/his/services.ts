@@ -215,12 +215,12 @@ export class Services {
         let hname = rs_hosp[0].hname;
         let cid = rs_name[0].cid;
 
-        obj_allergy.allergy = rs_allergy;
-        obj_disease.disease = rs_disease;
+        //obj_allergy.allergy = rs_allergy;
+        //obj_disease.disease = rs_disease;
         objProfile.name = obj_name;
         objProfile.blood_group = rs_bloodgrp[0].blood_group;
         objProfile.allergy = rs_allergy;
-        objProfile.disease = rs_disease;
+        objProfile.chronic = rs_disease;
 
         let services: any = [];
         let activities: any = {};
@@ -235,26 +235,73 @@ export class Services {
           const lab = [];
           const anc = [];
           const vaccine = [];
+          const procedure = [];
           let appointment: any = {};
           let refer: any = {};
           let screening = {};
-          console.log('vn : ', v.vn);
+          // console.log('vn : ', v.vn);
 
           // screening
           const rs_screening = await hisHosxpv3Model.getScreening(db, v.vn);
+
           const rs_diagnosis = await hisHosxpv3Model.getDiagnosis(db, v.vn);
           for (const rg of rs_diagnosis) {
             const objDiagnosis = {
+              provider_code: rg.provider_code,
+              provider_name: rg.provider_name,
+              seq: rg.vn,
+              date_serv: rg.date_serv,
+              time_serv: rg.time_serv,
               icd10_code: rg.icd10_code,
-              icd10_desc: rg.icd10_desc,
-              diag_type: rg.diag_type
+              icd10_name: rg.icd10_desc,
+              diag_type: rg.diag_type,
             }
             diagnosis.push(objDiagnosis);
           }
 
+          const rs_procedure = await hisHosxpv3Model.getProcedure(db, v.vn)
+          for (const rp of rs_procedure[0]) {
+            const obj = {
+              "provider_code": rp.provider_code,
+              "provider_name": rp.provider_name,
+              "seq": rp.vn,
+              "date_serv": rp.start_date,
+              "time_serv": rp.start_time,
+              "procedure_code": rp.procedure_code,
+              "procedure_name": rp.procedure_name,
+              "start_date": rp.start_date,
+              "start_time": rp.start_time,
+              "end_date": rp.end_date,
+              "end_time": rp.end_time
+            }
+            procedure.push(obj);
+          }
+
+          // for (const rp of rs_procedure) {
+          //   const arrProcedure = {
+          //     "provider_code": rp.provider_code,
+          //     "provider_name": rp.provider_name,
+          //     "seq": rp.vn,
+          //     "date_serv": rp.start_date,
+          //     "time_serv": rp.start_time,
+          //     "procedure_code": rp.procedure_code,
+          //     "procedure_name": rp.procedure_name,
+          //     "start_date": rp.start_date,
+          //     "start_time": rp.start_time,
+          //     "end_date": rp.end_date,
+          //     "end_time": rp.end_time
+          //   }
+          //   procedure.push(arrProcedure);
+          // }
+
           const rs_drugs = await hisHosxpv3Model.getDrugs(db, v.vn);
           for (const rd of rs_drugs) {
             const objDrug = {
+              "provider_code": rd.provider_code,
+              "provider_name": rd.provider_name,
+              "seq": rd.vn,
+              "date_serv": rd.date_serv,
+              "time_serv": rd.time_serv,
               "drug_name": rd.drug_name,
               "qty": rd.qty,
               "unit": rd.unit,
@@ -268,6 +315,11 @@ export class Services {
           const rs_lab = await hisHosxpv3Model.getLabs(db, v.vn);
           for (const rl of rs_lab) {
             const obj = {
+              "provider_code": rl.provider_code,
+              "provider_name": rl.provider_name,
+              "seq": rl.vn,
+              "date_serv": rl.date_serv,
+              "time_serv": rl.time_serv,
               "lab_name": rl.lab_name,
               "lab_result": rl.lab_result,
               "standard_result": rl.standard_result
@@ -276,22 +328,36 @@ export class Services {
           }
 
           const rs_app = await hisHosxpv3Model.getAppointment(db, v.vn);
-          //console.log('AppointMent : ', rs_app)
-          // let objAppointment = {}
           if (rs_app.length) {
             appointment = {
-              "date": rs_app[0].date,
-              "time": rs_app[0].time,
-              "department": rs_app[0].department,
+              "provider_code": rs_app[0].provider_code,
+              "provider_name": rs_app[0].provider_name,
+              "seq": rs_app[0].vn,
+              "date_serv": rs_app[0].date_serv,
+              "time_serv": rs_app[0].time_serv,
+              "clinic": rs_app[0].department,
+              "appoint_date": rs_app[0].date,
+              "appoint_time": rs_app[0].time,
               "detail": rs_app[0].detail
             }
           }
 
           const rs_refer = await hisHosxpv3Model.getRefer(db, v.vn);
-          refer.hcode_to = rs_refer[0].hcode_to;
-          refer.reason = rs_refer[0].reason
-
-
+          if (rs_refer.length) {
+            refer = {
+              "provider_code": rs_refer[0].provider_code,
+              "provider_name": rs_refer[0].provider_name,
+              "seq": rs_refer[0].seq,
+              "date_serv": rs_refer[0].date_serv,
+              "time_serv": rs_refer[0].time_serv,
+              "to_provider_code": rs_refer[0].depto_provider_codeartment,
+              "to_provider_name": rs_refer[0].to_provider_name,
+              "reason": rs_refer[0].refer_cause,
+              "start_date": rs_refer[0].date_serv
+            }
+          }
+          // refer.to_provider_code = rs_refer[0].to_provider_code;
+          // refer.reason = rs_refer[0].reason
           const rs_pe = await hisHosxpv3Model.getPe(db, v.vn);
           // const rs_anc = await hisHosxpv3Model.getAnc(db, v.vn, hn);
           // const rs_vaccine = await hisHosxpv3Model.getVaccine(db, v.vn);
@@ -311,6 +377,7 @@ export class Services {
             pp: pp,
             appointment: appointment,
             refer: refer,
+            procedure: procedure,
           }
 
           // activities.push(objActivities);
@@ -358,14 +425,14 @@ export class Services {
       try {
         let rs_name: any = await hisHiModel.getPtDetail(db, hn);
         let rs_bloodgrp: any = await hisHiModel.getBloodgrp(db, hn);
-        let rs_allergy: any = await hisHiModel.getAllergyDetail(db, hn);
-        let rs_disease: any = await hisHiModel.getDisease(db, hn);
+        // let rs_allergy: any = await hisHiModel.getAllergyDetail(db, hn);
+        let rs_chronic: any = await hisHiModel.getDisease(db, hn);
         let rs_hosp: any = await hisHiModel.getHospital(db);
 
         let obj_name: any = {};
         let obj_hospital: any = [];
-        let obj_allergy: any = [];
-        let obj_disease: any = [];
+        // let obj_allergy: any = [];
+        let obj_chronic: any = [];
         let objProfile: any = {};
 
         obj_name.title_name = rs_name[0].title_name;
@@ -376,14 +443,14 @@ export class Services {
         let hcode = rs_hosp[0].hcode;
         let hname = rs_hosp[0].hname;
 
-        obj_allergy.allergy = rs_allergy;
-        obj_disease.disease = rs_disease;
+        // obj_allergy.allergy = rs_allergy;
+        obj_chronic.chronic = rs_chronic;
 
         objProfile.name = obj_name;
         objProfile.blood_group = rs_bloodgrp[0].blood_group;
-        objProfile.allergy = obj_allergy;
-        objProfile.allergy = rs_allergy;
-        objProfile.disease = rs_disease;
+        // objProfile.allergy = obj_allergy;
+        // objProfile.allergy = rs_allergy;
+        objProfile.chronic = rs_chronic;
 
 
         let rs: any = await hisHiModel.getSeq(db, dateServe, hn);
@@ -391,8 +458,8 @@ export class Services {
 
         // let screening: any = {};
 
-        let services: any = [];
-        let activities: any = {};
+        let services: any = {};
+        // let activities: any = {};
         // let pp: any = [];
         // obj_screening.screening = rs_screening;
         let anc: any = {};
@@ -402,7 +469,7 @@ export class Services {
           let objService: any = {};
           // let objActivities: any = {};
           // let objPp: any = {};
-          objService.date_serve = moment(item.date).format("YYYY-MM-DD");
+          // objService.date_serve = moment(item.date).format("YYYY-MM-DD");
           // console.log(item.time.toString().length);
 
           let time: string;
@@ -413,45 +480,196 @@ export class Services {
             time = item.time.toString();
           }
 
-          objService.time_serve = moment(time, "HH:mm:ss").format("HH:mm:ss");// moment(item.time).locale('th').format('HH:mm');
-
-          objService.clinic = item.department;
-          objService.seq = item.seq;
+          // objService.time_serve = moment(time, "HH:mm:ss").format("HH:mm:ss");// moment(item.time).locale('th').format('HH:mm');
+          // objService.provider_code = hcode;
+          // objService.provider_name = hname;
+          // objService.uid = uid;
+          // objService.requestId = requestId;
+          // objService.clinic = item.department;
+          // objService.seq = item.seq;
           // screening
-          let screening: any = await hisHiModel.getScreening(db, item.seq);
-          objService.screening = screening[0];
+          // let screening: any = await hisHiModel.getScreening(db, item.seq);
+          // objService.screening = screening[0];
 
           // activities
           // activities.pe = await hisHiModel.getPe(db, item.seq);
 
-          objService.diagnosis = await hisHiModel.getDiagnosis(db, item.seq);
+          let rs_diagnosis: any[] = await hisHiModel.getDiagnosis(db, item.seq);
+          //console.log(rs_diagnosis);
+          let diagnosis: any = [];
+          for (const dia of rs_diagnosis) {
+            const objdiag = {
+              "request_id": requestId,
+              "uid": uid,
+              "provider_code": hcode,
+              "provider_name": hname,
+              "seq": item.seq,
+              "date_serv": moment(item.date).format("YYYY-MM-DD"),
+              "time_serv": moment(time, "HH:mm:ss").format("HH:mm:ss"),
+              "icd10_code": dia.icd10_code,
+              "icd10_desc": dia.icd10_desc,
+              "diage_type": dia.diage_type
+            }
+            diagnosis.push(objdiag);
+          }
+          objService.diagnosis = diagnosis;
 
-          let drugs: any[] = await hisHiModel.getDrugs(db, item.seq);
+          let rs_drugs: any[] = await hisHiModel.getDrugs(db, item.seq);
+          let drugs: any = [];
+          for (const rd of rs_drugs[0]) {
+            const objdrug = {
+              "request_id": requestId,
+              "uid": uid,
+              "provider_code": hcode,
+              "provider_name": hname,
+              "seq": item.seq,
+              "date_serv": moment(item.date).format("YYYY-MM-DD"),
+              "time_serv": moment(time, "HH:mm:ss").format("HH:mm:ss"),
+              "drug_name": rd.drug_name,
+              "qty": rd.qty,
+              "unit": rd.unit,
+              "usage_line1": rd.usage_line1,
+              "usage_line2": rd.usage_line2,
+              "usage_line3": rd.usage_line3
+            }
+            drugs.push(objdrug);
+          }
+          objService.drugs = drugs;
 
-          objService.drugs = drugs[0];
+          let rs_refer: any[] = await hisHiModel.getRefer(db, item.seq);
+          let refer: any = [];
+          for (const re of rs_refer) {
+            const objRefer = {
+              "request_id": requestId,
+              "uid": uid,
+              "provider_code": hcode,
+              "provider_name": hname,
+              "seq": item.seq,
+              "date_serv": moment(item.date).format("YYYY-MM-DD"),
+              "time_serv": moment(time, "HH:mm:ss").format("HH:mm:ss"),
+              "to_provider_code": re.hcode_to,
+              "to_provider_name": re.name_to,
+              "reason": re.reason,
+              "start_date": moment(item.date).format("YYYY-MM-DD")
+            }
+            refer.push(objRefer);
+          }
+          objService.refer = refer;
 
-          let refer: any = await hisHiModel.getRefer(db, item.seq);
-          objService.refer = refer[0];
-          //activities.refer = await activitiesModell.getRefer(db, item.seq);
+          let rs_appointment: any[] = await hisHiModel.getAppointment(db, item.seq);
+          console.log(rs_appointment);
+          // objService.appointment = rs_appointment[0];
+          let appointment: any = [];
+          for (const app of rs_appointment) {
+            const objapp = {
+              "request_id": requestId,
+              "uid": uid,
+              "provider_code": hcode,
+              "provider_name": hname,
+              "seq": item.seq,
+              "date_serv": moment(item.date).format("YYYY-MM-DD"),
+              "time_serv": moment(time, "HH:mm:ss").format("HH:mm:ss"),
+              "clinic": app.department,
+              "appoint_date": app.date,
+              "appoint_time": app.time,
+              "detail": app.detail
+            }
+            appointment.push(objapp);
+          }
+          objService.appointment = appointment;
 
-          let appointment: any[] = await hisHiModel.getAppointment(db, item.seq);
-          objService.appointment = appointment[0];
+          let rs_lab: any[] = await hisHiModel.getLabs(db, item.seq);
+          let lab: any = [];
+          for (const rl of rs_lab[0]) {
+            const objlab = {
+              "request_id": requestId,
+              "uid": uid,
+              "provider_code": hcode,
+              "provider_name": hname,
+              "seq": item.seq,
+              "date_serv": moment(item.date).format("YYYY-MM-DD"),
+              "time_serv": moment(time, "HH:mm:ss").format("HH:mm:ss"),
+              "lab_name": rl.lab_name,
+              "lab_result": rl.lab_result,
+              "standard_result": rl.standard_result
+            }
+            lab.push(objlab);
+          }
+          objService.lab = lab;
 
-          let lab: any[] = await hisHiModel.getLabs(db, item.seq);
-          objService.lab = lab[0];
 
           // pp
           // anc = await hisHiModel.getAnc(db, item.seq);
           // objService.anc = anc[0][0];
 
-          let vaccine: any[] = await hisHiModel.getVaccine(db, item.seq);
-          objService.vaccine = vaccine[0];
+          // let rs_vaccine: any[] = await hisHiModel.getVaccine(db, item.seq);
+          let rs_vaccine: any[] = await hisHiModel.getEpiAll(db, hn);
+
+          let vaccines: any = [];
+          // objService.vaccine = rs_vaccine[0];
+          for (const rv of rs_vaccine[0]) {
+            const objvaccine = {
+              "request_id": requestId,
+              "uid": uid,
+              "provider_code": hcode,
+              "provider_name": hname,
+              // "seq": item.seq,
+              "date_serv": moment(item.date).format("YYYY-MM-DD"),
+              "time_serv": moment(time, "HH:mm:ss").format("HH:mm:ss"),
+              "vaccine_code": rv.vaccine_code,
+              "vaccine_name": rv.vaccine_name
+            }
+            vaccines.push(objvaccine);
+          }
+          // objProfile.vaccine = vaccine;
+          objService.vaccines = vaccines;
+
+          let rs_allergy: any = await hisHiModel.getAllergyDetail(db, hn);
+          let allergy: any = [];
+          for (const al of rs_allergy) {
+            const objallergy = {
+              "request_id": requestId,
+              "uid": uid,
+              "provider_code": hcode,
+              "provider_name": hname,
+              // "seq": item.seq,
+              // "date_serv": moment(item.date).format("YYYY-MM-DD"),
+              // "time_serv": moment(time, "HH:mm:ss").format("HH:mm:ss"),
+              "drug_name": al.namedrug,
+              "symptom": al.detail
+            }
+            allergy.push(objallergy);
+          }
+          // objProfile.allergy = allergy;
+          objService.allergy = allergy;
+
+
+          let rs_chronic: any = await hisHiModel.getDisease(db, hn);
+          let chronic: any = [];
+          for (const ch of rs_chronic) {
+            const objchronic = {
+              "request_id": requestId,
+              "uid": uid,
+              "provider_code": hcode,
+              "provider_name": hname,
+              // "seq": item.seq,
+              // "date_serv": moment(item.date).format("YYYY-MM-DD"),
+              // "time_serv": moment(time, "HH:mm:ss").format("HH:mm:ss"),
+              "icd_code": ch.icd10_code,
+              "icd_name": ch.icd10_desc,
+              "start_date": ch.start_date
+            }
+            chronic.push(objchronic);
+          }
+          // objProfile.chronic = chronic;
+          objService.chronic = chronic;
+
 
           // pp.push(objPp); // add objPp to pp
           // activities.pp = pp[0] // add pp to objActivities
           // objService.activities = activities;
 
-          services.push(objService);
+          services = objService;
 
         }
 
@@ -459,13 +677,13 @@ export class Services {
           return ({
             ok: true,
             rows: {
-              hcode: hcode,
-              hname: hname,
-              hn: hn,
-              cid: cid,
-              uid: uid,
-              requestId: requestId,
-              profile: objProfile,
+              // provider_code: hcode,
+              // provider_name: hname,
+              // hn: hn,
+              // cid: cid,
+              // uid: uid,
+              // requestId: requestId,
+              // profile: objProfile,
               services: services
             }
           });
