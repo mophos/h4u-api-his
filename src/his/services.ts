@@ -232,8 +232,8 @@ export class Services {
             "vaccine_name": rv.vaccine_name
           }
           vaccines.push(objVcc);
+          objService.vaccines = vaccines;
         }
-        objService.vaccines = vaccines;
         
         for (const rc of rs_disease) {
           const objCho = {
@@ -248,9 +248,9 @@ export class Services {
             "start_date": rc.start_date
           }
           chronic.push(objCho);
+          objService.chronic = chronic;
         }
-        objService.chronic = chronic;
-
+        
         for (const ra of rs_allergy) {
           const objAllergy = {
             "request_id": requestId,
@@ -261,8 +261,9 @@ export class Services {
             "symptom": ra.symptom
           }
           allergy.push(objAllergy);
+          objService.allergy = allergy;
         }
-        objService.allergy = allergy;
+        
         //objService.chronic = rs_disease;
         // obj_name.title_name = rs_name[0].title_name;
         // obj_name.first_name = rs_name[0].first_name;
@@ -307,9 +308,9 @@ export class Services {
               diag_type: rg.diag_type,
             }
             diagnosis.push(objDiagnosis);
+            objService.diagnosis = diagnosis;
           }
-          objService.diagnosis = diagnosis;
-
+          
           const rs_procedure = await hisHosxpv3Model.getProcedure(db, v.vn)
           for (const rp of rs_procedure[0]) {
             const objProcedure = {
@@ -328,8 +329,9 @@ export class Services {
               "end_time": rp.end_time
             }
             procedure.push(objProcedure);
+            objService.procedure = procedure;
           }
-          objService.procedure = procedure;
+          
 
           const rs_drugs = await hisHosxpv3Model.getDrugs(db, v.vn);
           for (const rd of rs_drugs) {
@@ -349,8 +351,9 @@ export class Services {
               "usage_line3": rd.usage_line3
             }
             drugs.push(objDrug);
+            objService.drugs = drugs;
           }
-          objService.drugs = drugs;
+          
 
           const rs_lab = await hisHosxpv3Model.getLabs(db, v.vn);
           for (const rl of rs_lab) {
@@ -367,8 +370,9 @@ export class Services {
               "standard_result": rl.standard_result
             }
             lab.push(objLab);
+            objService.lab = lab;
           }
-          objService.lab = lab;
+          
 
           const rs_app = await hisHosxpv3Model.getAppointment(db, v.vn);
           if (rs_app.length) {
@@ -385,9 +389,9 @@ export class Services {
               "appoint_time": rs_app[0].time,
               "detail": rs_app[0].detail
             }
+            objService.appointment = appointment;
           }
-          objService.appointment = appointment;
-
+          
           const rs_refer = await hisHosxpv3Model.getRefer(db, v.vn);
           if (rs_refer.length) {
             refer = {
@@ -403,8 +407,9 @@ export class Services {
               "reason": rs_refer[0].refer_cause,
               "start_date": rs_refer[0].date_serv
             }
+            objService.refer = refer;
           }
-          objService.refer = refer;
+          
 
           // const rs_pe = await hisHosxpv3Model.getPe(db, v.vn);
           // const rs_anc = await hisHosxpv3Model.getAnc(db, v.vn, hn);
