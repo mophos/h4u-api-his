@@ -17,6 +17,8 @@ router.get('/', (req, res, next) => {
     res.render('index', { title: 'MOPH H4U API' });
 });
 
+
+// ห้ามแก้ไข // 
 router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
     let hisModel: any;
     switch (provider) {

@@ -9,7 +9,7 @@ import Knex = require('knex');
 //   let data = await knex.raw(`select * from opdconfig`);
 // return data[0];
 // }
-export class HisMbaseModel {
+export class HisModel {
 
   getHospital(db: Knex) {
     // ชื่อสถานพยาบาล
