@@ -9,3 +9,4 @@ apps/*
 .idea
 .env
 app/*
+package-lock.json
