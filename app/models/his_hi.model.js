@@ -1,55 +1,38 @@
-import Knex = require('knex');
-// ตัวอย่าง query แบบ knex
-// getHospital(db: Knex) {
-//   return db('opdconfig as o')
-//     .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
-// }
-// ตัวอย่างการคิวรี่โดยใช้ raw MySqlConnectionConfig
-// async getHospital(db: Knex) {
-//   let data = await knex.raw(`select * from opdconfig`);
-// return data[0];
-// }
-export class HisHiModel {
-
-    getHospital(db: Knex) {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class HisHiModel {
+    getHospital(db) {
         return db('setup as s')
             .select('s.hcode as hcode', 'h.namehosp as hname')
-            .leftJoin('hospcode as h', 'h.off_id', '=', 's.hcode')
+            .leftJoin('hospcode as h', 'h.off_id', '=', 's.hcode');
     }
-
-    getPtDetail(db: Knex, hn: any) {
+    getPtDetail(db, hn) {
         return db('pt')
             .select('pop_id as cid', 'pname as title_name', 'fname as first_name', 'lname as last_name')
             .where('hn', hn);
     }
-
-    getAllergyDetail(db: Knex, hn: any) {
+    getAllergyDetail(db, hn) {
         return db('allergy')
             .select('namedrug', 'detail')
             .where('hn', hn);
     }
-
-    getBloodgrp(db: Knex, hn: any) {
+    getBloodgrp(db, hn) {
         return db('pt')
             .select('bloodgrp as blood_group')
             .where('hn', hn);
     }
-
-    getSex(db: Knex, hn: any) {
+    getSex(db, hn) {
         return db('pt')
             .select('male')
             .where('hn', hn);
     }
-
-    getDisease(db: Knex, hn: any) {
+    getDisease(db, hn) {
         return db('chronic as c')
             .select('c.chronic as icd10_code', 'i.name_t as icd10_desc', 'c.date_diag as start_date')
             .innerJoin('icd101 as i', 'i.icd10', '=', 'c.chronic')
             .where('c.pid', hn);
     }
-
-    getSeq(db: Knex, date_serve: any, hn: any) {
-
+    getSeq(db, date_serve, hn) {
         let sql = `
         select o.vn as seq, o.vstdttm as date, o.nrxtime as time, c.namecln as department
         FROM ovst as o 
@@ -58,54 +41,45 @@ export class HisHiModel {
         `;
         return db.raw(sql, [date_serve, hn]);
     }
-
-    getDate(db: Knex, vn: any) {
+    getDate(db, vn) {
         return db('ovst as o')
             .select('o.vstdttm as date')
             .where('vn', vn);
     }
-
-    getTime(db: Knex, vn: any) {
+    getTime(db, vn) {
         return db('ovst as o')
             .select('o.nrxtime as time')
             .where('vn', vn);
     }
-
-    getDepartment(db: Knex, vn: any) {
+    getDepartment(db, vn) {
         return db('ovst as o')
             .select('c.namecln as department')
             .innerJoin('cln as c', 'c.cln', '=', 'o.cln')
             .where('vn', vn);
     }
-
-    getScreening(db: Knex, vn: any) {
+    getScreening(db, vn) {
         return db('ovst as o')
             .select('o.bw as weight', 'o.bw as height', 'o.dbp as dbp', 'o.sbp as sbp', 'o.bmi as bmi')
             .where('vn', vn);
     }
-
-    getPe(db: Knex, vn: any) {
+    getPe(db, vn) {
         return db('sign as s')
             .select('s.sign as pe')
             .where('vn', vn);
     }
-
-    getDiagnosis(db: Knex, vn: any) {
+    getDiagnosis(db, vn) {
         return db('ovstdx as o')
             .select('o.icd10 as icd10_code', 'o.icd10name as icd10_desc', 'o.cnt as diage_type')
             .where('vn', vn);
     }
-
-    getRefer(db: Knex, vn: any) {
+    getRefer(db, vn) {
         return db('orfro as o')
             .select('o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
             .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
             .leftJoin('rfrcs as f', 'f.rfrcs', '=', 'o.rfrcs')
             .where('vn', vn);
     }
-
-
-    getDrugs(db: Knex, vn: any) {
+    getDrugs(db, vn) {
         let sql = `
         select pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,' ' as usage_line3
         FROM prsc as p 
@@ -116,8 +90,7 @@ export class HisHiModel {
         `;
         return db.raw(sql, [vn]);
     }
-
-    getLabs(db: Knex, vn: any) {
+    getLabs(db, vn) {
         let sql = `
         SELECT 
         
@@ -145,8 +118,7 @@ export class HisHiModel {
         `;
         return db.raw(sql, [vn]);
     }
-
-    getAnc(db: Knex, vn: any) {
+    getAnc(db, vn) {
         let sql = `
         select 
         ga,
@@ -157,8 +129,7 @@ export class HisHiModel {
         `;
         return db.raw(sql, [vn]);
     }
-
-    getVaccine(db: Knex, vn: any) {
+    getVaccine(db, vn) {
         let sql = `
         select 
         cv.NEW as vaccine_code, 
@@ -194,20 +165,16 @@ export class HisHiModel {
         `;
         return db.raw(sql, [vn, vn]);
     }
-
-
-    getLabTable(db: Knex, lab_name: any, ln: any) {
+    getLabTable(db, lab_name, ln) {
         let sql = `select * from ? WHERE ln = ?`;
         return db.raw(sql, [lab_name, ln]);
     }
-
-    getAppointment(db: Knex, vn: any) {
+    getAppointment(db, vn) {
         return db('oapp as o')
             .select('o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
             .where('vn', vn);
     }
-
-    getEpiAll(db: Knex, hn: any) {
+    getEpiAll(db, hn) {
         let sql = `select 
         o.vstdttm as date_serve,
         o.drxtime as time_serve,
@@ -246,5 +213,6 @@ export class HisHiModel {
         `;
         return db.raw(sql, [hn, hn]);
     }
-
 }
+exports.HisHiModel = HisHiModel;
+//# sourceMappingURL=his_hi.model.js.map

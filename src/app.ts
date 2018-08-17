@@ -10,11 +10,9 @@ import * as bodyParser from 'body-parser';
 import index from './routes/index';
 import loginRoutes from './routes/login';
 import servicesRoute from './routes/services';
-import vaccinesRoute from './routes/vaccines';
 import * as ejs from 'ejs';
 import { JwtModel } from './models/jwt';
 import Knex = require('knex');
-import { MySqlConnectionConfig } from 'knex';
 import * as cors from 'cors';
 
 const app: express.Express = express();
@@ -90,7 +88,6 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use('/', index);
 app.use('/services', servicesRoute);
-app.use('/vaccines', vaccinesRoute);
 app.use('/login', loginRoutes);
 
 //catch 404 and forward to error handler
