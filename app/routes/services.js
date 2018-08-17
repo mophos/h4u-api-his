@@ -106,7 +106,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', (req, res) => __awaiter(this
                         "provider_name": providerName,
                         "date_serv": moment(rc.date_serve).format('YYYY-MM-DD'),
                         "time_serv": rc.time_serve,
-                        "icd_code": rc.icd10_code,
+                        "icd_code": rc.icd_code,
                         "icd_name": rc.icd_name,
                         "start_date": moment(rc.start_date).format('YYYY-MM-DD')
                     };
