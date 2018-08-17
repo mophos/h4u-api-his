@@ -84,6 +84,7 @@ app.use((req, res, next) => {
     debug: false,
     acquireConnectionTimeout: 5000
   });
+
   next();
 })
 app.use(cors());

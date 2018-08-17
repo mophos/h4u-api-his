@@ -10,7 +10,11 @@ export class LoginModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'POST',
-        url: 'https://smarthealth.service.moph.go.th/phps/public/api/v3/gettoken',
+        url: 'http://203.157.103.123/h4u/api/login/smh-login',
+        //url: 'https://smarthealth.service.moph.go.th/phps/public/api/v3/gettoken',
+        agentOptions: {
+          rejectUnauthorized: false
+        },
         headers:
         {
           'postman-token': 'c63b4187-f395-a969-dd57-19018273670b',

@@ -226,8 +226,8 @@ export class Services {
             "uid": uid,
             "provider_code": hcode,
             "provider_name": hname,
-            "date_serve": moment(rv.date_serve).format('YYYY-MM-DD'),
-            "time_serve": rv.time_serve,
+            "date_serv": moment(rv.date_serve).format('YYYY-MM-DD'),
+            "time_serv": rv.time_serve,
             "vaccine_code": rv.vaccine_code,
             "vaccine_name": rv.vaccine_name
           }
@@ -241,11 +241,11 @@ export class Services {
             "uid": uid,
             "provider_code": hcode,
             "provider_name": hname,
-            "date_serve": moment(rc.date_serve).format('YYYY-MM-DD'),
-            "time_serve": rc.time_serve,
-            "icd10_code": rc.icd10_code,
-            "icd10_name": rc.icd_name,
-            "start_date": rc.start_date
+            "date_serv": moment(rc.date_serve).format('YYYY-MM-DD'),
+            "time_serv": rc.time_serve,
+            "icd_code": rc.icd10_code,
+            "icd_name": rc.icd_name,
+            "start_date": moment(rc.start_date).format('YYYY-MM-DD')
           }
           chronic.push(objCho);
           objService.chronic = chronic;
@@ -296,15 +296,15 @@ export class Services {
           const rs_diagnosis = await hisHosxpv3Model.getDiagnosis(db, v.vn);
           for (const rg of rs_diagnosis) {
             const objDiagnosis = {
-              requestId: requestId,
+              request_id: requestId,
               uid: uid,
               provider_code: hcode,
               provider_name: hname,
               seq: rg.vn,
-              date_serv: rg.date_serv,
+              date_serv: moment(rg.date_serve).format('YYYY-MM-DD'),
               time_serv: rg.time_serv,
-              icd10_code: rg.icd10_code,
-              icd10_name: rg.icd10_desc,
+              icd_code: rg.icd10_code,
+              icd_name: rg.icd10_desc,
               diag_type: rg.diag_type,
             }
             diagnosis.push(objDiagnosis);
@@ -319,13 +319,13 @@ export class Services {
               "provider_code": hcode,
               "provider_name": hname,
               "seq": rp.vn,
-              "date_serv": rp.start_date,
+              "date_serv": moment(rp.date_serve).format('YYYY-MM-DD'),
               "time_serv": rp.start_time,
               "procedure_code": rp.procedure_code,
               "procedure_name": rp.procedure_name,
-              "start_date": rp.start_date,
+              "start_date": moment(rp.start_date).format('YYYY-MM-DD'),
               "start_time": rp.start_time,
-              "end_date": rp.end_date,
+              "end_date": moment(rp.end_date).format('YYYY-MM-DD'),
               "end_time": rp.end_time
             }
             procedure.push(objProcedure);
@@ -341,7 +341,7 @@ export class Services {
               "provider_code": hcode,
               "provider_name": hname,
               "seq": rd.vn,
-              "date_serv": rd.date_serv,
+              "date_serv": moment(rd.date_serve).format('YYYY-MM-DD'),
               "time_serv": rd.time_serv,
               "drug_name": rd.drug_name,
               "qty": rd.qty,
@@ -363,7 +363,7 @@ export class Services {
               "provider_code": hcode,
               "provider_name": hname,
               "seq": rl.vn,
-              "date_serv": rl.date_serv,
+              "date_serv": moment(rl.date_serve).format('YYYY-MM-DD'),
               "time_serv": rl.time_serv,
               "lab_name": rl.lab_name,
               "lab_result": rl.lab_result,
@@ -382,10 +382,10 @@ export class Services {
               "provider_code": hcode,
               "provider_name": hname,
               "seq": rs_app[0].vn,
-              "date_serv": rs_app[0].date_serv,
+              "date_serv": moment(rs_app[0].date_serve).format('YYYY-MM-DD'),
               "time_serv": rs_app[0].time_serv,
               "clinic": rs_app[0].department,
-              "appoint_date": rs_app[0].date,
+              "appoint_date": moment(rs_app[0].date).format('YYYY-MM-DD'),
               "appoint_time": rs_app[0].time,
               "detail": rs_app[0].detail
             }
@@ -400,12 +400,12 @@ export class Services {
               "provider_code": hcode,
               "provider_name": hname,
               "seq": rs_refer[0].seq,
-              "date_serv": rs_refer[0].date_serv,
+              "date_serv": moment(rs_refer[0].date_serve).format('YYYY-MM-DD'),
               "time_serv": rs_refer[0].time_serv,
               "to_provider_code": rs_refer[0].depto_provider_codeartment,
               "to_provider_name": rs_refer[0].to_provider_name,
               "reason": rs_refer[0].refer_cause,
-              "start_date": rs_refer[0].date_serv
+              "start_date": moment(rs_refer[0].date_serv).format('YYYY-MM-DD')
             }
             objService.refer = refer;
           }
@@ -452,16 +452,7 @@ export class Services {
         if (rs_name.length) {
           return ({
             ok: true,
-            rows: {
-              // hcode: hcode,
-              // hname: hname,
-              // hn: hn,
-              // uid: uid,
-              // cid: cid,
-              // requestId: requestId,
-              // profile: objProfile,
-              services: services
-            }
+            rows: services
           });
         }
         else {
