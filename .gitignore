@@ -4,7 +4,7 @@ npm-debug.log
 .settings/*
 .git/*
 bower_components/*
-app/*
+apps/*
 .DS_Store
 .idea
 .env
