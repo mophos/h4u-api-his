@@ -1,4 +1,3 @@
-import { Services } from './../his/services';
 import { Router, Request, Response } from 'express';
 import * as moment from 'moment';
 // model
@@ -11,7 +10,6 @@ import { HisHomecModel } from './../models/his_homec.model';
 
 
 const provider = process.env.HIS_PROVIDER;
-const services = new Services();
 const router: Router = Router();
 
 
@@ -164,8 +162,8 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 seq: rg.vn,
                                 date_serv: moment(rg.date_serve).format('YYYY-MM-DD'),
                                 time_serv: rg.time_serv,
-                                icd_code: rg.icd10_code,
-                                icd_name: rg.icd10_desc,
+                                icd_code: rg.icd_code,
+                                icd_name: rg.icd_desc,
                                 diag_type: rg.diag_type,
                             }
                             diagnosis.push(objDiagnosis);
@@ -281,7 +279,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             if (objService) {
-                res.send({ ok: true, rows: services });
+                res.send({ ok: true, rows: objService });
             } else {
                 res.send({ ok: false });
             }

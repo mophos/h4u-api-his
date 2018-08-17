@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const services_1 = require("./../his/services");
 const express_1 = require("express");
 const moment = require("moment");
 const his_jhcis_model_1 = require("./../models/his_jhcis.model");
@@ -18,7 +17,6 @@ const his_hi_model_1 = require("./../models/his_hi.model");
 const his_jhos_model_1 = require("./../models/his_jhos.model");
 const his_homec_model_1 = require("./../models/his_homec.model");
 const provider = process.env.HIS_PROVIDER;
-const services = new services_1.Services();
 const router = express_1.Router();
 router.get('/', (req, res, next) => {
     res.render('index', { title: 'MOPH H4U API' });
@@ -152,8 +150,8 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', (req, res) => __awaiter(this
                                 seq: rg.vn,
                                 date_serv: moment(rg.date_serve).format('YYYY-MM-DD'),
                                 time_serv: rg.time_serv,
-                                icd_code: rg.icd10_code,
-                                icd_name: rg.icd10_desc,
+                                icd_code: rg.icd_code,
+                                icd_name: rg.icd_desc,
                                 diag_type: rg.diag_type,
                             };
                             diagnosis.push(objDiagnosis);
@@ -260,7 +258,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', (req, res) => __awaiter(this
                 }
             }
             if (objService) {
-                res.send({ ok: true, rows: services });
+                res.send({ ok: true, rows: objService });
             }
             else {
                 res.send({ ok: false });
