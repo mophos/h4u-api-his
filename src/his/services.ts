@@ -208,7 +208,7 @@ export class Services {
         let obj_disease: any = [];
         let objProfile: any = {};
         let objService: any = {};
-        let vaccines: any = []; 
+        let vaccines: any = [];
         let services: any = {};
         let activities: any = {};
         let pp: any = [];
@@ -234,7 +234,7 @@ export class Services {
           vaccines.push(objVcc);
           objService.vaccines = vaccines;
         }
-        
+
         for (const rc of rs_disease) {
           const objCho = {
             "request_id": requestId,
@@ -250,7 +250,7 @@ export class Services {
           chronic.push(objCho);
           objService.chronic = chronic;
         }
-        
+
         for (const ra of rs_allergy) {
           const objAllergy = {
             "request_id": requestId,
@@ -263,7 +263,7 @@ export class Services {
           allergy.push(objAllergy);
           objService.allergy = allergy;
         }
-        
+
         //objService.chronic = rs_disease;
         // obj_name.title_name = rs_name[0].title_name;
         // obj_name.first_name = rs_name[0].first_name;
@@ -310,7 +310,7 @@ export class Services {
             diagnosis.push(objDiagnosis);
             objService.diagnosis = diagnosis;
           }
-          
+
           const rs_procedure = await hisHosxpv3Model.getProcedure(db, v.vn)
           for (const rp of rs_procedure[0]) {
             const objProcedure = {
@@ -331,7 +331,7 @@ export class Services {
             procedure.push(objProcedure);
             objService.procedure = procedure;
           }
-          
+
 
           const rs_drugs = await hisHosxpv3Model.getDrugs(db, v.vn);
           for (const rd of rs_drugs) {
@@ -353,7 +353,7 @@ export class Services {
             drugs.push(objDrug);
             objService.drugs = drugs;
           }
-          
+
 
           const rs_lab = await hisHosxpv3Model.getLabs(db, v.vn);
           for (const rl of rs_lab) {
@@ -372,7 +372,7 @@ export class Services {
             lab.push(objLab);
             objService.lab = lab;
           }
-          
+
 
           const rs_app = await hisHosxpv3Model.getAppointment(db, v.vn);
           if (rs_app.length) {
@@ -391,7 +391,7 @@ export class Services {
             }
             objService.appointment = appointment;
           }
-          
+
           const rs_refer = await hisHosxpv3Model.getRefer(db, v.vn);
           if (rs_refer.length) {
             refer = {
@@ -409,7 +409,7 @@ export class Services {
             }
             objService.refer = refer;
           }
-          
+
 
           // const rs_pe = await hisHosxpv3Model.getPe(db, v.vn);
           // const rs_anc = await hisHosxpv3Model.getAnc(db, v.vn, hn);
@@ -472,7 +472,7 @@ export class Services {
         let objProfile: any = {};
         let objService: any = {};
 
-      }catch (error) {
+      } catch (error) {
         return ({ ok: false, error: error.message });
       }
     } else {
@@ -485,15 +485,15 @@ export class Services {
       try {
         let objProfile: any = {};
         let objService: any = {};
-        
-      }catch (error) {
+
+      } catch (error) {
         return ({ ok: false, error: error.message });
       }
     } else {
       return ({ ok: false, error: 'Incorrect data!' });
     }
   }
-  
+
 
   async his_hi(db, hn, dateServe, uid, requestId) {
     if (hn) {
@@ -581,14 +581,14 @@ export class Services {
               "seq": item.seq,
               "date_serv": moment(item.date).format("YYYY-MM-DD"),
               "time_serv": moment(time, "HH:mm:ss").format("HH:mm:ss"),
-              "icd10_code": dia.icd10_code,
-              "icd10_desc": dia.icd10_desc,
-              "diage_type": dia.diage_type
+              "icd_code": dia.icd10_code,
+              "icd_name": dia.icd10_desc,
+              "diag_type": dia.diage_type
             }
             diagnosis.push(objdiag);
             objService.diagnosis = diagnosis;
           }
-          
+
 
           let rs_drugs: any[] = await hisHiModel.getDrugs(db, item.seq);
           let drugs: any = [];
@@ -610,7 +610,7 @@ export class Services {
             }
             drugs.push(objdrug);
             objService.drugs = drugs;
-          }          
+          }
 
           let rs_refer: any[] = await hisHiModel.getRefer(db, item.seq);
           let refer: any = [];
@@ -631,7 +631,7 @@ export class Services {
             refer.push(objRefer);
             objService.refer = refer;
           }
-          
+
           let rs_appointment: any[] = await hisHiModel.getAppointment(db, item.seq);
           // console.log(rs_appointment);
           // objService.appointment = rs_appointment[0];
@@ -653,7 +653,7 @@ export class Services {
             appointment.push(objapp);
             objService.appointment = appointment;
           }
-          
+
 
           let rs_lab: any[] = await hisHiModel.getLabs(db, item.seq);
           let lab: any = [];
@@ -744,16 +744,7 @@ export class Services {
         if (rs_name.length) {
           return ({
             ok: true,
-            rows: {
-              // provider_code: hcode,
-              // provider_name: hname,
-              // hn: hn,
-              // cid: cid,
-              // uid: uid,
-              // requestId: requestId,
-              // profile: objProfile,
-              services: services
-            }
+            rows: services = services
           });
         }
         else {

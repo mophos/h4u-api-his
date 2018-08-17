@@ -100,7 +100,7 @@ export class HisHiModel {
 
     getDrugs(db: Knex, vn: any) {
         let sql = `
-        select pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
+        select pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,' ' as usage_line3
         FROM prsc as p 
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
         Left Join medusage as m ON m.dosecode = pd.medusage
