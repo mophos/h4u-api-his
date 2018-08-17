@@ -17,82 +17,23 @@ export class HisHiModel {
             .leftJoin('hospcode as h', 'h.off_id', '=', 's.hcode')
     }
 
-    getPtDetail(db: Knex, hn: any) {
-        return db('pt')
-            .select('pop_id as cid', 'pname as title_name', 'fname as first_name', 'lname as last_name')
-            .where('hn', hn);
-    }
-
     getAllergyDetail(db: Knex, hn: any) {
         return db('allergy')
             .select('namedrug', 'detail')
             .where('hn', hn);
     }
 
-    getBloodgrp(db: Knex, hn: any) {
-        return db('pt')
-            .select('bloodgrp as blood_group')
-            .where('hn', hn);
-    }
-
-    getSex(db: Knex, hn: any) {
-        return db('pt')
-            .select('male')
-            .where('hn', hn);
-    }
-
     getDisease(db: Knex, hn: any) {
         return db('chronic as c')
-            .select('c.chronic as icd10_code', 'i.name_t as icd10_desc', 'c.date_diag as start_date')
+            .select('c.chronic as icd_code', 'i.name_t as icd_desc', 'c.date_diag as start_date')
             .innerJoin('icd101 as i', 'i.icd10', '=', 'c.chronic')
             .where('c.pid', hn);
     }
 
-    getSeq(db: Knex, date_serve: any, hn: any) {
-
-        let sql = `
-        select o.vn as seq, o.vstdttm as date, o.nrxtime as time, c.namecln as department
-        FROM ovst as o 
-        Inner Join cln as c ON c.cln = o.cln 
-        WHERE DATE(o.vstdttm) = ? and o.hn =?
-        `;
-        return db.raw(sql, [date_serve, hn]);
-    }
-
-    getDate(db: Knex, vn: any) {
-        return db('ovst as o')
-            .select('o.vstdttm as date')
-            .where('vn', vn);
-    }
-
-    getTime(db: Knex, vn: any) {
-        return db('ovst as o')
-            .select('o.nrxtime as time')
-            .where('vn', vn);
-    }
-
-    getDepartment(db: Knex, vn: any) {
-        return db('ovst as o')
-            .select('c.namecln as department')
-            .innerJoin('cln as c', 'c.cln', '=', 'o.cln')
-            .where('vn', vn);
-    }
-
-    getScreening(db: Knex, vn: any) {
-        return db('ovst as o')
-            .select('o.bw as weight', 'o.bw as height', 'o.dbp as dbp', 'o.sbp as sbp', 'o.bmi as bmi')
-            .where('vn', vn);
-    }
-
-    getPe(db: Knex, vn: any) {
-        return db('sign as s')
-            .select('s.sign as pe')
-            .where('vn', vn);
-    }
 
     getDiagnosis(db: Knex, vn: any) {
         return db('ovstdx as o')
-            .select('o.icd10 as icd10_code', 'o.icd10name as icd10_desc', 'o.cnt as diage_type')
+            .select('o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diage_type')
             .where('vn', vn);
     }
 
@@ -105,22 +46,20 @@ export class HisHiModel {
     }
 
 
-    getDrugs(db: Knex, vn: any) {
-        let sql = `
+    async getDrugs(db: Knex, vn: any) {
+        let data = await db.raw(`
         select pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
         FROM prsc as p 
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
         Left Join medusage as m ON m.dosecode = pd.medusage
         Left Join meditem as med ON med.meditem = pd.meditem
-        WHERE p.vn = ?
-        `;
-        return db.raw(sql, [vn]);
+        WHERE p.vn = '${vn}'`);
+        return data[0];
     }
 
-    getLabs(db: Knex, vn: any) {
-        let sql = `
+    async getLabs(db: Knex, vn: any) {
+        let data = await db.raw(`
         SELECT 
-        
         lab_test as lab_name,
         hi.Get_Labresult(t.lab_table,t.labfield,t.lab_number) as lab_result,
         reference as standard_result
@@ -138,68 +77,13 @@ export class HisHiModel {
         l.labcode as lab_group
         FROM 
         hi.lbbk as l 
-        inner join hi.lab on l.labcode=lab.labcode and l.finish=1 and l.vn=?
+        inner join hi.lab on l.labcode=lab.labcode and l.finish=1 and l.vn='${vn}'
         inner join hi.lablabel as lb on l.labcode = lb.labcode
         group by l.ln,l.labcode,lb.filename,lb.fieldname
-        ) as t 
-        `;
-        return db.raw(sql, [vn]);
+        ) as t `);
+        return data[0];
     }
 
-    getAnc(db: Knex, vn: any) {
-        let sql = `
-        select 
-        ga,
-        g as anc_no,
-        ancresult as result
-        from anc 
-        where vn = ? 
-        `;
-        return db.raw(sql, [vn]);
-    }
-
-    getVaccine(db: Knex, vn: any) {
-        let sql = `
-        select 
-        cv.NEW as vaccine_code, 
-        h.namehpt as vaccine_name
-        from 
-        hi.epi e 
-        inner join 
-        hi.ovst o on e.vn = o.vn 
-        inner join 
-        hi.cvt_vacc cv on e.vac = cv.OLD  
-        left join 
-        hi.hpt as h on e.vac=h.codehpt
-        where 
-        o.vn=?
-        
-        UNION
-
-        select 
-        vc.stdcode as vacine_code, 
-        vc.\`name\` as vacine_name
-        from 
-        hi.ovst o 
-        inner join 
-        hi.prsc pc on o.vn = pc.vn  
-        inner join 
-        hi.prscdt pd on pc.prscno = pd.prscno  
-        inner join 
-        hi.meditem m on pd.meditem = m.meditem 
-        inner join 
-        hi.vaccine vc on vc.meditem = m.meditem  
-        where 
-        o.vn=?
-        `;
-        return db.raw(sql, [vn, vn]);
-    }
-
-
-    getLabTable(db: Knex, lab_name: any, ln: any) {
-        let sql = `select * from ? WHERE ln = ?`;
-        return db.raw(sql, [lab_name, ln]);
-    }
 
     getAppointment(db: Knex, vn: any) {
         return db('oapp as o')
@@ -207,8 +91,8 @@ export class HisHiModel {
             .where('vn', vn);
     }
 
-    getEpiAll(db: Knex, hn: any) {
-        let sql = `select 
+    async getVaccine(db: Knex, hn: any) {
+        let data = await db.raw(`select 
         o.vstdttm as date_serve,
         o.drxtime as time_serve,
         cv.NEW as vaccine_code, 
@@ -222,7 +106,7 @@ export class HisHiModel {
         left join 
         hi.hpt as h on e.vac=h.codehpt
         where 
-        o.hn=?
+        o.hn='${hn}'
         
         UNION
 
@@ -242,9 +126,8 @@ export class HisHiModel {
         inner join 
         hi.vaccine vc on vc.meditem = m.meditem  
         where 
-        o.hn=?
-        `;
-        return db.raw(sql, [hn, hn]);
+        o.hn='${hn}'`);
+        return data[0];
     }
 
 }
