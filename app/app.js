@@ -9,7 +9,6 @@ const bodyParser = require("body-parser");
 const index_1 = require("./routes/index");
 const login_1 = require("./routes/login");
 const services_1 = require("./routes/services");
-const vaccines_1 = require("./routes/vaccines");
 const ejs = require("ejs");
 const jwt_1 = require("./models/jwt");
 const Knex = require("knex");
@@ -76,7 +75,6 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use('/', index_1.default);
 app.use('/services', services_1.default);
-app.use('/vaccines', vaccines_1.default);
 app.use('/login', login_1.default);
 app.use((req, res, next) => {
     var err = new Error('Not Found');

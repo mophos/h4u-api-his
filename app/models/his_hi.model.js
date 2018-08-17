@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const dbName = process.env.HIS_DB_NAME;
 class HisHiModel {
     getHospital(db) {
         return db('setup as s')

@@ -1,6 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class HisHosxpv3Model {
+const dbName = process.env.HIS_DB_NAME;
+class HisHosxpv4Model {
+    getTableName(knex) {
+        return knex
+            .select('TABLE_NAME')
+            .from('information_schema.tables')
+            .where('TABLE_SCHEMA', '=', dbName);
+    }
     getHospital(db) {
         return db('opdconfig as o')
             .select('o.hospitalcode as hcode', 'o.hospitalname as hname');
@@ -13,9 +20,30 @@ class HisHosxpv3Model {
             .where('v.hn', hn)
             .where('v.vstdate', dateServe);
     }
+    getSeq(db, dateServe, hn) {
+        return db('ovst as o')
+            .select('o.vn as seq', 'o.vn as visitno', 'o.vstdate as date', 'o.vsttime as time', 'k.department')
+            .leftOuterJoin('kskdepartment as k', 'k.depcode', 'o.main_dep')
+            .whereRaw(`DATE(o.vstdate) = ${dateServe} and o.hn = ${hn}`);
+    }
+    getPtDetail(db, hn) {
+        return db('patient')
+            .select('cid', 'pname as title_name', 'fname as first_name', 'lname as last_name')
+            .where('hn', hn);
+    }
     getAllergyDetail(db, hn) {
         return db('opd_allergy')
             .select('agent as drug_name', 'symptom')
+            .where('hn', hn);
+    }
+    getBloodgrp(db, hn) {
+        return db('patient')
+            .select('bloodgrp as blood_group')
+            .where('hn', hn);
+    }
+    getSex(db, hn) {
+        return db('patient')
+            .select('sex')
             .where('hn', hn);
     }
     getDisease(db, hn) {
@@ -25,6 +53,32 @@ class HisHosxpv3Model {
             .leftOuterJoin('patient as pa', 'pa.cid', '=', 'pe.cid')
             .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
             .where('pa.hn', hn);
+    }
+    getDate(db, vn) {
+        return db('ovst as o')
+            .select('o.vstdate as date')
+            .where('vn', vn);
+    }
+    getTime(db, vn) {
+        return db('ovst as o')
+            .select('o.vsttime as time')
+            .where('vn', vn);
+    }
+    getDepartment(db, vn) {
+        return db('ovst as o')
+            .select('k.department')
+            .innerJoin('kskdepartment as k', 'k.depcode', '=', 'o.main_dep')
+            .where('vn', vn);
+    }
+    getScreening(db, vn) {
+        return db('opdscreen as o')
+            .select('o.bw as weight', 'o.height', 'o.bpd as dbp', 'o.bps as sbp', 'o.bmi')
+            .where('vn', vn);
+    }
+    getPe(db, vn) {
+        return db('opdscreen as v')
+            .select('v.pe as pe')
+            .where('v.vn', vn);
     }
     getDiagnosis(db, vn) {
         return db('ovstdiag as o')
@@ -72,7 +126,34 @@ class HisHosxpv3Model {
             .innerJoin('ovst as o', 'o.vn', 'h.vn')
             .where('h.vn', vn);
     }
-    getVaccine(db, hn) {
+    getAnc(db, vn, hn) {
+        return db('person_anc as a')
+            .select('a.preg_no as ga', 'a.current_preg_age as anc_no', 's.service_result as result')
+            .innerJoin('person as p', 'p.person_id', 'a.person_id')
+            .innerJoin('patient as e', 'e.cid', 'p.cid')
+            .innerJoin('ovst as v', 'v.hn', 'e.hn')
+            .innerJoin('person_anc_service as s', 's.person_anc_id', 'a.person_anc_id')
+            .whereRaw('a.discharge <> "Y" or a.discharge IS NULL')
+            .where('v.vn', vn)
+            .where('e.hn', hn);
+    }
+    getVaccine(db, vn) {
+        return db('person_vaccine_list as l')
+            .select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+            .innerJoin('person as p', 'p.person_id', 'l.person_id')
+            .innerJoin('patient as e', 'e.cid', 'p.cid')
+            .innerJoin('ovst as o', 'o.hn', 'e.hn')
+            .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
+            .where('o.vn', vn)
+            .union(function () {
+            this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+                .innerJoin('ovst as o', 'o.vn', 'l.vn')
+                .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
+                .from('ovst_vaccine as l')
+                .where('o.vn', vn);
+        });
+    }
+    getEpi(db, hn) {
         return db('person_vaccine_list as l')
             .select(db.raw(`l.vaccine_date as date_serve,'' as time_serve,v.vaccine_code,v.vaccine_name`))
             .innerJoin('person as p', 'p.person_id', 'l.person_id')
@@ -96,5 +177,5 @@ class HisHosxpv3Model {
             .where('o.vn', vn);
     }
 }
-exports.HisHosxpv3Model = HisHosxpv3Model;
-//# sourceMappingURL=his_hosxpv3.model.js.map
+exports.HisHosxpv4Model = HisHosxpv4Model;
+//# sourceMappingURL=his_hosxpv4.model.js.map

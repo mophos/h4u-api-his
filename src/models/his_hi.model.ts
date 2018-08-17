@@ -1,7 +1,14 @@
 import Knex = require('knex');
-//import * as moment from 'moment';
-const dbName = process.env.HIS_DB_NAME;
-
+// ตัวอย่าง query แบบ knex
+// getHospital(db: Knex) {
+//   return db('opdconfig as o')
+//     .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
+// }
+// ตัวอย่างการคิวรี่โดยใช้ raw MySqlConnectionConfig
+// async getHospital(db: Knex) {
+//   let data = await knex.raw(`select * from opdconfig`);
+// return data[0];
+// }
 export class HisHiModel {
 
     getHospital(db: Knex) {

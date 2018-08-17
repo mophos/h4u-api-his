@@ -1,9 +1,13 @@
 import { Services } from './../his/services';
-import * as HttpStatus from 'http-status-codes';
-// import * as express from 'express';
-// import * as request from 'request';
-// import * as moment from 'moment';
 import { Router, Request, Response } from 'express';
+import * as moment from 'moment';
+// model
+import { HisJhcisModel } from './../models/his_jhcis.model';
+import { HisHosxpv3Model } from './../models/his_hosxpv3.model';
+import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
+import { HisHiModel } from './../models/his_hi.model';
+import { HisJhosModel } from './../models/his_jhos.model';
+import { HisHomecModel } from './../models/his_homec.model';
 
 
 const provider = process.env.HIS_PROVIDER;
@@ -12,26 +16,281 @@ const router: Router = Router();
 
 
 router.get('/', (req, res, next) => {
-    res.render('index', { title: 'MOPH PHR API' });
+    res.render('index', { title: 'MOPH H4U API' });
 });
 
 router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
-    let db = req.db;
-    let hn: any = req.params.hn;
-    let dateServe: any = req.params.dateServe;
-    let uid: any = req.params.uid;
-    let requestId: any = req.params.request_id;
-    let rs: any;
-    if (provider == 'jhcis') {
-        rs = await services.his_jhcis(db, hn, dateServe, uid, requestId);
-    } else if (provider == 'hosxpv3') {
-        rs = await services.his_hosxp(db, hn, dateServe, uid, requestId);
-    } else if (provider == 'hi') {
-        rs = await services.his_hi(db, hn, dateServe, uid, requestId);
-    } else if (provider == 'jhos') {
-        rs = await services.his_jhos(db, hn, dateServe, uid, requestId);
+    let hisModel: any;
+    switch (provider) {
+        case 'ezhosp':
+            // hisModel = new HisEzhospModel();
+            break;
+        case 'hosxpv3':
+            hisModel = new HisHosxpv3Model();
+            break;
+        case 'hosxpv4':
+            hisModel = new HisHosxpv4Model();
+            break;
+        case 'ssb':
+            // hisModel = new HisSsbModel();
+            break;
+        case 'infod':
+            // hisModel = new HisInfodModel();
+            break;
+        case 'hi':
+            hisModel = new HisHiModel();
+            break;
+        case 'himpro':
+            // hisModel = new HisHimproModel();
+            break;
+        case 'jhcis':
+            hisModel = new HisJhcisModel();
+            break;
+        case 'hosxppcu':
+            // hisModel = new HisHosxppcuModel();
+            break;
+        case 'hospitalos':
+            // hisModel = new HisHospitalOsModel();
+            break;
+        case 'jhos':
+            hisModel = new HisJhosModel();
+            break;
+        case 'pmk':
+            // hisModel = new HisPmkModel();
+            break;
+        case 'meedee':
+            // hisModel = new HisMdModel();
+            break;
+        case 'spdc':
+            // hisModel = new HisSpdcModel();
+            break;
+        case 'homec':
+            hisModel = new HisHomecModel();
+            break;
+        default:
+        // hisModel = new HisModel();
     }
-    res.send(rs);
+
+    let db = req.db;
+    let hn = req.params.hn;
+    let dateServe = req.params.dateServe;
+    let uid = req.params.uid;
+    let requestId = req.params.request_id;
+    let objService: any = {};
+    let providerCode;
+    let providerName;
+
+    if (requestId && hn && dateServe && uid) {
+        try {
+            let rs_hospital: any = await hisModel.getHospital(db);
+            if (rs_hospital) {
+                providerCode = rs_hospital[0].provider_code;
+                providerName = rs_hospital[0].provider_name;
+            }
+
+            const rs_vaccine: any = await hisModel.getVaccine(db, hn);
+            if (rs_vaccine) {
+                let vaccines: any = [];
+                for (const rv of rs_vaccine) {
+                    const objVcc = {
+                        "request_id": requestId,
+                        "uid": uid,
+                        "provider_code": providerCode,
+                        "provider_name": providerName,
+                        "date_serv": moment(rv.date_serve).format('YYYY-MM-DD'),
+                        "time_serv": rv.time_serve,
+                        "vaccine_code": rv.vaccine_code,
+                        "vaccine_name": rv.vaccine_name
+                    }
+                    vaccines.push(objVcc);
+                }
+                objService.vaccines = vaccines;
+            }
+
+            let rs_chronic: any = await hisModel.getChronic(db, hn);
+            if (rs_chronic) {
+                let chronic: any = [];
+                for (const rc of rs_chronic) {
+                    const objCho = {
+                        "request_id": requestId,
+                        "uid": uid,
+                        "provider_code": providerCode,
+                        "provider_name": providerName,
+                        "date_serv": moment(rc.date_serve).format('YYYY-MM-DD'),
+                        "time_serv": rc.time_serve,
+                        "icd_code": rc.icd10_code,
+                        "icd_name": rc.icd_name,
+                        "start_date": moment(rc.start_date).format('YYYY-MM-DD')
+                    }
+                    chronic.push(objCho);
+                }
+                objService.chronic = chronic;
+            }
+
+            let rs_allergy: any = await hisModel.getAllergyDetail(db, hn);
+            if (rs_allergy) {
+                let allergy: any = [];
+                for (const ra of rs_allergy) {
+                    const objAllergy = {
+                        "request_id": requestId,
+                        "uid": uid,
+                        "provider_code": providerCode,
+                        "provider_name": providerName,
+                        "drug_name": ra.drug_name,
+                        "symptom": ra.symptom
+                    }
+                    allergy.push(objAllergy);
+                }
+                objService.allergy = allergy;
+            }
+
+            let rs_services: any = await hisModel.getServices(db, hn, dateServe);
+            if (rs_services) {
+                for (const v of rs_services) {
+                    const diagnosis = [];
+                    const drugs = [];
+                    const lab = [];
+                    const procedure = [];
+                    let appointment: any = [];
+                    let refer: any = [];
+                    const rs_diagnosis = await hisModel.getDiagnosis(db, v.vn);
+                    if (rs_diagnosis) {
+                        for (const rg of rs_diagnosis) {
+                            const objDiagnosis = {
+                                request_id: requestId,
+                                uid: uid,
+                                provider_code: providerCode,
+                                provider_name: providerName,
+                                seq: rg.vn,
+                                date_serv: moment(rg.date_serve).format('YYYY-MM-DD'),
+                                time_serv: rg.time_serv,
+                                icd_code: rg.icd10_code,
+                                icd_name: rg.icd10_desc,
+                                diag_type: rg.diag_type,
+                            }
+                            diagnosis.push(objDiagnosis);
+                        }
+                        objService.diagnosis = diagnosis;
+                    }
+
+                    const rs_procedure = await hisModel.getProcedure(db, v.vn)
+                    if (rs_procedure) {
+                        for (const rp of rs_procedure) {
+                            const objProcedure = {
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rp.vn,
+                                "date_serv": moment(rp.date_serve).format('YYYY-MM-DD'),
+                                "time_serv": rp.start_time,
+                                "procedure_code": rp.procedure_code,
+                                "procedure_name": rp.procedure_name,
+                                "start_date": moment(rp.start_date).format('YYYY-MM-DD'),
+                                "start_time": rp.start_time,
+                                "end_date": moment(rp.end_date).format('YYYY-MM-DD'),
+                                "end_time": rp.end_time
+                            }
+                            procedure.push(objProcedure);
+                        }
+                        objService.procedure = procedure;
+                    }
+
+
+                    const rs_drugs = await hisModel.getDrugs(db, v.vn);
+                    if (rs_drugs) {
+                        for (const rd of rs_drugs) {
+                            const objDrug = {
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rd.vn,
+                                "date_serv": moment(rd.date_serve).format('YYYY-MM-DD'),
+                                "time_serv": rd.time_serv,
+                                "drug_name": rd.drug_name,
+                                "qty": rd.qty,
+                                "unit": rd.unit,
+                                "usage_line1": rd.usage_line1,
+                                "usage_line2": rd.usage_line2,
+                                "usage_line3": rd.usage_line3
+                            }
+                            drugs.push(objDrug);
+                        }
+                        objService.drugs = drugs;
+                    }
+
+
+                    const rs_lab = await hisModel.getLabs(db, v.vn);
+                    if (rs_lab) {
+                        for (const rl of rs_lab) {
+                            const objLab = {
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rl.vn,
+                                "date_serv": moment(rl.date_serve).format('YYYY-MM-DD'),
+                                "time_serv": rl.time_serv,
+                                "lab_name": rl.lab_name,
+                                "lab_result": rl.lab_result,
+                                "standard_result": rl.standard_result
+                            }
+                            lab.push(objLab);
+                        }
+                        objService.lab = lab;
+                    }
+
+
+                    const rs_app = await hisModel.getAppointment(db, v.vn);
+                    if (rs_app) {
+                        appointment = {
+                            "request_id": requestId,
+                            "uid": uid,
+                            "provider_code": providerCode,
+                            "provider_name": providerName,
+                            "seq": rs_app[0].vn,
+                            "date_serv": moment(rs_app[0].date_serve).format('YYYY-MM-DD'),
+                            "time_serv": rs_app[0].time_serv,
+                            "clinic": rs_app[0].department,
+                            "appoint_date": moment(rs_app[0].date).format('YYYY-MM-DD'),
+                            "appoint_time": rs_app[0].time,
+                            "detail": rs_app[0].detail
+                        }
+                        objService.appointment = appointment;
+                    }
+
+                    const rs_refer = await hisModel.getRefer(db, v.vn);
+                    if (rs_refer) {
+                        refer = {
+                            "request_id": requestId,
+                            "uid": uid,
+                            "provider_code": providerCode,
+                            "provider_name": providerName,
+                            "seq": rs_refer[0].seq,
+                            "date_serv": moment(rs_refer[0].date_serve).format('YYYY-MM-DD'),
+                            "time_serv": rs_refer[0].time_serv,
+                            "to_provider_code": rs_refer[0].depto_provider_codeartment,
+                            "to_provider_name": rs_refer[0].to_provider_name,
+                            "reason": rs_refer[0].refer_cause,
+                            "start_date": moment(rs_refer[0].date_serv).format('YYYY-MM-DD')
+                        }
+                        objService.refer = refer;
+                    }
+                }
+            }
+
+            if (objService) {
+                res.send({ ok: true, rows: services });
+            } else {
+                res.send({ ok: false });
+            }
+        } catch (error) {
+            return ({ ok: false, error: error.message });
+        }
+    } else {
+        res.send({ ok: false, error: 'Incorrect data!' });
+    }
 });
 
 export default router;

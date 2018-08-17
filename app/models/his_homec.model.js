@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const dbName = process.env.HIS_DB_NAME;
-class HisJhosModel {
+class HisHomecModel {
     getHospital(db) {
         return db('opdconfig as o')
             .select('o.hospitalcode as hcode', 'o.hospitalname as hname');
@@ -133,5 +133,5 @@ and o.vn = ? `;
         return db.raw(sql, [vn]);
     }
 }
-exports.HisJhosModel = HisJhosModel;
-//# sourceMappingURL=his_jhos.model.js.map
+exports.HisHomecModel = HisHomecModel;
+//# sourceMappingURL=his_homec.model.js.map
