@@ -13,7 +13,7 @@ export class HisHiModel {
 
     getHospital(db: Knex) {
         return db('setup as s')
-            .select('s.hcode as hcode', 'h.namehosp as hname')
+            .select('s.hcode as provider_code', 'h.namehosp as provider_name')
             .leftJoin('hospcode as h', 'h.off_id', '=', 's.hcode')
     }
 
