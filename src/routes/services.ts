@@ -83,13 +83,13 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
     if (requestId && hn && dateServe && uid) {
         try {
             let rs_hospital: any = await hisModel.getHospital(db);
-            if (rs_hospital) {
+            if (rs_hospital.length) {
                 providerCode = rs_hospital[0].provider_code;
                 providerName = rs_hospital[0].provider_name;
             }
 
             const rs_vaccine: any = await hisModel.getVaccine(db, hn);
-            if (rs_vaccine) {
+            if (rs_vaccine.length) {
                 let vaccines: any = [];
                 for (const rv of rs_vaccine) {
                     const objVcc = {
@@ -108,7 +108,9 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_chronic: any = await hisModel.getChronic(db, hn);
-            if (rs_chronic) {
+            console.log(rs_chronic);
+
+            if (rs_chronic.length) {
                 let chronic: any = [];
                 for (const rc of rs_chronic) {
                     const objCho = {
@@ -128,7 +130,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_allergy: any = await hisModel.getAllergyDetail(db, hn);
-            if (rs_allergy) {
+            if (rs_allergy.length) {
                 let allergy: any = [];
                 for (const ra of rs_allergy) {
                     const objAllergy = {
@@ -145,7 +147,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_services: any = await hisModel.getServices(db, hn, dateServe);
-            if (rs_services) {
+            if (rs_services.length) {
                 for (const v of rs_services) {
                     const diagnosis = [];
                     const drugs = [];
@@ -154,7 +156,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     let appointment: any = [];
                     let refer: any = [];
                     const rs_diagnosis = await hisModel.getDiagnosis(db, v.vn);
-                    if (rs_diagnosis) {
+                    if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
                                 request_id: requestId,
@@ -174,7 +176,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
                     const rs_procedure = await hisModel.getProcedure(db, v.vn)
-                    if (rs_procedure) {
+                    if (rs_procedure.length) {
                         for (const rp of rs_procedure) {
                             const objProcedure = {
                                 "request_id": requestId,
@@ -198,7 +200,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
 
 
                     const rs_drugs = await hisModel.getDrugs(db, v.vn);
-                    if (rs_drugs) {
+                    if (rs_drugs.length) {
                         for (const rd of rs_drugs) {
                             const objDrug = {
                                 "request_id": requestId,
@@ -222,7 +224,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
 
 
                     const rs_lab = await hisModel.getLabs(db, v.vn);
-                    if (rs_lab) {
+                    if (rs_lab.length) {
                         for (const rl of rs_lab) {
                             const objLab = {
                                 "request_id": requestId,
@@ -243,7 +245,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
 
 
                     const rs_app = await hisModel.getAppointment(db, v.vn);
-                    if (rs_app) {
+                    if (rs_app.length) {
                         appointment = {
                             "request_id": requestId,
                             "uid": uid,
@@ -261,7 +263,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
                     const rs_refer = await hisModel.getRefer(db, v.vn);
-                    if (rs_refer) {
+                    if (rs_refer.length) {
                         refer = {
                             "request_id": requestId,
                             "uid": uid,
@@ -286,7 +288,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 res.send({ ok: false });
             }
         } catch (error) {
-            return ({ ok: false, error: error.message });
+            res.send({ ok: false, error: error.message });
         }
     } else {
         res.send({ ok: false, error: 'Incorrect data!' });

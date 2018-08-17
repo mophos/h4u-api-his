@@ -10,6 +10,15 @@ import Knex = require('knex');
 // return data[0];
 // }
 export class HisHiModel {
+    async getServices(db: Knex, date_serve: any, hn: any) {
+
+        let data = await db.raw(`
+        select o.vn as seq, o.vstdttm as date, o.nrxtime as time, c.namecln as department
+        FROM ovst as o 
+        Inner Join cln as c ON c.cln = o.cln 
+        WHERE DATE(o.vstdttm) = '${date_serve}' and o.hn ='${hn}'`);
+        return data[0];
+    }
 
     getHospital(db: Knex) {
         return db('setup as s')
@@ -23,7 +32,7 @@ export class HisHiModel {
             .where('hn', hn);
     }
 
-    getDisease(db: Knex, hn: any) {
+    getChronic(db: Knex, hn: any) {
         return db('chronic as c')
             .select('c.chronic as icd_code', 'i.name_t as icd_desc', 'c.date_diag as start_date')
             .innerJoin('icd101 as i', 'i.icd10', '=', 'c.chronic')
