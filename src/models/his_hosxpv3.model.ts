@@ -1,4 +1,5 @@
 import Knex = require('knex');
+const dbName = process.env.DB_NAME;
 // ตัวอย่าง query แบบ knex
 // getHospital(db: Knex) {
 //   return db('opdconfig as o')
@@ -11,6 +12,13 @@ import Knex = require('knex');
 // }
 
 export class HisHosxpv3Model {
+
+  getTableName(knex: Knex) {
+    return knex
+      .select('TABLE_NAME')
+      .from('information_schema.tables')
+      .where('TABLE_SCHEMA', '=', dbName);
+  }
 
   getHospital(db: Knex) {
     return db('opdconfig as o')
@@ -33,7 +41,7 @@ export class HisHosxpv3Model {
   }
 
 
-  getDisease(db: Knex, hn: any) {
+  getChronic(db: Knex, hn: any) {
     return db('person_chronic as pc')
       .select('pc.regdate as start_date', 'pc.icd10 as icd10_code', 'i.name as icd_name')
       .leftOuterJoin('person as pe', 'pe.person_id', '=', 'pc.person_id')

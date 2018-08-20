@@ -1,6 +1,7 @@
 import Knex = require('knex');
 import * as moment from 'moment';
-const dbName = process.env.HIS_DB_NAME;
+const dbName = process.env.DB_NAME;
+
 
 export class HisJhcisModel {
   getTableName(knex: Knex) {
