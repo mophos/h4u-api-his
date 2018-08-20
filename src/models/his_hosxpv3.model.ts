@@ -22,7 +22,7 @@ export class HisHosxpv3Model {
 
   getHospital(db: Knex) {
     return db('opdconfig as o')
-      .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
+      .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
 
   getServices(db: Knex, hn, dateServe) {
