@@ -54,30 +54,29 @@ export class HisHosxpv3Model {
   getDiagnosis(db: Knex, vn: any) {
     return db('ovstdiag as o')
       .select('o.vn', 'o.vstdate as date_serv',
-        'o.vsttime as time_serv', 'o.icd10 as icd10_code', 'i.name as icd10_desc', 't.name as diag_type')
+        'o.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_desc', 't.name as diag_type')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
       .leftOuterJoin('diagtype as t', 't.diagtype', 'o.diagtype')
       .where('vn', vn);
   }
 
-  getProcedure(db: Knex, vn: any) {
-
-    let data = db.raw(`SELECT d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
+  async getProcedure(db: Knex, vn: any) {
+    let data = await db.raw(`SELECT d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
     time(d.begin_date_time) as start_time,
     date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
     FROM doctor_operation as d
     LEFT OUTER JOIN ovst o on o.vn=d.vn
     LEFT OUTER JOIN er_oper_code as e on e.er_oper_code=d.er_oper_code
-    WHERE o.hn = '?'
+    WHERE o.vn = ?
     UNION
     SELECT e.er_oper_code as procedure_code,c.name as procedure_name,o.vstdate as start_date, 
     time(e.begin_time) as start_time,o.vstdate as end_date,TIME(e.end_time) as end_date
     FROM er_regist_oper as e
     LEFT OUTER JOIN ovst o on o.vn=e.vn
     LEFT OUTER JOIN er_oper_code as c on c.er_oper_code=e.er_oper_code
-    WHERE o.hn = '?'
+    WHERE o.vn = ?
     `, [vn, vn]);
-    return data[0];
+  return data[0];
   }
 
   getRefer(db: Knex, vn: any) {
