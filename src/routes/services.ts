@@ -83,6 +83,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
     if (requestId && hn && dateServe && uid) {
         try {
             let rs_hospital: any = await hisModel.getHospital(db);
+            //console.log('Hospital : ', rs_hospital);
             if (rs_hospital.length) {
                 providerCode = rs_hospital[0].provider_code;
                 providerName = rs_hospital[0].provider_name;
@@ -108,8 +109,6 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_chronic: any = await hisModel.getChronic(db, hn);
-            console.log(rs_chronic);
-
             if (rs_chronic.length) {
                 let chronic: any = [];
                 for (const rc of rs_chronic) {
