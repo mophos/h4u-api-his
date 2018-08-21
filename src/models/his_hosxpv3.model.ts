@@ -61,7 +61,8 @@ export class HisHosxpv3Model {
   }
 
   getProcedure(db: Knex, vn: any) {
-    return db.raw(`SELECT d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
+
+    let data = db.raw(`SELECT d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
     time(d.begin_date_time) as start_time,
     date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
     FROM doctor_operation as d
@@ -75,7 +76,8 @@ export class HisHosxpv3Model {
     LEFT OUTER JOIN ovst o on o.vn=e.vn
     LEFT OUTER JOIN er_oper_code as c on c.er_oper_code=e.er_oper_code
     WHERE o.hn = '?'
-    `);
+    `, [vn, vn]);
+    return data[0];
   }
 
   getRefer(db: Knex, vn: any) {
@@ -93,10 +95,11 @@ export class HisHosxpv3Model {
     return db('opitemrece as o')
       .select('o.vn', 'o.vstdate as date_serv', 'o.vsttime as time_serv',
         'o.icode as drugcode', 's.name as drug_name', 'o.qty', 's.units as unit',
-        'u.name1 as usage_line1', 'u.name2 as usage_line2', 'u.name3 as usage_line3', )
+        'u.name1 as usage_line1', 'u.name2 as usage_line2', 'u.name3 as usage_line3')
       .innerJoin('s_drugitems as s', 's.icode', 'o.icode')
       .innerJoin('drugusage as u', 'u.drugusage', 'o.drugusage')
       .where('o.vn', vn)
+      .andWhere('o.item_type', '')
   }
 
   getLabs(db: Knex, vn: any) {
