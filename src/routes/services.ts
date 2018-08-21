@@ -7,6 +7,7 @@ import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
 import { HisHiModel } from './../models/his_hi.model';
 import { HisJhosModel } from './../models/his_jhos.model';
 import { HisHomecModel } from './../models/his_homec.model';
+import { HisBudhospModel } from './../models/his_budhosp.model';
 
 
 const provider = process.env.HIS_PROVIDER;
@@ -66,6 +67,9 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             break;
         case 'homec':
             hisModel = new HisHomecModel();
+            break;
+        case 'budhosp':
+            hisModel = new HisBudhospModel();
             break;
         default:
         // hisModel = new HisModel();
