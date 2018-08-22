@@ -90,6 +90,9 @@ app.use('/', index);
 app.use('/services', servicesRoute);
 app.use('/login', loginRoutes);
 
+
+
+
 //catch 404 and forward to error handler
 app.use((req, res, next) => {
   var err = new Error('Not Found');
@@ -97,30 +100,17 @@ app.use((req, res, next) => {
   next(err);
 });
 
-//error handlers
-
-//development error handler
-//will print stacktrace
-if (process.env.NODE_ENV === 'development') {
-  app.use((err: Error, req, res, next) => {
-    res.status(err['status'] || 500);
-    res.render('error', {
-      title: 'error',
-      message: err.message,
-      error: err
-    });
-  });
-}
-
-//production error handler
-// no stacktrace leaked to user
-app.use((err: Error, req, res, next) => {
-  res.status(err['status'] || 500);
-  res.render('error', {
-    title: 'error',
-    message: err.message,
-    error: {}
-  });
+app.use((err, req, res, next) => {
+  console.log(err);
+  let errorMessage;
+  switch (err['code']) {
+    case 'ER_DUP_ENTRY':
+      errorMessage = 'ข้อมูลซ้ำ';
+      break;
+    default:
+      errorMessage = err;
+      res.status(err['status'] || 500);
+  }
+  res.send({ ok: false, error: errorMessage });
 });
-
 export default app;

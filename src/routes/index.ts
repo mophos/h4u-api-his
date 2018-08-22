@@ -8,7 +8,7 @@ const jwt = new JwtModel();
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
-  res.render('index', { title: 'MOPH PHR API' });
+  res.send({ ok: true, rows: 'MOPH H4U API HIS' })
 });
 
 router.post('/users/smh-login', (req, res, next) => {
