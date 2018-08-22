@@ -6,7 +6,7 @@ import { HisHosxpv3Model } from './../models/his_hosxpv3.model';
 import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
 import { HisHiModel } from './../models/his_hi.model';
 import { HisJhosModel } from './../models/his_jhos.model';
-import { HisHomecModel } from './../models/his_homec.model';
+import { HisHomcModel } from './../models/his_homc.model';
 import { HisBudhospModel } from './../models/his_budhosp.model';
 
 
@@ -65,8 +65,8 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
         case 'spdc':
             // hisModel = new HisSpdcModel();
             break;
-        case 'homec':
-            hisModel = new HisHomecModel();
+        case 'homc':
+            hisModel = new HisHomcModel();
             break;
         case 'budhosp':
             hisModel = new HisBudhospModel();
