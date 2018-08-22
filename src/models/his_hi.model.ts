@@ -1,4 +1,6 @@
 import Knex = require('knex');
+const dbName = process.env.DB_NAME;
+
 // ตัวอย่าง query แบบ knex
 // getHospital(db: Knex) {
 //   return db('opdconfig as o')
@@ -10,6 +12,13 @@ import Knex = require('knex');
 // return data[0];
 // }
 export class HisHiModel {
+    getTableName(knex: Knex) {
+        return knex
+          .select('TABLE_NAME')
+          .from('information_schema.tables')
+          .where('TABLE_SCHEMA', '=', dbName);
+      }
+    
     async getServices(db: Knex, date_serve: any, hn: any) {
 
         let data = await db.raw(`

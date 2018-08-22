@@ -1,10 +1,18 @@
 'use strict';
 var request = require("request");
 import * as express from 'express';
+import * as moment from 'moment';
 import { JwtModel } from '../models/jwt'
+// model
+import { HisJhcisModel } from './../models/his_jhcis.model';
+import { HisHosxpv3Model } from './../models/his_hosxpv3.model';
+import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
+import { HisHiModel } from './../models/his_hi.model';
+import { HisJhosModel } from './../models/his_jhos.model';
+import { HisHomecModel } from './../models/his_homec.model';
 const router = express.Router();
 const jwt = new JwtModel();
-
+const provider = process.env.HIS_PROVIDER;
 
 /* GET home page. */
 router.get('/', (req, res, next) => {

@@ -68,7 +68,7 @@ let dbConnection: Knex.MySqlConnectionConfig = {
 
 app.use((req, res, next) => {
   req.db = Knex({
-    client: 'mysql',
+    client: process.env.DB_CLIENT,
     connection: dbConnection,
     pool: {
       min: 0,

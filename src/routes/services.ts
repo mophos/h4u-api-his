@@ -7,6 +7,7 @@ import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
 import { HisHiModel } from './../models/his_hi.model';
 import { HisJhosModel } from './../models/his_jhos.model';
 import { HisHomecModel } from './../models/his_homec.model';
+import { HisBudhospModel } from './../models/his_budhosp.model';
 
 
 const provider = process.env.HIS_PROVIDER;
@@ -67,6 +68,9 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
         case 'homec':
             hisModel = new HisHomecModel();
             break;
+        case 'budhosp':
+            hisModel = new HisBudhospModel();
+            break;
         default:
         // hisModel = new HisModel();
     }
@@ -83,6 +87,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
     if (requestId && hn && dateServe && uid) {
         try {
             let rs_hospital: any = await hisModel.getHospital(db);
+            //console.log('Hospital : ', rs_hospital);
             if (rs_hospital.length) {
                 providerCode = rs_hospital[0].provider_code;
                 providerName = rs_hospital[0].provider_name;
@@ -108,8 +113,6 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_chronic: any = await hisModel.getChronic(db, hn);
-            console.log(rs_chronic);
-
             if (rs_chronic.length) {
                 let chronic: any = [];
                 for (const rc of rs_chronic) {
@@ -155,6 +158,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     const procedure = [];
                     let appointment: any = [];
                     let refer: any = [];
+                    
                     const rs_diagnosis = await hisModel.getDiagnosis(db, v.vn);
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
