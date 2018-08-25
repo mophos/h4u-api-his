@@ -40,7 +40,7 @@ export class HisHosxppcuModel {
 
   getChronic(db: Knex, hn: any) {
     return db('person_chronic as pc')
-      .select('pc.regdate as start_date', 'pc.icd10 as icd10_code', 'i.name as icd_name')
+      .select('pc.regdate as start_date', 'pc.icd10 as icd_code', 'i.name as icd_name')
       .leftOuterJoin('person as pe', 'pe.person_id', '=', 'pc.person_id')
       .leftOuterJoin('patient as pa', 'pa.cid', '=', 'pe.cid')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
@@ -58,7 +58,7 @@ export class HisHosxppcuModel {
   }
 
   async getProcedure(db: Knex, vn: any) {
-    let data = await db.raw(`SELECT d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
+    let data = await db.raw(`SELECT o.vn,d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
     time(d.begin_date_time) as start_time,
     date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
     FROM doctor_operation as d
@@ -66,7 +66,7 @@ export class HisHosxppcuModel {
     LEFT OUTER JOIN er_oper_code as e on e.er_oper_code=d.er_oper_code
     WHERE o.vn = ?
     UNION
-    SELECT e.er_oper_code as procedure_code,c.name as procedure_name,o.vstdate as start_date, 
+    SELECT o.vn,e.er_oper_code as procedure_code,c.name as procedure_name,o.vstdate as start_date, 
     time(e.begin_time) as start_time,o.vstdate as end_date,TIME(e.end_time) as end_date
     FROM er_regist_oper as e
     LEFT OUTER JOIN ovst o on o.vn=e.vn

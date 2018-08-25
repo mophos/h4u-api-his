@@ -61,7 +61,7 @@ export class HisHosxpv3Model {
   }
 
   async getProcedure(db: Knex, vn: any) {
-    let data = await db.raw(`SELECT d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
+    let data = await db.raw(`SELECT o.vn,d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
     time(d.begin_date_time) as start_time,
     date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
     FROM doctor_operation as d
@@ -69,7 +69,7 @@ export class HisHosxpv3Model {
     LEFT OUTER JOIN er_oper_code as e on e.er_oper_code=d.er_oper_code
     WHERE o.vn = ?
     UNION
-    SELECT e.er_oper_code as procedure_code,c.name as procedure_name,o.vstdate as start_date, 
+    SELECT o.vn,e.er_oper_code as procedure_code,c.name as procedure_name,o.vstdate as start_date, 
     time(e.begin_time) as start_time,o.vstdate as end_date,TIME(e.end_time) as end_date
     FROM er_regist_oper as e
     LEFT OUTER JOIN ovst o on o.vn=e.vn
