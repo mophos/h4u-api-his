@@ -189,7 +189,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "provider_name": providerName,
                                 "seq": rp.seq,
                                 "date_serv": moment(rp.date_serve).format('YYYY-MM-DD'),
-                                "time_serv": rp.start_time,
+                                "time_serv": rp.time_serve,
                                 "procedure_code": rp.procedure_code,
                                 "procedure_name": rp.procedure_name,
                                 "start_date": moment(rp.start_date).format('YYYY-MM-DD'),
