@@ -82,7 +82,7 @@ export class HisJhcisModel {
       .where('vd.visitno', visitno)
   }
 
-  getDrugs(db: Knex, visitno) {
+  getDrugs(db: Knex, hn: any, visitno) {
     return db('visitdrug as vd')
       .select('vd.visitno', 'vd.drugcode', 'd.drugname as drug_name', 'vd.unit as qty', 'd.unitusage as unit',
         'vd.dose as usage_line1', db.raw(`'' as usage_line2,'' as usage_line3`))
@@ -90,7 +90,7 @@ export class HisJhcisModel {
       .where('vd.visitno', visitno)
   }
 
-  getAppointment(db: Knex, visitno) {
+  getAppointment(db: Knex, hn: any, visitno) {
     return db('visitdiagappoint')
       .select(db.raw(`visitno,appodate as date ,"" as time, appotype ,
     (case appotype when "1" then "รับยาฯ"
@@ -132,7 +132,7 @@ export class HisJhcisModel {
 
   getVaccine(db: Knex, hn) {
     return db('visitepi as v')
-      .select('v.vaccinecode as vaccine_code', 'd.drugname as vaccine_name','v.dateepi as date_serve')
+      .select('v.vaccinecode as vaccine_code', 'd.drugname as vaccine_name', 'v.dateepi as date_serve')
       .leftJoin('cdrug as d', 'v.vaccinecode', 'd.drugcode')
       .where('v.pid', hn)
   }
@@ -177,14 +177,14 @@ export class HisJhcisModel {
       .where('vn', vn);
   }
 
-  getDiagnosis(db: Knex, seq: any) {
+  getDiagnosis(db: Knex, hn: any, seq: any) {
     return db('visitdiag as vd')
       .select('vd.diagcode as icd10_code', 'cd.diseasenamethai as icd10_desc', 'vd.dxtype as diage_type')
       .innerJoin('cdisease as cd', 'vd.diagcode', 'cd.diseasecode')
       .where('vd.visitno', seq);
   }
 
-  getRefer(db: Knex, vn: any) {
+  getRefer(db: Knex, hn: any, vn: any) {
     let sql = `SELECT r.refer_hospcode, c.name as refer_cause
         FROM referout r 
         LEFT OUTER JOIN refer_cause c on c.id = r.refer_cause
@@ -216,7 +216,7 @@ export class HisJhcisModel {
   //   return db.raw(sql, [vn]);
   // }
 
-  getLabs(db: Knex, vn: any) {
+  getLabs(db: Knex, hn: any, vn: any) {
     let sql = `select l.lab_items_name_ref as lab_name,l.lab_order_result as lab_result,
         l.lab_items_normal_value_ref as standard_result
         from lab_order l  

@@ -55,7 +55,7 @@ export class HisHiModel {
             .where('vn', seq);
     }
 
-    getRefer(db: Knex, seq: any) {
+    getRefer(db: Knex, hn: any, seq: any) {
         return db('orfro as o')
             .select('o.vn as seq', 'o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
             .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
@@ -64,7 +64,7 @@ export class HisHiModel {
     }
 
 
-    async getDrugs(db: Knex, seq: any) {
+    async getDrugs(db: Knex, hn: any, seq: any) {
         let data = await db.raw(`
         select p.vn as seq, pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
         FROM prsc as p 
@@ -75,7 +75,7 @@ export class HisHiModel {
         return data[0];
     }
 
-    async getLabs(db: Knex, seq: any) {
+    async getLabs(db: Knex, hn: any, seq: any) {
         let data = await db.raw(`
         SELECT
         lab_test as lab_name,
@@ -103,7 +103,7 @@ export class HisHiModel {
     }
 
 
-    getAppointment(db: Knex, seq: any) {
+    getAppointment(db: Knex, hn: any, seq: any) {
         return db('oapp as o')
             .select('o.vn as seq', 'o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
             .where('vn', seq);
@@ -147,7 +147,7 @@ export class HisHiModel {
         o.hn='${hn}'`);
         return data[0];
     }
-    async getProcedure(db: Knex, seq: any) {
+    async getProcedure(db: Knex, hn: any, seq: any) {
         let data = await db.raw(`
         SELECT
         o.hn as pid,

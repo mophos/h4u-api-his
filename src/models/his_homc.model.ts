@@ -79,14 +79,14 @@ export class HisHomcModel {
       .where('vn', vn);
   }
 
-  getDiagnosis(db: Knex, vn: any) {
+  getDiagnosis(db: Knex, hn: any, vn: any) {
     return db('ovstdiag as o')
       .select('o.icd10 as icd10_code', 'i.name as icd10_desc', 'o.diagtype as diage_type')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
       .where('vn', vn);
   }
 
-  getRefer(db: Knex, vn: any) {
+  getRefer(db: Knex, hn: any, vn: any) {
     let sql = `SELECT r.refer_hospcode, c.name as refer_cause
     FROM referout r 
     LEFT OUTER JOIN refer_cause c on c.id = r.refer_cause
@@ -100,7 +100,7 @@ export class HisHomcModel {
   }
 
 
-  getDrugs(db: Knex, vn: any) {
+  getDrugs(db: Knex, hn: any, vn: any) {
     // let sql = `
     // select pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
     // FROM prsc as p 
@@ -118,7 +118,7 @@ export class HisHomcModel {
     return db.raw(sql, [vn]);
   }
 
-  getLabs(db: Knex, vn: any) {
+  getLabs(db: Knex, hn: any, vn: any) {
     let sql = `select l.lab_items_name_ref as lab_name,l.lab_order_result as lab_result,
     l.lab_items_normal_value_ref as standard_result
     from lab_order l  
@@ -157,7 +157,7 @@ and o.vn = ? `;
   }
 
 
-  getAppointment(db: Knex, vn: any) {
+  getAppointment(db: Knex, hn: any, vn: any) {
     // return db('oapp as o')
     //     .select('o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
     //     .where('vn', vn);
