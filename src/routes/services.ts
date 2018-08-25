@@ -159,8 +159,12 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     let appointment: any = [];
                     let refer: any = [];
 
+<<<<<<< HEAD
                     const rs_diagnosis = await hisModel.getDiagnosis(db, v.vn);
                     
+=======
+                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, v.seq);
+>>>>>>> 8ede037154a44f4f25c5a005f2918bdaf5ea9d05
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
@@ -168,7 +172,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 uid: uid,
                                 provider_code: providerCode,
                                 provider_name: providerName,
-                                seq: rg.vn,
+                                seq: rg.seq,
                                 date_serv: moment(rg.date_serve).format('YYYY-MM-DD'),
                                 time_serv: rg.time_serv,
                                 icd_code: rg.icd_code,
@@ -180,8 +184,12 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.diagnosis = diagnosis;
                     }
 
+<<<<<<< HEAD
                     const rs_procedure = await hisModel.getProcedure(db, v.vn)
                     console.log('Procedure :', rs_procedure);
+=======
+                    const rs_procedure = await hisModel.getProcedure(db, v.seq)
+>>>>>>> 8ede037154a44f4f25c5a005f2918bdaf5ea9d05
                     if (rs_procedure.length) {
                         for (const rp of rs_procedure) {
                             const objProcedure = {
@@ -189,7 +197,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rp.vn,
+                                "seq": rp.seq,
                                 "date_serv": moment(rp.date_serve).format('YYYY-MM-DD'),
                                 "time_serv": rp.start_time,
                                 "procedure_code": rp.procedure_code,
@@ -205,7 +213,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_drugs = await hisModel.getDrugs(db, v.vn);
+                    const rs_drugs = await hisModel.getDrugs(db, v.seq);
                     if (rs_drugs.length) {
                         for (const rd of rs_drugs) {
                             const objDrug = {
@@ -213,7 +221,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rd.vn,
+                                "seq": rd.seq,
                                 "date_serv": moment(rd.date_serve).format('YYYY-MM-DD'),
                                 "time_serv": rd.time_serv,
                                 "drug_name": rd.drug_name,
@@ -229,7 +237,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_lab = await hisModel.getLabs(db, v.vn);
+                    const rs_lab = await hisModel.getLabs(db, v.seq);
                     if (rs_lab.length) {
                         for (const rl of rs_lab) {
                             const objLab = {
@@ -237,7 +245,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rl.vn,
+                                "seq": rl.seq,
                                 "date_serv": moment(rl.date_serve).format('YYYY-MM-DD'),
                                 "time_serv": rl.time_serv,
                                 "lab_name": rl.lab_name,
@@ -250,14 +258,14 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_app = await hisModel.getAppointment(db, v.vn);
+                    const rs_app = await hisModel.getAppointment(db, v.seq);
                     if (rs_app.length) {
                         appointment = {
                             "request_id": requestId,
                             "uid": uid,
                             "provider_code": providerCode,
                             "provider_name": providerName,
-                            "seq": rs_app[0].vn,
+                            "seq": rs_app[0].seq,
                             "date_serv": moment(rs_app[0].date_serve).format('YYYY-MM-DD'),
                             "time_serv": rs_app[0].time_serv,
                             "clinic": rs_app[0].department,
@@ -268,7 +276,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.appointment = appointment;
                     }
 
-                    const rs_refer = await hisModel.getRefer(db, v.vn);
+                    const rs_refer = await hisModel.getRefer(db, v.seq);
                     if (rs_refer.length) {
                         refer = {
                             "request_id": requestId,
