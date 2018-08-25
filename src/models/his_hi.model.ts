@@ -71,7 +71,7 @@ export class HisHiModel {
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
         Left Join medusage as m ON m.dosecode = pd.medusage
         Left Join meditem as med ON med.meditem = pd.meditem
-        WHERE p.vn = '${vn}'`);
+        WHERE p.vn = '${vn}' GROUP BY pd.qty`);
         return data[0];
     }
 
