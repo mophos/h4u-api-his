@@ -1,25 +1,17 @@
 import Knex = require('knex');
-const dbName = process.env.DB_NAME;
 
 // ตัวอย่าง query แบบ knex
-// getHospital(db: Knex) {
+// getHospital(db: Knex,hn:any) {
 //   return db('opdconfig as o')
 //     .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
 // }
 // ตัวอย่างการคิวรี่โดยใช้ raw MySqlConnectionConfig
-// async getHospital(db: Knex) {
+// async getHospital(db: Knex,hn:any) {
 //   let data = await knex.raw(`select * from opdconfig`);
 // return data[0];
 // }
 export class HisModel {
-  getTableName(knex: Knex) {
-    return knex
-      .select('TABLE_NAME')
-      .from('information_schema.tables')
-      .where('TABLE_SCHEMA', '=', dbName);
-  }
-
-  getHospital(db: Knex) {
+  getHospital(db: Knex, hn: any) {
     // ชื่อสถานพยาบาล
     // return [{provider_code:'',provider_name:''}]
   }
@@ -35,30 +27,30 @@ export class HisModel {
   }
 
 
-  getDiagnosis(db: Knex, seq: any) {
+  getDiagnosis(db: Knex, hn: any, seq: any) {
     // return [{icd_code:'',icd_desc:'',diage_type:''}]
   }
 
-  getRefer(db: Knex, seq: any) {
+  getRefer(db: Knex, hn: any, seq: any) {
     // return [{hcode_to:'',name_to:'',reason:''}]
   }
 
 
-  getDrugs(db: Knex, seq: any) {
+  getDrugs(db: Knex, hn: any, seq: any) {
     // return [{drug_name:'',qty:'',unit:'',usage_line1:'',usage_line2:'',usage_line3:''}]
   }
 
-  getLabs(db: Knex, seq: any) {
+  getLabs(db: Knex, hn: any, seq: any) {
     // return [{lab_name:'',lab_result:'',standard_result:'',seq:'',time_serv:'',date_serve:''}]
   }
 
 
-  getAppointment(db: Knex, seq: any) {
+  getAppointment(db: Knex, hn: any, seq: any) {
     // return [{date:'',time:'',department:'',detail:''}]
   }
 
   getVaccine(db: Knex, hn: any) {
-    // return [{date_serve:'',time_serve:'',vaccine_code:'',vaccine_name:''}]]
+    // return [{date_serve:'',time_serv:'',vaccine_code:'',vaccine_name:''}]]
   }
 
 }
