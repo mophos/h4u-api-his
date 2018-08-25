@@ -198,7 +198,7 @@ export class HisJhcisModel {
       .where('vn', vn);
   }
 
-  async getDiagnosis(db: Knex, vn: any) {
+  async getDiagnosis(db: Knex, hn: any, vn: any) {
     let data = await db.raw(`
     select dx.pcucode as provider_code, h.hosname as provider_name, dx.visitno as seq, 
     visit.visitdate as date_serv, visit.timestart as time_serv,

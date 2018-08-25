@@ -160,8 +160,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
 
                     const rs_diagnosis = await hisModel.getDiagnosis(db, hn, v.seq);
                     if (rs_diagnosis.length) {
-                        for (const rg of rs_diagnosis) {          
-                            console.log(rg.icd_code);          
+                        for (const rg of rs_diagnosis) {                                      
                             const objDiagnosis = {
                                 request_id: requestId,
                                 uid: uid,
