@@ -1,5 +1,5 @@
 import Knex = require('knex');
-// ตัวอย่าง query แบบ knex
+// ตัวอย่าง query แบบ เknex
 // getHospital(db: Knex) {
 //   return db('opdconfig as o')
 //     .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
@@ -87,7 +87,7 @@ export class HisMbaseModel {
   }
 
 
-  async getDiagnosis(db: Knex, seq: any) {
+  async getDiagnosis(db: Knex, hn: any, seq: any) {
     let data = await db.raw(`
     SELECT 
     a.VISIT_ID as seq,
