@@ -8,73 +8,72 @@ import { HisHiModel } from './../models/his_hi.model';
 import { HisJhosModel } from './../models/his_jhos.model';
 import { HisHomcModel } from './../models/his_homc.model';
 import { HisBudhospModel } from './../models/his_budhosp.model';
-
+import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
 
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
-
 
 router.get('/', (req, res, next) => {
     res.render('index', { title: 'MOPH H4U API' });
 });
 
+// ห้ามแก้ไข // 
+let hisModel: any;
+switch (provider) {
+    case 'ezhosp':
+        // hisModel = new HisEzhospModel();
+        break;
+    case 'hosxpv3':
+        hisModel = new HisHosxpv3Model();
+        break;
+    case 'hosxpv4':
+        hisModel = new HisHosxpv4Model();
+        break;
+    case 'ssb':
+        // hisModel = new HisSsbModel();
+        break;
+    case 'infod':
+        // hisModel = new HisInfodModel();
+        break;
+    case 'hi':
+        hisModel = new HisHiModel();
+        break;
+    case 'himpro':
+        // hisModel = new HisHimproModel();
+        break;
+    case 'jhcis':
+        hisModel = new HisJhcisModel();
+        break;
+    case 'hosxppcu':
+        hisModel = new HisHosxppcuModel();
+        break;
+    case 'hospitalos':
+        // hisModel = new HisHospitalOsModel();
+        break;
+    case 'jhos':
+        hisModel = new HisJhosModel();
+        break;
+    case 'pmk':
+        // hisModel = new HisPmkModel();
+        break;
+    case 'meedee':
+        // hisModel = new HisMdModel();
+        break;
+    case 'spdc':
+        // hisModel = new HisSpdcModel();
+        break;
+    case 'homc':
+        hisModel = new HisHomcModel();
+        break;
+    case 'budhosp':
+        hisModel = new HisBudhospModel();
+        break;
+    default:
+    // hisModel = new HisModel();
+}
 
 // ห้ามแก้ไข // 
 router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
-    let hisModel: any;
-    switch (provider) {
-        case 'ezhosp':
-            // hisModel = new HisEzhospModel();
-            break;
-        case 'hosxpv3':
-            hisModel = new HisHosxpv3Model();
-            break;
-        case 'hosxpv4':
-            hisModel = new HisHosxpv4Model();
-            break;
-        case 'ssb':
-            // hisModel = new HisSsbModel();
-            break;
-        case 'infod':
-            // hisModel = new HisInfodModel();
-            break;
-        case 'hi':
-            hisModel = new HisHiModel();
-            break;
-        case 'himpro':
-            // hisModel = new HisHimproModel();
-            break;
-        case 'jhcis':
-            hisModel = new HisJhcisModel();
-            break;
-        case 'hosxppcu':
-            // hisModel = new HisHosxppcuModel();
-            break;
-        case 'hospitalos':
-            // hisModel = new HisHospitalOsModel();
-            break;
-        case 'jhos':
-            hisModel = new HisJhosModel();
-            break;
-        case 'pmk':
-            // hisModel = new HisPmkModel();
-            break;
-        case 'meedee':
-            // hisModel = new HisMdModel();
-            break;
-        case 'spdc':
-            // hisModel = new HisSpdcModel();
-            break;
-        case 'homc':
-            hisModel = new HisHomcModel();
-            break;
-        case 'budhosp':
-            hisModel = new HisBudhospModel();
-            break;
-        default:
-        // hisModel = new HisModel();
-    }
-
     let db = req.db;
     let hn = req.params.hn;
     let dateServe = req.params.dateServe;
@@ -121,7 +120,6 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         "uid": uid,
                         "provider_code": providerCode,
                         "provider_name": providerName,
-                        "date_serv": moment(rc.date_serve).format('YYYY-MM-DD'),
                         "time_serv": rc.time_serve,
                         "icd_code": rc.icd_code,
                         "icd_name": rc.icd_name,
@@ -150,6 +148,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_services: any = await hisModel.getServices(db, hn, dateServe);
+            // console.log('Service : ', rs_services);
             if (rs_services.length) {
                 for (const v of rs_services) {
                     const diagnosis = [];
@@ -159,7 +158,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     let appointment: any = [];
                     let refer: any = [];
 
-                    const rs_diagnosis = await hisModel.getDiagnosis(db, v.seq);
+                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, v.seq);
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {          
                             console.log(rg.icd_code);          
@@ -168,7 +167,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 uid: uid,
                                 provider_code: providerCode,
                                 provider_name: providerName,
-                                seq: rg.vn,
+                                seq: rg.seq,
                                 date_serv: moment(rg.date_serve).format('YYYY-MM-DD'),
                                 time_serv: rg.time_serv,
                                 icd_code: rg.icd_code,
@@ -188,7 +187,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rp.vn,
+                                "seq": rp.seq,
                                 "date_serv": moment(rp.date_serve).format('YYYY-MM-DD'),
                                 "time_serv": rp.start_time,
                                 "procedure_code": rp.procedure_code,
@@ -212,7 +211,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rd.vn,
+                                "seq": rd.seq,
                                 "date_serv": moment(rd.date_serve).format('YYYY-MM-DD'),
                                 "time_serv": rd.time_serv,
                                 "drug_name": rd.drug_name,
@@ -236,7 +235,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rl.vn,
+                                "seq": rl.seq,
                                 "date_serv": moment(rl.date_serve).format('YYYY-MM-DD'),
                                 "time_serv": rl.time_serv,
                                 "lab_name": rl.lab_name,
@@ -256,7 +255,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                             "uid": uid,
                             "provider_code": providerCode,
                             "provider_name": providerName,
-                            "seq": rs_app[0].vn,
+                            "seq": rs_app[0].seq,
                             "date_serv": moment(rs_app[0].date_serve).format('YYYY-MM-DD'),
                             "time_serv": rs_app[0].time_serv,
                             "clinic": rs_app[0].department,
