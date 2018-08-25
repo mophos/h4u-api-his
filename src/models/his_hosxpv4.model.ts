@@ -1,24 +1,14 @@
 import Knex = require('knex');
-import * as moment from 'moment';
-import { REQUEST_TOO_LONG } from 'http-status-codes';
-const dbName = process.env.HIS_DB_NAME;
-
 export class HisHosxpv4Model {
-  getTableName(knex: Knex) {
-    return knex
-      .select('TABLE_NAME')
-      .from('information_schema.tables')
-      .where('TABLE_SCHEMA', '=', dbName);
-  }
 
-  getHospital(db: Knex) {
+  getHospital(db: Knex, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
   }
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
-      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serve, k.department as clinic,
+      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serv, k.department as clinic,
           v.vn as seq, v.vn`))
       .innerJoin('kskdepartment as k', 'k.depcode', 'v.main_dep')
       .where('v.hn', hn)
@@ -94,7 +84,7 @@ export class HisHosxpv4Model {
       .where('v.vn', vn);
   }
 
-  getDiagnosis(db: Knex, vn: any) {
+  getDiagnosis(db: Knex, hn: any, vn: any) {
     return db('ovstdiag as o')
       .select('o.vn', 'o.vstdate as date_serv',
         'o.vsttime as time_serv', 'o.icd10 as icd10_code', 'i.name as icd10_desc', 't.name as diag_type')
@@ -103,7 +93,7 @@ export class HisHosxpv4Model {
       .where('vn', vn);
   }
 
-  getProcedure(db: Knex, vn: any) {
+  getProcedure(db: Knex, hn: any, vn: any) {
     return db.raw(`SELECT d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
     time(d.begin_date_time) as start_time,
     date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
@@ -121,7 +111,7 @@ export class HisHosxpv4Model {
     `);
   }
 
-  getRefer(db: Knex, vn: any) {
+  getRefer(db: Knex, hn: any, vn: any) {
     return db('referout as r')
       .select('o.vn as seq', 'o.vstdate as date_serv',
         'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name',
@@ -132,7 +122,7 @@ export class HisHosxpv4Model {
       .where('r.vn', vn);
   }
 
-  getDrugs(db: Knex, vn: any) {
+  getDrugs(db: Knex, hn: any, vn: any) {
     return db('opitemrece as o')
       .select('o.vn', 'o.vstdate as date_serv', 'o.vsttime as time_serv',
         'o.icode as drugcode', 's.name as drug_name', 'o.qty', 's.units as unit',
@@ -142,7 +132,7 @@ export class HisHosxpv4Model {
       .where('o.vn', vn)
   }
 
-  getLabs(db: Knex, vn: any) {
+  getLabs(db: Knex, hn: any, vn: any) {
     return db('lab_order as l')
       .select('o.vstdate as date_serv', 'o.vsttime as time_serv',
         'o.vn', 'l.lab_items_name_ref as lab_name', 'l.lab_order_result as lab_result',
@@ -166,14 +156,14 @@ export class HisHosxpv4Model {
 
   getVaccine(db: Knex, vn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')
       .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
       .where('o.vn', vn)
       .union(function () {
-        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
           .innerJoin('ovst as o', 'o.vn', 'l.vn')
           .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
           .from('ovst_vaccine as l')
@@ -183,7 +173,7 @@ export class HisHosxpv4Model {
 
   // getEpi(db: Knex, hn: any) {
   //   return db.raw(`SELECT (select hospitalcode from opdconfig) as provider_code,(select hospitalname from opdconfig) as provider_name,
-  //   v.vaccine_code, v.vaccine_name, l.vaccine_date as date_serve, '' as time_serve
+  //   v.vaccine_code, v.vaccine_name, l.vaccine_date as date_serve, '' as time_serv
   //   FROM person_vaccine_list l 
   //   LEFT OUTER JOIN person p on p.person_id=l.person_id
   //   LEFT OUTER JOIN patient e on e.cid=p.cid
@@ -192,7 +182,7 @@ export class HisHosxpv4Model {
   //   where o.hn = '?'
   //   UNION
   //   SELECT (select hospitalcode from opdconfig) as provider_code, (select hospitalname from opdconfig) as provider_name, 
-  //   v.vaccine_code, v.vaccine_name, o.vstdate as date_serve,o.vsttime as time_serve
+  //   v.vaccine_code, v.vaccine_name, o.vstdate as date_serve,o.vsttime as time_serv
   //   FROM ovst_vaccine l 
   //   LEFT OUTER JOIN ovst o on o.vn=l.vn
   //   LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
@@ -202,14 +192,14 @@ export class HisHosxpv4Model {
 
   getEpi(db: Knex, hn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serve,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')
       .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
       .where('o.hn', hn)
       .union(function () {
-        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
           .innerJoin('ovst as o', 'o.vn', 'l.vn')
           .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
           .from('ovst_vaccine as l')
@@ -217,7 +207,7 @@ export class HisHosxpv4Model {
       })
   }
 
-  getAppointment(db: Knex, vn: any) {
+  getAppointment(db: Knex, hn: any, vn: any) {
     return db('oapp as o')
       .select('o.vn', 'v.vstdate as date_serv', 'v.vsttime as time_serv',
         'c.name as department', 'o.nextdate as date', 'o.nexttime as time', 'o.app_cause as detail')

@@ -1,15 +1,8 @@
 import Knex = require('knex');
-import * as moment from 'moment';
-const dbName = process.env.DB_NAME;
+
 
 
 export class HisJhcisModel {
-  getTableName(knex: Knex) {
-    return knex
-      .select('TABLE_NAME')
-      .from('information_schema.tables')
-      .where('TABLE_SCHEMA', '=', dbName);
-  }
 
   getHospital(db: Knex, hn: any) {
     return db('person as p')
@@ -65,7 +58,7 @@ export class HisJhcisModel {
 
   getServices(db: Knex, hn, dateServe) {
     return db('visit as v')
-      .select(db.raw(`v.visitdate as date_serve, time_format(v.timestart, '%H:%i') as time_serve, "" as clinic,
+      .select(db.raw(`v.visitdate as date_serve, time_format(v.timestart, '%H:%i') as time_serv, "" as clinic,
           v.visitno as seq, v.weight, v.height, substring_index(v.pressure, '/', 1) as dbp,
           substring_index(v.pressure, '/', -1) as sbp, round(((v.weight) / ((v.height / 100) * (v.height / 100))), 2) as bmi,
           v.vitalcheck as pe, v.refertohos as hcode_to,
@@ -89,16 +82,16 @@ export class HisJhcisModel {
       .where('vd.visitno', visitno)
   }
 
-  getDrugs(db: Knex, visitno: any) {
+  getDrugs(db: Knex, hn: any, visitno: any) {
     return db('visitdrug as vd')
       .select('vd.visitno', 'vd.drugcode', 'd.drugname as drug_name', 'vd.unit as qty', 'd.unitusage as unit',
         'vd.dose as usage_line1', db.raw(`'' as usage_line2,'' as usage_line3`))
       .innerJoin('cdrug as d', 'vd.drugcode', 'd.drugcode')
       .where('vd.visitno', visitno)
-      .whereNot('d.drugtype','02')
+      .whereNot('d.drugtype', '02')
   }
 
-  getAppointment(db: Knex, visitno) {
+  getAppointment(db: Knex, hn: any, visitno) {
     return db('visitdiagappoint')
       .select(db.raw(`visitno,appodate as date ,"" as time, appotype ,
     (case appotype when "1" then "รับยาฯ"
@@ -212,7 +205,7 @@ export class HisJhcisModel {
     return data[0];
   }
 
-  getRefer(db: Knex, vn: any) {
+  getRefer(db: Knex, hn: any, vn: any) {
     return "";
   }
 
@@ -235,7 +228,7 @@ export class HisJhcisModel {
   //   return db.raw(sql, [vn]);
   // }
 
-  getLabs(db: Knex, vn: any) {
+  getLabs(db: Knex, hn: any, vn: any) {
     return "";
   }
 

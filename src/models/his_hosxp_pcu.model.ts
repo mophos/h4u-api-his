@@ -1,33 +1,25 @@
 import Knex = require('knex');
-const dbName = process.env.DB_NAME;
 // ตัวอย่าง query แบบ knex
-// getHospital(db: Knex) {
+// getHospital(db: Knex,hn:any) {
 //   return db('opdconfig as o')
 //     .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
 // }
 // ตัวอย่างการคิวรี่โดยใช้ raw MySqlConnectionConfig
-// async getHospital(db: Knex) {
+// async getHospital(db: Knex,hn:any) {
 //   let data = await knex.raw(`select * from opdconfig`);
 // return data[0];
 // }
 
 export class HisHosxppcuModel {
 
-  getTableName(knex: Knex) {
-    return knex
-      .select('TABLE_NAME')
-      .from('information_schema.tables')
-      .where('TABLE_SCHEMA', '=', dbName);
-  }
-
-  getHospital(db: Knex) {
+  getHospital(db: Knex, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
-      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serve,v.vn as seq, v.vn`))
+      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serv,v.vn as seq, v.vn`))
       .where('v.hn', hn)
       .where('v.vstdate', dateServe)
   }
@@ -47,7 +39,7 @@ export class HisHosxppcuModel {
       .where('pa.hn', hn);
   }
 
-  getDiagnosis(db: Knex, vn: any) {
+  getDiagnosis(db: Knex, hn: any, vn: any) {
     return db('ovstdiag as o')
       .select('o.vn', 'v.vstdate as date_serv',
         'v.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_desc', 't.name as diag_type')
@@ -57,7 +49,7 @@ export class HisHosxppcuModel {
       .where('o.vn', vn);
   }
 
-  async getProcedure(db: Knex, vn: any) {
+  async getProcedure(db: Knex, hn: any, vn: any) {
     let data = await db.raw(`SELECT o.vn,d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
     time(d.begin_date_time) as start_time,
     date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
@@ -73,10 +65,10 @@ export class HisHosxppcuModel {
     LEFT OUTER JOIN er_oper_code as c on c.er_oper_code=e.er_oper_code
     WHERE o.vn = ?
     `, [vn, vn]);
-  return data[0];
+    return data[0];
   }
 
-  getRefer(db: Knex, vn: any) {
+  getRefer(db: Knex, hn: any, vn: any) {
     return db('referout as r')
       .select('o.vn as seq', 'o.vstdate as date_serv',
         'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name',
@@ -87,7 +79,7 @@ export class HisHosxppcuModel {
       .where('r.vn', vn);
   }
 
-  getDrugs(db: Knex, vn: any) {
+  getDrugs(db: Knex, hn: any, vn: any) {
     return db('opitemrece as o')
       .select('o.vn', 'o.vstdate as date_serv', 'o.vsttime as time_serv',
         'o.icode as drugcode', 's.name as drug_name', 'o.qty', 's.units as unit',
@@ -98,7 +90,7 @@ export class HisHosxppcuModel {
       .andWhere('o.item_type', '')
   }
 
-  getLabs(db: Knex, vn: any) {
+  getLabs(db: Knex, hn: any, vn: any) {
     return db('lab_order as l')
       .select('o.vstdate as date_serv', 'o.vsttime as time_serv',
         'o.vn', 'l.lab_items_name_ref as lab_name', 'l.lab_order_result as lab_result',
@@ -110,14 +102,14 @@ export class HisHosxppcuModel {
 
   getVaccine(db: Knex, hn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serve,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')
       .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
       .where('o.hn', hn)
       .union(function () {
-        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
           .innerJoin('ovst as o', 'o.vn', 'l.vn')
           .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
           .from('ovst_vaccine as l')
@@ -125,7 +117,7 @@ export class HisHosxppcuModel {
       })
   }
 
-  getAppointment(db: Knex, vn: any) {
+  getAppointment(db: Knex, hn: any, vn: any) {
     return db('oapp as o')
       .select('o.vn', 'v.vstdate as date_serv', 'v.vsttime as time_serv',
         'c.name as department', 'o.nextdate as date', 'o.nexttime as time', 'o.app_cause as detail')
