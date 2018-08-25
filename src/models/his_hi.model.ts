@@ -14,18 +14,18 @@ const dbName = process.env.DB_NAME;
 export class HisHiModel {
     getTableName(knex: Knex) {
         return knex
-          .select('TABLE_NAME')
-          .from('information_schema.tables')
-          .where('TABLE_SCHEMA', '=', dbName);
-      }
-    
-    async getServices(db: Knex, date_serve: any, hn: any) {
+            .select('TABLE_NAME')
+            .from('information_schema.tables')
+            .where('TABLE_SCHEMA', '=', dbName);
+    }
+
+    async getServices(db: Knex, hn: any, dateServe: any) {
 
         let data = await db.raw(`
-        select o.vn as seq, o.vstdttm as date, o.nrxtime as time, c.namecln as department
+        select o.vn as vn, o.vstdttm as date, o.nrxtime as time, c.namecln as department
         FROM ovst as o 
         Inner Join cln as c ON c.cln = o.cln 
-        WHERE DATE(o.vstdttm) = '${date_serve}' and o.hn ='${hn}'`);
+        WHERE o.hn ='${hn}' and DATE(o.vstdttm) = '${dateServe}'`);
         return data[0];
     }
 
@@ -145,6 +145,63 @@ export class HisHiModel {
         hi.vaccine vc on vc.meditem = m.meditem  
         where 
         o.hn='${hn}'`);
+        return data[0];
+    }
+    async getProcedure(db: Knex, vn: any) {
+        let data = await db.raw(`
+        SELECT
+        o.hn as pid,
+        o.vn as seq,
+        DATE_FORMAT(date(o.vstdttm),'%Y%m%d') as date_serv,	
+        o.nrxtime as time_serv, 
+        p.icd9cm as procedcode,	
+        p.icd9name as procedname,
+        DATE_FORMAT(date(p.opdttm),'%Y%m%d') as start_date,	
+        DATE_FORMAT(time(p.opdttm),'%i%s') as start_time
+    from
+        hi.ovst o 
+    inner join 
+        hi.ovstdx ox on o.vn = ox.vn 
+    inner join
+        hi.oprt p on o.vn = p.vn 
+    left outer join
+        hi.cln c on o.cln = c.cln
+    LEFT OUTER JOIN 
+        hi.dct on (
+            CASE WHEN LENGTH(o.dct) = 5 THEN dct.lcno = o.dct 
+                WHEN LENGTH(o.dct) = 4 THEN dct.dct = substr(o.dct,1,2)  
+                WHEN LENGTH(o.dct) = 2 THEN dct.dct = o.dct END )
+    where 
+    o.vn = '${vn}' and p.an = 0 
+    group by 
+        p.vn,p.icd9cm 
+    UNION 
+    SELECT 
+        o.hn as pid,
+        o.vn as seq,
+        DATE_FORMAT(date(o.vstdttm),'%Y%m%d') as date_serv,
+        o.nrxtime as time_serv,  
+        i.ICD10TM as procedcode,
+        i.name_Tx as procedname,
+        DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as start_date,	
+        DATE_FORMAT(time(dt.vstdttm),'%i%s') as start_time
+    
+    FROM
+        hi.dtdx 
+    INNER JOIN 
+        hi.icd9dent as i on dtdx.dttx=i.code_tx
+    INNER JOIN 
+        hi.dt on dtdx.dn=dt.dn
+    INNER JOIN
+        hi.ovst as o on dt.vn=o.vn and o.cln='40100'
+    left outer join 
+        hi.cln c on o.cln = c.cln  
+    left join dentist as d on dt.dnt=d.codedtt
+    where 
+        o.vn = '${vn}'
+    group by 
+        dtdx.dn,procedcode
+        `);
         return data[0];
     }
 
