@@ -69,9 +69,10 @@ export class HisHiModel {
         select pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
         FROM prsc as p 
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
-        Left Join medusage as m ON m.dosecode = pd.medusage
-        Left Join meditem as med ON med.meditem = pd.meditem
-        WHERE p.vn = '${vn}'`);
+        Left Join medusage as m ON m.dosecode = pd.medusage        
+		Left Join meditem as med ON med.meditem = pd.meditem
+        WHERE p.vn = '${vn}'
+        group by p.prscno,pd.meditem,pd.qty`);
         return data[0];
     }
 
