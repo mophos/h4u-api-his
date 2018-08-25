@@ -18,61 +18,62 @@ router.get('/', (req, res, next) => {
 });
 
 // ห้ามแก้ไข // 
-router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
-    let hisModel: any;
-    switch (provider) {
-        case 'ezhosp':
-            // hisModel = new HisEzhospModel();
-            break;
-        case 'hosxpv3':
-            hisModel = new HisHosxpv3Model();
-            break;
-        case 'hosxpv4':
-            hisModel = new HisHosxpv4Model();
-            break;
-        case 'ssb':
-            // hisModel = new HisSsbModel();
-            break;
-        case 'infod':
-            // hisModel = new HisInfodModel();
-            break;
-        case 'hi':
-            hisModel = new HisHiModel();
-            break;
-        case 'himpro':
-            // hisModel = new HisHimproModel();
-            break;
-        case 'jhcis':
-            hisModel = new HisJhcisModel();
-            break;
-        case 'hosxppcu':
-            hisModel = new HisHosxppcuModel();
-            break;
-        case 'hospitalos':
-            // hisModel = new HisHospitalOsModel();
-            break;
-        case 'jhos':
-            hisModel = new HisJhosModel();
-            break;
-        case 'pmk':
-            // hisModel = new HisPmkModel();
-            break;
-        case 'meedee':
-            // hisModel = new HisMdModel();
-            break;
-        case 'spdc':
-            // hisModel = new HisSpdcModel();
-            break;
-        case 'homc':
-            hisModel = new HisHomcModel();
-            break;
-        case 'budhosp':
-            hisModel = new HisBudhospModel();
-            break;
-        default:
-        // hisModel = new HisModel();
-    }
+let hisModel: any;
+switch (provider) {
+    case 'ezhosp':
+        // hisModel = new HisEzhospModel();
+        break;
+    case 'hosxpv3':
+        hisModel = new HisHosxpv3Model();
+        break;
+    case 'hosxpv4':
+        hisModel = new HisHosxpv4Model();
+        break;
+    case 'ssb':
+        // hisModel = new HisSsbModel();
+        break;
+    case 'infod':
+        // hisModel = new HisInfodModel();
+        break;
+    case 'hi':
+        hisModel = new HisHiModel();
+        break;
+    case 'himpro':
+        // hisModel = new HisHimproModel();
+        break;
+    case 'jhcis':
+        hisModel = new HisJhcisModel();
+        break;
+    case 'hosxppcu':
+        hisModel = new HisHosxppcuModel();
+        break;
+    case 'hospitalos':
+        // hisModel = new HisHospitalOsModel();
+        break;
+    case 'jhos':
+        hisModel = new HisJhosModel();
+        break;
+    case 'pmk':
+        // hisModel = new HisPmkModel();
+        break;
+    case 'meedee':
+        // hisModel = new HisMdModel();
+        break;
+    case 'spdc':
+        // hisModel = new HisSpdcModel();
+        break;
+    case 'homc':
+        hisModel = new HisHomcModel();
+        break;
+    case 'budhosp':
+        hisModel = new HisBudhospModel();
+        break;
+    default:
+    // hisModel = new HisModel();
+}
 
+// ห้ามแก้ไข // 
+router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
     let db = req.db;
     let hn = req.params.hn;
     let dateServe = req.params.dateServe;
