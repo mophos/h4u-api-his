@@ -2,7 +2,7 @@ import Knex = require('knex');
 import * as moment from 'moment';
 const dbName = process.env.HIS_DB_NAME;
 
-export class HisHomecModel {
+export class HisHomcModel {
 
   getHospital(db: Knex) {
     return db('opdconfig as o')

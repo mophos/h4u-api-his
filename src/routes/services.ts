@@ -6,75 +6,74 @@ import { HisHosxpv3Model } from './../models/his_hosxpv3.model';
 import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
 import { HisHiModel } from './../models/his_hi.model';
 import { HisJhosModel } from './../models/his_jhos.model';
-import { HisHomecModel } from './../models/his_homec.model';
+import { HisHomcModel } from './../models/his_homc.model';
 import { HisBudhospModel } from './../models/his_budhosp.model';
-
+import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
 
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
-
 
 router.get('/', (req, res, next) => {
     res.render('index', { title: 'MOPH H4U API' });
 });
 
+// ห้ามแก้ไข // 
+let hisModel: any;
+switch (provider) {
+    case 'ezhosp':
+        // hisModel = new HisEzhospModel();
+        break;
+    case 'hosxpv3':
+        hisModel = new HisHosxpv3Model();
+        break;
+    case 'hosxpv4':
+        hisModel = new HisHosxpv4Model();
+        break;
+    case 'ssb':
+        // hisModel = new HisSsbModel();
+        break;
+    case 'infod':
+        // hisModel = new HisInfodModel();
+        break;
+    case 'hi':
+        hisModel = new HisHiModel();
+        break;
+    case 'himpro':
+        // hisModel = new HisHimproModel();
+        break;
+    case 'jhcis':
+        hisModel = new HisJhcisModel();
+        break;
+    case 'hosxppcu':
+        hisModel = new HisHosxppcuModel();
+        break;
+    case 'hospitalos':
+        // hisModel = new HisHospitalOsModel();
+        break;
+    case 'jhos':
+        hisModel = new HisJhosModel();
+        break;
+    case 'pmk':
+        // hisModel = new HisPmkModel();
+        break;
+    case 'meedee':
+        // hisModel = new HisMdModel();
+        break;
+    case 'spdc':
+        // hisModel = new HisSpdcModel();
+        break;
+    case 'homc':
+        hisModel = new HisHomcModel();
+        break;
+    case 'budhosp':
+        hisModel = new HisBudhospModel();
+        break;
+    default:
+    // hisModel = new HisModel();
+}
 
 // ห้ามแก้ไข // 
 router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
-    let hisModel: any;
-    switch (provider) {
-        case 'ezhosp':
-            // hisModel = new HisEzhospModel();
-            break;
-        case 'hosxpv3':
-            hisModel = new HisHosxpv3Model();
-            break;
-        case 'hosxpv4':
-            hisModel = new HisHosxpv4Model();
-            break;
-        case 'ssb':
-            // hisModel = new HisSsbModel();
-            break;
-        case 'infod':
-            // hisModel = new HisInfodModel();
-            break;
-        case 'hi':
-            hisModel = new HisHiModel();
-            break;
-        case 'himpro':
-            // hisModel = new HisHimproModel();
-            break;
-        case 'jhcis':
-            hisModel = new HisJhcisModel();
-            break;
-        case 'hosxppcu':
-            // hisModel = new HisHosxppcuModel();
-            break;
-        case 'hospitalos':
-            // hisModel = new HisHospitalOsModel();
-            break;
-        case 'jhos':
-            hisModel = new HisJhosModel();
-            break;
-        case 'pmk':
-            // hisModel = new HisPmkModel();
-            break;
-        case 'meedee':
-            // hisModel = new HisMdModel();
-            break;
-        case 'spdc':
-            // hisModel = new HisSpdcModel();
-            break;
-        case 'homec':
-            hisModel = new HisHomecModel();
-            break;
-        case 'budhosp':
-            hisModel = new HisBudhospModel();
-            break;
-        default:
-        // hisModel = new HisModel();
-    }
-
     let db = req.db;
     let hn = req.params.hn;
     let dateServe = req.params.dateServe;
@@ -150,6 +149,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_services: any = await hisModel.getServices(db, hn, dateServe);
+            // console.log('Service : ', rs_services);
             if (rs_services.length) {
                 for (const v of rs_services) {
                     const diagnosis = [];
@@ -159,7 +159,11 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     let appointment: any = [];
                     let refer: any = [];
 
+<<<<<<< HEAD
                     const rs_diagnosis = await hisModel.getDiagnosis(db, hn, v.seq);
+=======
+                    const rs_diagnosis = await hisModel.getDiagnosis(db, v.vn);
+>>>>>>> 2f734fa7cc9d016926752f0ca2d69a44e587514e
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
