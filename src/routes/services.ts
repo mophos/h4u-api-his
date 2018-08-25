@@ -120,7 +120,6 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         "uid": uid,
                         "provider_code": providerCode,
                         "provider_name": providerName,
-                        "date_serv": moment(rc.date_serve).format('YYYY-MM-DD'),
                         "time_serv": rc.time_serve,
                         "icd_code": rc.icd_code,
                         "icd_name": rc.icd_name,
