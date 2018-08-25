@@ -87,7 +87,7 @@ export class HisMbaseModel {
   }
 
 
-  async getDiagnosis(db: Knex, vn: any) {
+  async getDiagnosis(db: Knex, seq: any) {
     let data = await db.raw(`
     SELECT 
     a.VISIT_ID as seq,
@@ -105,11 +105,11 @@ export class HisMbaseModel {
     FROM  opd_visits a
     INNER JOIN opd_diagnosis b  ON a.VISIT_ID  = b.VISIT_ID  AND b.IS_CANCEL =0
     INNER JOIN  icd10new  c  ON  b.ICD10  = c.ICD10 
-    WHERE a.is_cancel = 0 AND a.VISIT_ID = '${vn}'`);
+    WHERE a.is_cancel = 0 AND a.VISIT_ID = '${seq}'`);
     return data[0];
   }
 
-  async getRefer(db: Knex, vn: any) {
+  async getRefer(db: Knex, seq: any) {
     let data = await db.raw(`
     SELECT
       a.VISIT_ID AS seq,
@@ -126,12 +126,12 @@ export class HisMbaseModel {
     AND b.RF_TYPE = 2
     INNER JOIN hospitals c ON b.HOSP_ID = c.HOSP_ID
     WHERE
-      a.IS_CANCEL = 0 AND a.VISIT_ID = '${vn}' `);
+      a.IS_CANCEL = 0 AND a.VISIT_ID = '${seq}' `);
     return data[0];
   }
 
 
-  async getDrugs(db: Knex, vn: any) {
+  async getDrugs(db: Knex, seq: any) {
     let data = await db.raw(`
     SELECT   
     a.VISIT_ID as "seq",
@@ -148,11 +148,11 @@ export class HisMbaseModel {
     LEFT JOIN frequency f on b.FRQ_ID = f.FRQ_ID
     LEFT JOIN strength_units g on c.STRENGTH_UNIT = g.strength_unit
     LEFT JOIN dosage_forms h ON c.DFORM_ID = h.DFORM_ID
-    WHERE  a.IS_CANCEL = 0 AND a.VISIT_ID = '${vn}'`);
+    WHERE  a.IS_CANCEL = 0 AND a.VISIT_ID = '${seq}'`);
     return data[0];
   }
 
-  async getLabs(db: Knex, vn: any) {
+  async getLabs(db: Knex, seq: any) {
     let data = await db.raw(`
     SELECT
     a.VISIT_ID seq,
@@ -166,12 +166,12 @@ export class HisMbaseModel {
     FROM  opd_visits a
     RIGHT JOIN lab_requests  b ON a.VISIT_ID = b.VISIT_ID 
     INNER JOIN lab_lists c ON b.LAB_ID = c.LAB_ID  
-    WHERE a.is_cancel = 0 AND a.VISIT_ID = '${vn}' `);
+    WHERE a.is_cancel = 0 AND a.VISIT_ID = '${seq}' `);
     return data[0];
   }
 
 
-  async getAppointment(db: Knex, vn: any) {
+  async getAppointment(db: Knex, seq: any) {
     let data = await db.raw(`
     SELECT
       c.VISIT_ID as seq,
@@ -186,30 +186,59 @@ export class HisMbaseModel {
     LEFT  JOIN service_units b ON a.APP_UNIT = b.UNIT_ID
     INNER JOIN opd_visits c ON a.HN = c.HN AND c.IS_CANCEL = 0
     WHERE   a.AP_DATE > c.REG_DATETIME
-    AND c.VISIT_ID = '${vn}' `);
+    AND c.VISIT_ID = '${seq}' `);
     return data[0];
   }
 
   async getVaccine(db: Knex, hn: any) {
     let data = await db.raw(`
     SELECT
-a.VISIT_ID as seq,
-DATE(a.REG_DATETIME) date_serv,
-TIME(a.REG_DATETIME)  time_serv,
- c.DRUG_THO as  vaccine_code,
-   c.DRUG_NAME as vaccine_name
-FROM  opd_visits a
-INNER JOIN prescriptions b ON a.VISIT_ID = b.VISIT_ID  AND b.IS_CANCEL = 0
-LEFT  JOIN drugs_tho  c  ON b.DRUG_ID  = c.DRUG_ID
-WHERE a.IS_CANCEL = 0
-AND a.HN  = '${hn}' `);
+    a.VISIT_ID as seq,
+    DATE(a.REG_DATETIME) date_serv,
+    TIME(a.REG_DATETIME)  time_serv,
+    c.DRUG_THO as  vaccine_code,
+      c.DRUG_NAME as vaccine_name
+    FROM  opd_visits a
+    INNER JOIN prescriptions b ON a.VISIT_ID = b.VISIT_ID  AND b.IS_CANCEL = 0
+    LEFT  JOIN drugs_tho  c  ON b.DRUG_ID  = c.DRUG_ID
+    WHERE a.IS_CANCEL = 0
+    AND a.HN  = '${hn}' `);
     return data[0];
   }
-  async getProcedure(db: Knex, vn: any) {
-    let data = await db.raw(``);
+  async getProcedure(db: Knex, seq: any) {
+    let data = await db.raw(`
+    SELECT
+        a.VISIT_ID AS seq,
+        DATE(a.REG_DATETIME) AS date_serv,
+        TIME(a.REG_DATETIME) AS time_serv,
+        c. CODE AS procedure_code,
+        c.TNAME AS procedure_name,
+        DATE(b.OP_BEGIN) AS start_date,
+        DATE(b.OP_END) AS end_date
+      FROM
+        opd_visits a
+      INNER JOIN opd_operations b ON a.VISIT_ID = b.VISIT_ID
+      AND b.IS_CANCEL = 0
+      INNER JOIN icd9cm c ON b.icd9 = c.ICD9
+      WHERE a.VISIT_ID = '${seq}' `);
     return data[0];
   }
-
-
-
+  async getPtDetail(db: Knex, seq: any) {
+    let data = await db.raw(`
+  SELECT 
+    CASE 
+      WHEN PRENAME not in('') THEN PRENAME
+      WHEN DATEDIFF(now(),BIRTHDATE)/365.25 < '20' AND sex='1' AND MARRIAGE = '4'THEN 'สามเณร'
+      WHEN DATEDIFF(now(),BIRTHDATE)/365.25 >= '20' AND sex='1' AND MARRIAGE = '4'THEN 'พระภิกษุ'
+      WHEN DATEDIFF(now(),BIRTHDATE)/365.25 < '15'  AND sex='1' THEN 'เด็กชาย'
+      WHEN DATEDIFF(now(),BIRTHDATE)/365.25 >= '15' AND sex='1' THEN 'นาย'
+      WHEN DATEDIFF(now(),BIRTHDATE)/365.25 < '15'  AND sex='2' THEN 'เด็กหญิง'
+      WHEN DATEDIFF(now(),BIRTHDATE)/365.25 >= '15' AND sex='2' AND MARRIAGE='1' THEN 'นางสาว'
+    ELSE 'นาง'
+    END AS title_name, a.fname as first_name, a.lname as last_name
+    FROM population a
+    LEFT JOIN cid_hn b ON a.CID = b.CID
+    WHERE b.HN = '${seq}' `);
+    return data[0];
+  }
 }

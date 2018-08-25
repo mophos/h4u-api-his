@@ -159,11 +159,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     let appointment: any = [];
                     let refer: any = [];
 
-<<<<<<< HEAD
                     const rs_diagnosis = await hisModel.getDiagnosis(db, hn, v.seq);
-=======
-                    const rs_diagnosis = await hisModel.getDiagnosis(db, v.vn);
->>>>>>> 2f734fa7cc9d016926752f0ca2d69a44e587514e
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
