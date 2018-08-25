@@ -1,33 +1,25 @@
 import Knex = require('knex');
-const dbName = process.env.DB_NAME;
 // ตัวอย่าง query แบบ knex
-// getHospital(db: Knex) {
+// getHospital(db: Knex,hn:any) {
 //   return db('opdconfig as o')
 //     .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
 // }
 // ตัวอย่างการคิวรี่โดยใช้ raw MySqlConnectionConfig
-// async getHospital(db: Knex) {
+// async getHospital(db: Knex,hn:any) {
 //   let data = await knex.raw(`select * from opdconfig`);
 // return data[0];
 // }
 
 export class HisHosxpv3Model {
 
-  getTableName(knex: Knex) {
-    return knex
-      .select('TABLE_NAME')
-      .from('information_schema.tables')
-      .where('TABLE_SCHEMA', '=', dbName);
-  }
-
-  getHospital(db: Knex) {
+  getHospital(db: Knex, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
-      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serve, k.department as clinic,
+      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serv, k.department as clinic,
           v.vn as seq, v.vn`))
       .innerJoin('kskdepartment as k', 'k.depcode', 'v.main_dep')
       .where('v.hn', hn)
@@ -61,21 +53,28 @@ export class HisHosxpv3Model {
   }
 
   async getProcedure(db: Knex, hn: any, vn: any) {
-    let data = await db.raw(`SELECT o.vn,d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
-    time(d.begin_date_time) as start_time,
-    date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
+    let data = await db.raw(`SELECT o.vn,d.er_oper_code as procedure_code,e.name as procedure_name, o.vstdate as date_serv,
+    vsttime as time_serv,date(d.begin_date_time) as start_date,time(d.begin_date_time) as start_time,date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
     FROM doctor_operation as d
     LEFT OUTER JOIN ovst o on o.vn=d.vn
     LEFT OUTER JOIN er_oper_code as e on e.er_oper_code=d.er_oper_code
     WHERE o.vn = ?
     UNION
-    SELECT o.vn,e.er_oper_code as procedure_code,c.name as procedure_name,o.vstdate as start_date, 
-    time(e.begin_time) as start_time,o.vstdate as end_date,TIME(e.end_time) as end_date
+    SELECT o.vn,e.er_oper_code as procedure_code,c.name as procedure_name, o.vstdate as date_serv,
+    vsttime as time_serv,o.vstdate as start_date, time(e.begin_time) as start_time,o.vstdate as end_date,TIME(e.end_time) as end_time
     FROM er_regist_oper as e
     LEFT OUTER JOIN ovst o on o.vn=e.vn
     LEFT OUTER JOIN er_oper_code as c on c.er_oper_code=e.er_oper_code
     WHERE o.vn = ?
-    `, [vn, vn]);
+    UNION
+    SELECT l.vn,m.code as procedure_code, i.name as procedure_name,l.request_date as date_serv,l.request_time as time_serv,
+    l.enter_date as start_date, l.enter_time as start_time, l.leave_date as end_date, l.leave_time as end_time
+    from operation_list as l
+    LEFT OUTER JOIN operation_detail as a on a.operation_id=l.operation_id
+    LEFT OUTER JOIN operation_item as i on i.operation_item_id=a.operation_item_id
+    LEFT OUTER JOIN icd9cm1 as m on m.code=i.icd9
+    where l.confirm_receive = 'Y' and l.vn = ?
+    `, [vn, vn, vn]);
     return data[0];
   }
 
@@ -113,14 +112,14 @@ export class HisHosxpv3Model {
 
   getVaccine(db: Knex, hn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serve,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')
       .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
       .where('o.hn', hn)
       .union(function () {
-        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
           .innerJoin('ovst as o', 'o.vn', 'l.vn')
           .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
           .from('ovst_vaccine as l')

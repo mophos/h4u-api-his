@@ -85,8 +85,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
 
     if (requestId && hn && dateServe && uid) {
         try {
-            let rs_hospital: any = await hisModel.getHospital(db);
-            //console.log('Hospital : ', rs_hospital);
+            let rs_hospital: any = await hisModel.getHospital(db, hn);
             if (rs_hospital.length) {
                 providerCode = rs_hospital[0].provider_code;
                 providerName = rs_hospital[0].provider_name;
@@ -102,7 +101,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         "provider_code": providerCode,
                         "provider_name": providerName,
                         "date_serv": moment(rv.date_serve).format('YYYY-MM-DD'),
-                        "time_serv": rv.time_serve,
+                        "time_serv": rv.time_serv,
                         "vaccine_code": rv.vaccine_code,
                         "vaccine_name": rv.vaccine_name
                     }
@@ -120,7 +119,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         "uid": uid,
                         "provider_code": providerCode,
                         "provider_name": providerName,
-                        "time_serv": rc.time_serve,
+                        "time_serv": rc.time_serv,
                         "icd_code": rc.icd_code,
                         "icd_name": rc.icd_name,
                         "start_date": moment(rc.start_date).format('YYYY-MM-DD')
@@ -188,7 +187,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "provider_name": providerName,
                                 "seq": rp.seq,
                                 "date_serv": moment(rp.date_serve).format('YYYY-MM-DD'),
-                                "time_serv": rp.start_time,
+                                "time_serv": rp.time_serv,
                                 "procedure_code": rp.procedure_code,
                                 "procedure_name": rp.procedure_name,
                                 "start_date": moment(rp.start_date).format('YYYY-MM-DD'),

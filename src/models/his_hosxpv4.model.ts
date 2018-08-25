@@ -1,24 +1,14 @@
 import Knex = require('knex');
-import * as moment from 'moment';
-import { REQUEST_TOO_LONG } from 'http-status-codes';
-const dbName = process.env.HIS_DB_NAME;
-
 export class HisHosxpv4Model {
-  getTableName(knex: Knex) {
-    return knex
-      .select('TABLE_NAME')
-      .from('information_schema.tables')
-      .where('TABLE_SCHEMA', '=', dbName);
-  }
 
-  getHospital(db: Knex) {
+  getHospital(db: Knex, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
   }
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
-      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serve, k.department as clinic,
+      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serv, k.department as clinic,
           v.vn as seq, v.vn`))
       .innerJoin('kskdepartment as k', 'k.depcode', 'v.main_dep')
       .where('v.hn', hn)
@@ -166,14 +156,14 @@ export class HisHosxpv4Model {
 
   getVaccine(db: Knex, vn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')
       .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
       .where('o.vn', vn)
       .union(function () {
-        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
           .innerJoin('ovst as o', 'o.vn', 'l.vn')
           .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
           .from('ovst_vaccine as l')
@@ -183,7 +173,7 @@ export class HisHosxpv4Model {
 
   // getEpi(db: Knex, hn: any) {
   //   return db.raw(`SELECT (select hospitalcode from opdconfig) as provider_code,(select hospitalname from opdconfig) as provider_name,
-  //   v.vaccine_code, v.vaccine_name, l.vaccine_date as date_serve, '' as time_serve
+  //   v.vaccine_code, v.vaccine_name, l.vaccine_date as date_serve, '' as time_serv
   //   FROM person_vaccine_list l 
   //   LEFT OUTER JOIN person p on p.person_id=l.person_id
   //   LEFT OUTER JOIN patient e on e.cid=p.cid
@@ -192,7 +182,7 @@ export class HisHosxpv4Model {
   //   where o.hn = '?'
   //   UNION
   //   SELECT (select hospitalcode from opdconfig) as provider_code, (select hospitalname from opdconfig) as provider_name, 
-  //   v.vaccine_code, v.vaccine_name, o.vstdate as date_serve,o.vsttime as time_serve
+  //   v.vaccine_code, v.vaccine_name, o.vstdate as date_serve,o.vsttime as time_serv
   //   FROM ovst_vaccine l 
   //   LEFT OUTER JOIN ovst o on o.vn=l.vn
   //   LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
@@ -202,14 +192,14 @@ export class HisHosxpv4Model {
 
   getEpi(db: Knex, hn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serve,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')
       .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
       .where('o.hn', hn)
       .union(function () {
-        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serve,v.vaccine_code,v.vaccine_name`))
+        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
           .innerJoin('ovst as o', 'o.vn', 'l.vn')
           .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
           .from('ovst_vaccine as l')

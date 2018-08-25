@@ -1,20 +1,16 @@
 import Knex = require('knex');
 // ตัวอย่าง query แบบ เknex
-// getHospital(db: Knex) {
+// getHospital(db: Knex,hn:any) {
 //   return db('opdconfig as o')
 //     .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
 // }
 // ตัวอย่างการคิวรี่โดยใช้ raw MySqlConnectionConfig
-// async getHospital(db: Knex) {
+// async getHospital(db: Knex,hn:any) {
 //   let data = await knex.raw(`select * from opdconfig`);
 // return data[0];
 // }
 export class HisMbaseModel {
-  async getTableName(db: Knex) {
-    let data = await db.raw(``);
-    return data[0];
-  }
-  async getHospital(db: Knex) {
+  async getHospital(db: Knex, hn: any) {
     let data = await db.raw(`
     SELECT
     a.offid as hcode, b.HOSP_NAME as hname

@@ -4,7 +4,7 @@ const dbName = process.env.HIS_DB_NAME;
 
 export class HisJhosModel {
 
-  getHospital(db: Knex) {
+  getHospital(db: Knex, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
   }

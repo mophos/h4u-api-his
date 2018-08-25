@@ -1,17 +1,10 @@
 import Knex = require('knex');
-import * as moment from 'moment';
-const dbName = process.env.DB_NAME;
+
 
 
 export class HisJhcisModel {
-  getTableName(knex: Knex) {
-    return knex
-      .select('TABLE_NAME')
-      .from('information_schema.tables')
-      .where('TABLE_SCHEMA', '=', dbName);
-  }
 
-  getHospital(db: Knex, hn) {
+  getHospital(db: Knex, hn: any) {
     return db('person as p')
       .innerJoin('chospital as c', 'p.pcucodeperson', 'c.hoscode')
       .select('c.hoscode as hcode', 'c.hosname as hname')
@@ -43,6 +36,13 @@ export class HisJhcisModel {
       .where('p1.pid', hn);
   }
 
+  getChronic(db: Knex, hn: any) {
+    return db('personchronic as pc')
+      .select('pc.chroniccode as icd10_code', 'cd.diseasenamethai as icd10_desc')
+      .innerJoin('cdisease as cd', 'pc.chroniccode', 'cd.diseasecode')
+      .where('pc.pid', hn);
+  }
+
   getBloodgroup(db: Knex, hn: any) {
     return db('person')
       .select('bloodgroup as blood_group')
@@ -58,7 +58,7 @@ export class HisJhcisModel {
 
   getServices(db: Knex, hn, dateServe) {
     return db('visit as v')
-      .select(db.raw(`v.visitdate as date_serve, time_format(v.timestart, '%H:%i') as time_serve, "" as clinic,
+      .select(db.raw(`v.visitdate as date_serve, time_format(v.timestart, '%H:%i') as time_serv, "" as clinic,
           v.visitno as seq, v.weight, v.height, substring_index(v.pressure, '/', 1) as dbp,
           substring_index(v.pressure, '/', -1) as sbp, round(((v.weight) / ((v.height / 100) * (v.height / 100))), 2) as bmi,
           v.vitalcheck as pe, v.refertohos as hcode_to,
@@ -82,12 +82,13 @@ export class HisJhcisModel {
       .where('vd.visitno', visitno)
   }
 
-  getDrugs(db: Knex, hn: any, visitno) {
+  getDrugs(db: Knex, hn: any, visitno: any) {
     return db('visitdrug as vd')
       .select('vd.visitno', 'vd.drugcode', 'd.drugname as drug_name', 'vd.unit as qty', 'd.unitusage as unit',
         'vd.dose as usage_line1', db.raw(`'' as usage_line2,'' as usage_line3`))
       .innerJoin('cdrug as d', 'vd.drugcode', 'd.drugcode')
       .where('vd.visitno', visitno)
+      .whereNot('d.drugtype', '02')
   }
 
   getAppointment(db: Knex, hn: any, visitno) {
@@ -137,6 +138,19 @@ export class HisJhcisModel {
       .where('v.pid', hn)
   }
 
+  async getProcedure(db: Knex, vn: any) {
+    let data = await db.raw(`
+    select visit.visitno as seq,visit.visitdate as date_serv, visit.timestart as time_serv, drug.drugcode as procedure_code, 
+    l.drugname as procedure_name, visit.visitdate as start_date, visit.timestart as start_time, visit.visitdate as end_date, visit.timeend as end_time
+    from visitdrug as drug 
+    inner join visit on drug.visitno = visit.visitno
+    left join cdrug as l on drug.drugcode=l.drugcode
+    
+    where drug.visitno = '${vn}' and l.drugtype='02'
+   `);
+    return data[0];
+  }
+
 
 
 
@@ -177,24 +191,22 @@ export class HisJhcisModel {
       .where('vn', vn);
   }
 
-  getDiagnosis(db: Knex, hn: any, seq: any) {
-    return db('visitdiag as vd')
-      .select('vd.diagcode as icd10_code', 'cd.diseasenamethai as icd10_desc', 'vd.dxtype as diage_type')
-      .innerJoin('cdisease as cd', 'vd.diagcode', 'cd.diseasecode')
-      .where('vd.visitno', seq);
+  async getDiagnosis(db: Knex, hn: any, vn: any) {
+    let data = await db.raw(`
+    select dx.pcucode as provider_code, h.hosname as provider_name, dx.visitno as seq, 
+    visit.visitdate as date_serv, visit.timestart as time_serv,
+    dx.diagcode as icd_code, icd.diseasenamethai as icd_desc, dx.dxtype as diag_type
+   from visitdiag as dx
+    left join cdisease as icd on dx.diagcode=icd.diseasecode
+    left join visit on dx.visitno=visit.visitno
+    left join chospital h on dx.pcucode=h.hoscode
+   where dx.visitno= '${vn}'
+   order by dx.dxtype`);
+    return data[0];
   }
 
   getRefer(db: Knex, hn: any, vn: any) {
-    let sql = `SELECT r.refer_hospcode, c.name as refer_cause
-        FROM referout r 
-        LEFT OUTER JOIN refer_cause c on c.id = r.refer_cause
-        WHERE r.vn = ? `;
-    return db.raw(sql, [vn]);
-    // return db('referout as r')
-    //     .select('o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
-    //     .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
-    //     .leftJoin('rfrcs as f', 'f.rfrcs', '=', 'o.rfrcs')
-    //     .where('vn', vn);
+    return "";
   }
 
 
@@ -217,12 +229,7 @@ export class HisJhcisModel {
   // }
 
   getLabs(db: Knex, hn: any, vn: any) {
-    let sql = `select l.lab_items_name_ref as lab_name,l.lab_order_result as lab_result,
-        l.lab_items_normal_value_ref as standard_result
-        from lab_order l  
-        LEFT OUTER JOIN lab_head h on h.lab_order_number = l.lab_order_number
-        where h.vn = ? `;
-    return db.raw(sql, [vn]);
+    return "";
   }
 
   // getAnc(db: Knex, vn: any) {

@@ -1,18 +1,18 @@
 import Knex = require('knex');
 
 // ตัวอย่าง query แบบ knex
-// getHospital(db: Knex) {
+// getHospital(db: Knex,hn:any) {
 //   return db('opdconfig as o')
 //     .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
 // }
 // ตัวอย่างการคิวรี่โดยใช้ raw MySqlConnectionConfig
-// async getHospital(db: Knex) {
+// async getHospital(db: Knex,hn:any) {
 //   let data = await knex.raw(`select * from opdconfig`);
 // return data[0];
 // }
 export class HisBudhospModel {
 
-  getHospital(db: Knex) {
+  getHospital(db: Knex, hn: any) {
     // ชื่อสถานพยาบาล
     // return [{provider_code:'',provider_name:''}]
   }
@@ -51,7 +51,7 @@ export class HisBudhospModel {
   }
 
   getVaccine(db: Knex, hn: any) {
-    // return [{date_serve:'',time_serve:'',vaccine_code:'',vaccine_name:''}]]
+    // return [{date_serve:'',time_serv'',vaccine_code:'',vaccine_name:''}]]
   }
 
 }
