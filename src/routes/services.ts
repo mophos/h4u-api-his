@@ -18,61 +18,62 @@ router.get('/', (req, res, next) => {
 });
 
 // ห้ามแก้ไข // 
-router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
-    let hisModel: any;
-    switch (provider) {
-        case 'ezhosp':
-            // hisModel = new HisEzhospModel();
-            break;
-        case 'hosxpv3':
-            hisModel = new HisHosxpv3Model();
-            break;
-        case 'hosxpv4':
-            hisModel = new HisHosxpv4Model();
-            break;
-        case 'ssb':
-            // hisModel = new HisSsbModel();
-            break;
-        case 'infod':
-            // hisModel = new HisInfodModel();
-            break;
-        case 'hi':
-            hisModel = new HisHiModel();
-            break;
-        case 'himpro':
-            // hisModel = new HisHimproModel();
-            break;
-        case 'jhcis':
-            hisModel = new HisJhcisModel();
-            break;
-        case 'hosxppcu':
-            hisModel = new HisHosxppcuModel();
-            break;
-        case 'hospitalos':
-            // hisModel = new HisHospitalOsModel();
-            break;
-        case 'jhos':
-            hisModel = new HisJhosModel();
-            break;
-        case 'pmk':
-            // hisModel = new HisPmkModel();
-            break;
-        case 'meedee':
-            // hisModel = new HisMdModel();
-            break;
-        case 'spdc':
-            // hisModel = new HisSpdcModel();
-            break;
-        case 'homc':
-            hisModel = new HisHomcModel();
-            break;
-        case 'budhosp':
-            hisModel = new HisBudhospModel();
-            break;
-        default:
-        // hisModel = new HisModel();
-    }
+let hisModel: any;
+switch (provider) {
+    case 'ezhosp':
+        // hisModel = new HisEzhospModel();
+        break;
+    case 'hosxpv3':
+        hisModel = new HisHosxpv3Model();
+        break;
+    case 'hosxpv4':
+        hisModel = new HisHosxpv4Model();
+        break;
+    case 'ssb':
+        // hisModel = new HisSsbModel();
+        break;
+    case 'infod':
+        // hisModel = new HisInfodModel();
+        break;
+    case 'hi':
+        hisModel = new HisHiModel();
+        break;
+    case 'himpro':
+        // hisModel = new HisHimproModel();
+        break;
+    case 'jhcis':
+        hisModel = new HisJhcisModel();
+        break;
+    case 'hosxppcu':
+        hisModel = new HisHosxppcuModel();
+        break;
+    case 'hospitalos':
+        // hisModel = new HisHospitalOsModel();
+        break;
+    case 'jhos':
+        hisModel = new HisJhosModel();
+        break;
+    case 'pmk':
+        // hisModel = new HisPmkModel();
+        break;
+    case 'meedee':
+        // hisModel = new HisMdModel();
+        break;
+    case 'spdc':
+        // hisModel = new HisSpdcModel();
+        break;
+    case 'homc':
+        hisModel = new HisHomcModel();
+        break;
+    case 'budhosp':
+        hisModel = new HisBudhospModel();
+        break;
+    default:
+    // hisModel = new HisModel();
+}
 
+// ห้ามแก้ไข // 
+router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
     let db = req.db;
     let hn = req.params.hn;
     let dateServe = req.params.dateServe;
@@ -158,7 +159,11 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     let appointment: any = [];
                     let refer: any = [];
 
+<<<<<<< HEAD
+                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, v.seq);
+=======
                     const rs_diagnosis = await hisModel.getDiagnosis(db, v.vn);
+>>>>>>> 2f734fa7cc9d016926752f0ca2d69a44e587514e
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
@@ -166,7 +171,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 uid: uid,
                                 provider_code: providerCode,
                                 provider_name: providerName,
-                                seq: rg.vn,
+                                seq: rg.seq,
                                 date_serv: moment(rg.date_serve).format('YYYY-MM-DD'),
                                 time_serv: rg.time_serv,
                                 icd_code: rg.icd_code,
@@ -178,7 +183,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.diagnosis = diagnosis;
                     }
 
-                    const rs_procedure = await hisModel.getProcedure(db, v.vn)
+                    const rs_procedure = await hisModel.getProcedure(db, v.seq)
                     if (rs_procedure.length) {
                         for (const rp of rs_procedure) {
                             const objProcedure = {
@@ -186,7 +191,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rp.vn,
+                                "seq": rp.seq,
                                 "date_serv": moment(rp.date_serve).format('YYYY-MM-DD'),
                                 "time_serv": rp.start_time,
                                 "procedure_code": rp.procedure_code,
@@ -202,7 +207,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_drugs = await hisModel.getDrugs(db, v.vn);
+                    const rs_drugs = await hisModel.getDrugs(db, v.seq);
                     if (rs_drugs.length) {
                         for (const rd of rs_drugs) {
                             const objDrug = {
@@ -210,7 +215,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rd.vn,
+                                "seq": rd.seq,
                                 "date_serv": moment(rd.date_serve).format('YYYY-MM-DD'),
                                 "time_serv": rd.time_serv,
                                 "drug_name": rd.drug_name,
@@ -226,7 +231,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_lab = await hisModel.getLabs(db, v.vn);
+                    const rs_lab = await hisModel.getLabs(db, v.seq);
                     if (rs_lab.length) {
                         for (const rl of rs_lab) {
                             const objLab = {
@@ -234,7 +239,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rl.vn,
+                                "seq": rl.seq,
                                 "date_serv": moment(rl.date_serve).format('YYYY-MM-DD'),
                                 "time_serv": rl.time_serv,
                                 "lab_name": rl.lab_name,
@@ -247,14 +252,14 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_app = await hisModel.getAppointment(db, v.vn);
+                    const rs_app = await hisModel.getAppointment(db, v.seq);
                     if (rs_app.length) {
                         appointment = {
                             "request_id": requestId,
                             "uid": uid,
                             "provider_code": providerCode,
                             "provider_name": providerName,
-                            "seq": rs_app[0].vn,
+                            "seq": rs_app[0].seq,
                             "date_serv": moment(rs_app[0].date_serve).format('YYYY-MM-DD'),
                             "time_serv": rs_app[0].time_serv,
                             "clinic": rs_app[0].department,
@@ -265,7 +270,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.appointment = appointment;
                     }
 
-                    const rs_refer = await hisModel.getRefer(db, v.vn);
+                    const rs_refer = await hisModel.getRefer(db, v.seq);
                     if (rs_refer.length) {
                         refer = {
                             "request_id": requestId,
