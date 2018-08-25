@@ -22,7 +22,7 @@ export class HisHiModel {
     async getServices(db: Knex, date_serve: any, hn: any) {
 
         let data = await db.raw(`
-        select o.vn as seq, o.vstdttm as date, o.nrxtime as time, c.namecln as department
+        select o.vn as vn, o.vstdttm as date, o.nrxtime as time, c.namecln as department
         FROM ovst as o 
         Inner Join cln as c ON c.cln = o.cln 
         WHERE DATE(o.vstdttm) = '${date_serve}' and o.hn ='${hn}'`);
