@@ -8,16 +8,14 @@ import { HisHiModel } from './../models/his_hi.model';
 import { HisJhosModel } from './../models/his_jhos.model';
 import { HisHomcModel } from './../models/his_homc.model';
 import { HisBudhospModel } from './../models/his_budhosp.model';
-
+import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
 
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
 
-
 router.get('/', (req, res, next) => {
     res.render('index', { title: 'MOPH H4U API' });
 });
-
 
 // ห้ามแก้ไข // 
 router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
@@ -48,7 +46,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             hisModel = new HisJhcisModel();
             break;
         case 'hosxppcu':
-            // hisModel = new HisHosxppcuModel();
+            hisModel = new HisHosxppcuModel();
             break;
         case 'hospitalos':
             // hisModel = new HisHospitalOsModel();
@@ -150,6 +148,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_services: any = await hisModel.getServices(db, hn, dateServe);
+            // console.log('Service : ', rs_services);
             if (rs_services.length) {
                 for (const v of rs_services) {
                     const diagnosis = [];
