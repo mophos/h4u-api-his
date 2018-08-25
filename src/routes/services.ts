@@ -159,12 +159,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     let appointment: any = [];
                     let refer: any = [];
 
-<<<<<<< HEAD
-                    const rs_diagnosis = await hisModel.getDiagnosis(db, v.vn);
-                    
-=======
                     const rs_diagnosis = await hisModel.getDiagnosis(db, hn, v.seq);
->>>>>>> 8ede037154a44f4f25c5a005f2918bdaf5ea9d05
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
@@ -184,12 +179,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.diagnosis = diagnosis;
                     }
 
-<<<<<<< HEAD
-                    const rs_procedure = await hisModel.getProcedure(db, v.vn)
-                    console.log('Procedure :', rs_procedure);
-=======
                     const rs_procedure = await hisModel.getProcedure(db, v.seq)
->>>>>>> 8ede037154a44f4f25c5a005f2918bdaf5ea9d05
                     if (rs_procedure.length) {
                         for (const rp of rs_procedure) {
                             const objProcedure = {
