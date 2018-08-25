@@ -35,25 +35,25 @@ export class HisModel {
   }
 
 
-  getDiagnosis(db: Knex, vn: any) {
+  getDiagnosis(db: Knex, seq: any) {
     // return [{icd_code:'',icd_desc:'',diage_type:''}]
   }
 
-  getRefer(db: Knex, vn: any) {
+  getRefer(db: Knex, seq: any) {
     // return [{hcode_to:'',name_to:'',reason:''}]
   }
 
 
-  getDrugs(db: Knex, vn: any) {
+  getDrugs(db: Knex, seq: any) {
     // return [{drug_name:'',qty:'',unit:'',usage_line1:'',usage_line2:'',usage_line3:''}]
   }
 
-  getLabs(db: Knex, vn: any) {
+  getLabs(db: Knex, seq: any) {
     // return [{lab_name:'',lab_result:'',standard_result:'',seq:'',time_serv:'',date_serve:''}]
   }
 
 
-  getAppointment(db: Knex, vn: any) {
+  getAppointment(db: Knex, seq: any) {
     // return [{date:'',time:'',department:'',detail:''}]
   }
 
