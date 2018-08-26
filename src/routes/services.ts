@@ -82,7 +82,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
     let objService: any = {};
     let providerCode;
     let providerName;
-
+    let profile = [];
     if (requestId && hn && dateServe && uid) {
         try {
             let rs_hospital: any = await hisModel.getHospital(db, hn);
@@ -90,7 +90,10 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 providerCode = rs_hospital[0].provider_code;
                 providerName = rs_hospital[0].provider_name;
             }
-
+            let rs_profile: any = await hisModel.getProfile(db, hn);;
+            if (rs_profile.length) {
+                profile = rs_profile;
+            }
             const rs_vaccine: any = await hisModel.getVaccine(db, hn);
             if (rs_vaccine.length) {
                 let vaccines: any = [];
@@ -285,7 +288,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             if (objService) {
-                res.send({ ok: true, rows: objService });
+                res.send({ ok: true, rows: objService, profile: profile });
             } else {
                 res.send({ ok: false });
             }

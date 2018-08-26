@@ -11,6 +11,11 @@ import Knex = require('knex');
 // return data[0];
 // }
 export class HisModel {
+  getProfile(db: Knex, hn: any) {
+    // ชื่อผู้ป่วย
+    // return [{title_name:'',first_name:'',last_name:''}]
+  }
+
   getHospital(db: Knex, hn: any) {
     // ชื่อสถานพยาบาล
     // return [{provider_code:'',provider_name:''}]
