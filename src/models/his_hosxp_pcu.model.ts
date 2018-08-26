@@ -39,7 +39,7 @@ export class HisHosxppcuModel {
       .where('pa.hn', hn);
   }
 
-  getDiagnosis(db: Knex, hn: any, vn: any) {
+  getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ovstdiag as o')
       .select('o.vn', 'v.vstdate as date_serv',
         'v.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_desc', 't.name as diag_type')
@@ -49,7 +49,7 @@ export class HisHosxppcuModel {
       .where('o.vn', vn);
   }
 
-  async getProcedure(db: Knex, hn: any, vn: any) {
+  async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
     let data = await db.raw(`SELECT o.vn,d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
     time(d.begin_date_time) as start_time,
     date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
@@ -68,7 +68,7 @@ export class HisHosxppcuModel {
     return data[0];
   }
 
-  getRefer(db: Knex, hn: any, vn: any) {
+  getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('referout as r')
       .select('o.vn as seq', 'o.vstdate as date_serv',
         'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name',
@@ -79,7 +79,7 @@ export class HisHosxppcuModel {
       .where('r.vn', vn);
   }
 
-  getDrugs(db: Knex, hn: any, vn: any) {
+  getDrugs(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('opitemrece as o')
       .select('o.vn', 'o.vstdate as date_serv', 'o.vsttime as time_serv',
         'o.icode as drugcode', 's.name as drug_name', 'o.qty', 's.units as unit',
@@ -90,7 +90,7 @@ export class HisHosxppcuModel {
       .andWhere('o.item_type', '')
   }
 
-  getLabs(db: Knex, hn: any, vn: any) {
+  getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('lab_order as l')
       .select('o.vstdate as date_serv', 'o.vsttime as time_serv',
         'o.vn', 'l.lab_items_name_ref as lab_name', 'l.lab_order_result as lab_result',
@@ -117,7 +117,7 @@ export class HisHosxppcuModel {
       })
   }
 
-  getAppointment(db: Knex, hn: any, vn: any) {
+  getAppointment(db: Knex, hn: any, dateServ: any, vn: any) {
     return db('oapp as o')
       .select('o.vn', 'v.vstdate as date_serv', 'v.vsttime as time_serv',
         'c.name as department', 'o.nextdate as date', 'o.nexttime as time', 'o.app_cause as detail')

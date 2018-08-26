@@ -82,7 +82,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
     let objService: any = {};
     let providerCode;
     let providerName;
-
+    let profile = [];
     if (requestId && hn && dateServe && uid) {
         try {
             let rs_hospital: any = await hisModel.getHospital(db, hn);
@@ -90,7 +90,10 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 providerCode = rs_hospital[0].provider_code;
                 providerName = rs_hospital[0].provider_name;
             }
-
+            let rs_profile: any = await hisModel.getProfile(db, hn);;
+            if (rs_profile.length) {
+                profile = rs_profile;
+            }
             const rs_vaccine: any = await hisModel.getVaccine(db, hn);
             if (rs_vaccine.length) {
                 let vaccines: any = [];
@@ -157,7 +160,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     let appointment: any = [];
                     let refer: any = [];
 
-                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, v.seq);
+                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServe, v.seq);
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
@@ -177,7 +180,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.diagnosis = diagnosis;
                     }
 
-                    const rs_procedure = await hisModel.getProcedure(db, hn, v.seq)
+                    const rs_procedure = await hisModel.getProcedure(db, hn, dateServe, v.seq)
                     if (rs_procedure.length) {
                         for (const rp of rs_procedure) {
                             const objProcedure = {
@@ -201,7 +204,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_drugs = await hisModel.getDrugs(db, hn, v.seq);
+                    const rs_drugs = await hisModel.getDrugs(db, hn, dateServe, v.seq);
                     if (rs_drugs.length) {
                         for (const rd of rs_drugs) {
                             const objDrug = {
@@ -225,7 +228,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_lab = await hisModel.getLabs(db, hn, v.seq);
+                    const rs_lab = await hisModel.getLabs(db, hn, dateServe, v.seq);
                     if (rs_lab.length) {
                         for (const rl of rs_lab) {
                             const objLab = {
@@ -246,7 +249,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_app = await hisModel.getAppointment(db, hn, v.seq);
+                    const rs_app = await hisModel.getAppointment(db, hn, dateServe, v.seq);
                     if (rs_app.length) {
                         appointment = {
                             "request_id": requestId,
@@ -264,7 +267,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.appointment = appointment;
                     }
 
-                    const rs_refer = await hisModel.getRefer(db, hn, v.seq);
+                    const rs_refer = await hisModel.getRefer(db, hn, dateServe, v.seq);
                     if (rs_refer.length) {
                         refer = {
                             "request_id": requestId,
@@ -285,7 +288,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             if (objService) {
-                res.send({ ok: true, rows: objService });
+                res.send({ ok: true, rows: objService, profile: profile });
             } else {
                 res.send({ ok: false });
             }

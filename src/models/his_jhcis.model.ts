@@ -82,7 +82,7 @@ export class HisJhcisModel {
       .where('vd.visitno', visitno)
   }
 
-  getDrugs(db: Knex, hn: any, visitno: any) {
+  getDrugs(db: Knex, hn: any, dateServe: any, visitno: any) {
     return db('visitdrug as vd')
       .select('vd.visitno', 'vd.drugcode', 'd.drugname as drug_name', 'vd.unit as qty', 'd.unitusage as unit',
         'vd.dose as usage_line1', db.raw(`'' as usage_line2,'' as usage_line3`))
@@ -91,7 +91,7 @@ export class HisJhcisModel {
       .whereNot('d.drugtype', '02')
   }
 
-  getAppointment(db: Knex, hn: any, visitno) {
+  getAppointment(db: Knex, hn: any, dateServ: any, visitno: any) {
     return db('visitdiagappoint')
       .select(db.raw(`visitno,appodate as date ,"" as time, appotype ,
     (case appotype when "1" then "รับยาฯ"
@@ -138,7 +138,7 @@ export class HisJhcisModel {
       .where('v.pid', hn)
   }
 
-  async getProcedure(db: Knex, vn: any) {
+  async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
     let data = await db.raw(`
     select visit.visitno as seq,visit.visitdate as date_serv, visit.timestart as time_serv, drug.drugcode as procedure_code, 
     l.drugname as procedure_name, visit.visitdate as start_date, visit.timestart as start_time, visit.visitdate as end_date, visit.timeend as end_time
@@ -191,7 +191,7 @@ export class HisJhcisModel {
       .where('vn', vn);
   }
 
-  async getDiagnosis(db: Knex, hn: any, vn: any) {
+  async getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     let data = await db.raw(`
     select dx.pcucode as provider_code, h.hosname as provider_name, dx.visitno as seq, 
     visit.visitdate as date_serv, visit.timestart as time_serv,
@@ -205,7 +205,7 @@ export class HisJhcisModel {
     return data[0];
   }
 
-  getRefer(db: Knex, hn: any, vn: any) {
+  getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     return "";
   }
 
@@ -228,7 +228,7 @@ export class HisJhcisModel {
   //   return db.raw(sql, [vn]);
   // }
 
-  getLabs(db: Knex, hn: any, vn: any) {
+  getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
     return "";
   }
 
