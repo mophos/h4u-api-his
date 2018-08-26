@@ -166,16 +166,16 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
-                                request_id: requestId,
-                                uid: uid,
-                                provider_code: providerCode,
-                                provider_name: providerName,
-                                seq: rg.seq,
-                                date_serv: moment(rg.date_serv).format('YYYY-MM-DD'),
-                                time_serv: rg.time_serv,
-                                icd_code: rg.icd_code,
-                                icd_name: rg.icd_desc,
-                                diag_type: rg.diag_type,
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rg.seq,
+                                "date_serv": moment(rg.date_serv).format('YYYY-MM-DD'),
+                                "time_serv": rg.time_serv,
+                                "icd_code": rg.icd_code,
+                                "icd_name": rg.icd_name,
+                                "diag_type": rg.diag_type
                             }
                             diagnosis.push(objDiagnosis);
                         }

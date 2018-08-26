@@ -59,7 +59,7 @@ export class HisHiModel {
 
     getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('ovstdx as o')
-            .select('o.vn as seq', 'ovst.vstdttm as date_serv', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
+            .select('o.vn as seq', 'ovst.vstdttm as date_serv', 'o.icd10 as icd_code', 'o.icd10name as icd_name', 'o.cnt as diag_type')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
             .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
             .where('o.vn', seq);

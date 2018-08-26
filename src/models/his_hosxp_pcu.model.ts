@@ -42,7 +42,7 @@ export class HisHosxppcuModel {
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ovstdiag as o')
       .select('o.vn', 'v.vstdate as date_serv',
-        'v.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_desc', 't.name as diag_type')
+        'v.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_name', 't.name as diag_type')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
       .leftOuterJoin('ovst as v', 'v.vn', '=', 'o.vn')
       .leftOuterJoin('diagtype as t', 't.diagtype', 'o.diagtype')

@@ -195,7 +195,7 @@ export class HisJhcisModel {
     let data = await db.raw(`
     select dx.pcucode as provider_code, h.hosname as provider_name, dx.visitno as seq, 
     visit.visitdate as date_serv, visit.timestart as time_serv,
-    dx.diagcode as icd_code, icd.diseasenamethai as icd_desc, dx.dxtype as diag_type
+    dx.diagcode as icd_code, icd.diseasenamethai as icd_name, dx.dxtype as diag_type
    from visitdiag as dx
     left join cdisease as icd on dx.diagcode=icd.diseasecode
     left join visit on dx.visitno=visit.visitno

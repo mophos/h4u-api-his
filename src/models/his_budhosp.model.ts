@@ -24,12 +24,12 @@ export class HisBudhospModel {
 
   getChronic(db: Knex, hn: any) {
     // โรคเรื้อรัง
-    // return [{icd_code:'',icd_desc:'',start_date:''}]
+    // return [{icd_code:'',icd_name:'',start_date:''}]
   }
 
 
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
-    // return [{icd_code:'',icd_desc:'',diage_type:''}]
+    // return [{icd_code:'',icd_name:'',diage_type:''}]
   }
 
   getRefer(db: Knex, hn: any, dateServe: any, vn: any) {

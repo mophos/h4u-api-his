@@ -28,12 +28,12 @@ export class HisModel {
 
   getChronic(db: Knex, hn: any) {
     // แพ้ยา โรคเรื้อรัง
-    // return [{icd_code:'',icd_desc:'',start_date:''}]
+    // return [{icd_code:'',icd_name:'',start_date:''}]
   }
 
 
   getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
-    // return [{icd_code:'',icd_desc:'',diage_type:''}]
+    // return [{icd_code:'',icd_name:'',diage_type:''}]
   }
 
   getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
