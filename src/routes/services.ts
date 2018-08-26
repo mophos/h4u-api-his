@@ -269,7 +269,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                             }
                             appointment.push(objAppointment);
                         }
-                        objService.appointment = appointments;
+                        objService.appointment = appointment;
                     }
 
                     const rs_refers = await hisModel.getRefer(db, hn, dateServe, v.seq);
