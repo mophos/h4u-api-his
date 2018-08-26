@@ -105,7 +105,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         "uid": uid,
                         "provider_code": providerCode,
                         "provider_name": providerName,
-                        "date_serv": moment(rv.date_serve).format('YYYY-MM-DD'),
+                        "date_serv": moment(rv.date_serv).format('YYYY-MM-DD'),
                         "time_serv": rv.time_serv,
                         "vaccine_code": rv.vaccine_code,
                         "vaccine_name": rv.vaccine_name
@@ -159,7 +159,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     const drugs = [];
                     const lab = [];
                     const procedure = [];
-                    let appointment: any = [];
+                    let appointments: any = [];
                     let refer: any = [];
 
                     const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServe, v.seq);
@@ -171,7 +171,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 provider_code: providerCode,
                                 provider_name: providerName,
                                 seq: rg.seq,
-                                date_serv: moment(rg.date_serve).format('YYYY-MM-DD'),
+                                date_serv: moment(rg.date_serv).format('YYYY-MM-DD'),
                                 time_serv: rg.time_serv,
                                 icd_code: rg.icd_code,
                                 icd_name: rg.icd_desc,
@@ -191,7 +191,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
                                 "seq": rp.seq,
-                                "date_serv": moment(rp.date_serve).format('YYYY-MM-DD'),
+                                "date_serv": moment(rp.date_serv).format('YYYY-MM-DD'),
                                 "time_serv": rp.time_serv,
                                 "procedure_code": rp.procedure_code,
                                 "procedure_name": rp.procedure_name,
@@ -215,7 +215,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
                                 "seq": rd.seq,
-                                "date_serv": moment(rd.date_serve).format('YYYY-MM-DD'),
+                                "date_serv": moment(rd.date_serv).format('YYYY-MM-DD'),
                                 "time_serv": rd.time_serv,
                                 "drug_name": rd.drug_name,
                                 "qty": rd.qty,
@@ -239,7 +239,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
                                 "seq": rl.seq,
-                                "date_serv": moment(rl.date_serve).format('YYYY-MM-DD'),
+                                "date_serv": moment(rl.date_serv).format('YYYY-MM-DD'),
                                 "time_serv": rl.time_serv,
                                 "lab_name": rl.lab_name,
                                 "lab_result": rl.lab_result,
@@ -254,21 +254,22 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     const rs_apps = await hisModel.getAppointment(db, hn, dateServe, v.seq);
                     if (rs_apps && rs_apps.length > 0) {
                         for (const rs_app of rs_apps) {
-                            appointment = {
+                           const appointment = {
                                 "request_id": requestId,
                                 "uid": uid,
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
-                                "seq": rs_app[0].seq,
-                                "date_serv": moment(rs_app[0].date_serve).format('YYYY-MM-DD'),
-                                "time_serv": rs_app[0].time_serv,
-                                "clinic": rs_app[0].department,
-                                "appoint_date": moment(rs_app[0].date).format('YYYY-MM-DD'),
-                                "appoint_time": rs_app[0].time,
-                                "detail": rs_app[0].detail
+                                "seq": rs_app.seq,
+                                "date_serv": moment(rs_app.date_serv).format('YYYY-MM-DD'),
+                                "time_serv": rs_app.time_serv,
+                                "clinic": rs_app.department,
+                                "appoint_date": moment(rs_app.date).format('YYYY-MM-DD'),
+                                "appoint_time": rs_app.time,
+                                "detail": rs_app.detail
                             }
-                            objService.appointment.push(appointment);
+                            appointments.push(appointment);
                         }
+                        objService.appointment = appointments;
                     }
 
                     const rs_refers = await hisModel.getRefer(db, hn, dateServe, v.seq);
@@ -280,7 +281,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
                                 "seq": rs_refer[0].seq,
-                                "date_serv": moment(rs_refer[0].date_serve).format('YYYY-MM-DD'),
+                                "date_serv": moment(rs_refer[0].date_serv).format('YYYY-MM-DD'),
                                 "time_serv": rs_refer[0].time_serv,
                                 "to_provider_code": rs_refer[0].depto_provider_codeartment,
                                 "to_provider_name": rs_refer[0].to_provider_name,
@@ -299,6 +300,8 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 res.send({ ok: false });
             }
         } catch (error) {
+            console.log(error);
+            
             res.send({ ok: false, error: error.message });
         }
     } else {
