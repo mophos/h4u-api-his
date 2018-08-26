@@ -10,6 +10,7 @@ import { HisJhosModel } from './../models/his_jhos.model';
 import { HisHomcModel } from './../models/his_homc.model';
 import { HisBudhospModel } from './../models/his_budhosp.model';
 import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
+import { HisSsbModel } from './../models/his_ssb.model'; 
 
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
@@ -31,7 +32,7 @@ switch (provider) {
         hisModel = new HisHosxpv4Model();
         break;
     case 'ssb':
-        // hisModel = new HisSsbModel();
+        hisModel = new HisSsbModel();
         break;
     case 'infod':
         // hisModel = new HisInfodModel();
