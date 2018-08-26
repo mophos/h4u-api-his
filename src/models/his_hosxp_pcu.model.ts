@@ -69,7 +69,15 @@ export class HisHosxppcuModel {
     LEFT OUTER JOIN ovst o on o.vn=e.vn
     LEFT OUTER JOIN er_oper_code as c on c.er_oper_code=e.er_oper_code
     WHERE o.vn = ?
-    `, [vn, vn]);
+    UNION
+    SELECT d.vn as seq,d.icd10 as procedure_code, i.name as procedure_name,s.vstdate as date_serv,
+    s.vsttime as time_serv,d.vstdate as start_date, d.vsttime as start_time, d.vstdate as end_date, 
+    d.vsttime as end_time
+    from ovstdiag as d
+    left outer join icd9cm1 i on i.code = d.icd10 
+    LEFT OUTER JOIN ovst s on s.vn=d.vn
+    where d.vn = ? and substring(d.icd10,1,1) in ('0','1','2','3','4','5','6','7','8','9')
+    `, [vn, vn, vn]);
     return data[0];
   }
 
@@ -91,14 +99,14 @@ export class HisHosxppcuModel {
       .innerJoin('s_drugitems as s', 's.icode', 'o.icode')
       .innerJoin('drugusage as u', 'u.drugusage', 'o.drugusage')
       .where('o.vn', vn)
-      .andWhere('o.item_type', '')
+      .andWhereNot('o.drugusage', '')
   }
 
   getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('lab_order as l')
       .select('o.vstdate as date_serv', 'o.vsttime as time_serv',
         'o.vn as seq', 'l.lab_items_name_ref as lab_name', 'l.lab_order_result as lab_result',
-        'l.lab_items_normal_value_ref as standard_resul')
+        'l.lab_items_normal_value_ref as standard_result')
       .innerJoin('lab_head as h', 'h.lab_order_number', 'l.lab_order_number')
       .innerJoin('ovst as o', 'o.vn', 'h.vn')
       .where('h.vn', vn)

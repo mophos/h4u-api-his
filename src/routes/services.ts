@@ -152,7 +152,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_services: any = await hisModel.getServices(db, hn, dateServe);
-            // console.log('Service : ', rs_services);
+            console.log('Service : ', rs_services);
             if (rs_services.length) {
                 for (const v of rs_services) {
                     const diagnosis = [];
@@ -161,8 +161,9 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     const procedure = [];
                     const appointment = [];
                     const refer = [];
-
+                    
                     const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServe, v.seq);
+                    console.log('Diag :', rs_diagnosis);
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
