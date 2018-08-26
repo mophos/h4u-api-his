@@ -15,27 +15,14 @@ export class HisHiModel {
     async getServices(db: Knex, hn: any, dateServe: any) {
 
         let data = await db.raw(`
-        select o.vn as seq,p.pname as title_name,p.fname as first_name,p.lname as last_name, 
-		DATE_FORMAT(date(o.vstdttm),'%Y-%m-%d') as date_serve, 
+        select o.vn as seq, o.vstdttm as date_serve, 
         DATE_FORMAT(time(o.vstdttm),'%h:%i:%s') as time_serv, 
         c.namecln as department
         FROM ovst as o 
-        INNER JOIN cln as c ON c.cln = o.cln 
-        INNER JOIN pt as p	ON p.hn = o.hn
+        Inner Join cln as c ON c.cln = o.cln 
         WHERE o.hn ='${hn}' and DATE(o.vstdttm) = '${dateServe}'`);
         return data[0];
     }
-    async getProfile(db: Knex, hn: any) {
-        // ชื่อ
-        // return [{title_name:'',first_name:'',last_name:''}]
-        let data = await db.raw(`
-        select p.hn as hn, p.pop_id as cid, p.pname as title_name,p.fname as first_name,p.lname as last_name
-        FROM pt as p 
-        WHERE p.hn ='${hn}'`);
-        return data[0];
-
-    }
-
 
     getHospital(db: Knex, hn: any) {
         return db('setup as s')
@@ -66,13 +53,17 @@ export class HisHiModel {
     }
 
     getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
-        return db('orfro as o')
-            .select('o.vn as seq', 'o.vstdate as date_serve', 'o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
-            .select(db.raw(`time(ovst.vstdttm) as time_serv`))
-            .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
-            .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
-            .leftJoin('rfrcs as f', 'f.rfrcs', '=', 'o.rfrcs')
-            .where('o.vn', seq);
+      return db('refer_out as r')
+        .leftJoin('lib_hospcode as h', 'r.refer_hcode', 'h.off_id')
+        .leftJoin('opd_visit as v', 'r.vn', 'v.vn')
+        .select('r.vn as seq', 'v.date as date_serve', 'v.time as time_serv',
+            'r.refer_hcode as hcode_to', 
+            'h.name as name_to', 
+            'r.refer_hcode as depto_provider_codeartment', 
+            'h.name as to_provider_name',
+            'r.cause5_name AS reason')
+        .where('v.hn', hn)
+        .where('r.vn', seq);
     }
 
 

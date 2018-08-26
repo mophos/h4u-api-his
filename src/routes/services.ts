@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import * as moment from 'moment';
 // model
+import { HisEzhospModel } from './../models/his_ezhosp.model';
 import { HisJhcisModel } from './../models/his_jhcis.model';
 import { HisHosxpv3Model } from './../models/his_hosxpv3.model';
 import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
@@ -22,7 +23,7 @@ router.get('/', (req, res, next) => {
 let hisModel: any;
 switch (provider) {
     case 'ezhosp':
-        // hisModel = new HisEzhospModel();
+        hisModel = new HisEzhospModel();
         break;
     case 'hosxpv3':
         hisModel = new HisHosxpv3Model();
@@ -250,40 +251,44 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_app = await hisModel.getAppointment(db, hn, dateServe, v.seq);
-                    if (rs_app.length) {
-                        appointment = {
-                            "request_id": requestId,
-                            "uid": uid,
-                            "provider_code": providerCode,
-                            "provider_name": providerName,
-                            "seq": rs_app[0].seq,
-                            "date_serv": moment(rs_app[0].date_serve).format('YYYY-MM-DD'),
-                            "time_serv": rs_app[0].time_serv,
-                            "clinic": rs_app[0].department,
-                            "appoint_date": moment(rs_app[0].date).format('YYYY-MM-DD'),
-                            "appoint_time": rs_app[0].time,
-                            "detail": rs_app[0].detail
+                    const rs_apps = await hisModel.getAppointment(db, hn, dateServe, v.seq);
+                    if (rs_apps && rs_apps.length > 0) {
+                        for (const rs_app of rs_apps) {
+                            appointment = {
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rs_app[0].seq,
+                                "date_serv": moment(rs_app[0].date_serve).format('YYYY-MM-DD'),
+                                "time_serv": rs_app[0].time_serv,
+                                "clinic": rs_app[0].department,
+                                "appoint_date": moment(rs_app[0].date).format('YYYY-MM-DD'),
+                                "appoint_time": rs_app[0].time,
+                                "detail": rs_app[0].detail
+                            }
+                            objService.appointment.push(appointment);
                         }
-                        objService.appointment = appointment;
                     }
 
-                    const rs_refer = await hisModel.getRefer(db, hn, dateServe, v.seq);
-                    if (rs_refer.length) {
-                        refer = {
-                            "request_id": requestId,
-                            "uid": uid,
-                            "provider_code": providerCode,
-                            "provider_name": providerName,
-                            "seq": rs_refer[0].seq,
-                            "date_serv": moment(rs_refer[0].date_serve).format('YYYY-MM-DD'),
-                            "time_serv": rs_refer[0].time_serv,
-                            "to_provider_code": rs_refer[0].depto_provider_codeartment,
-                            "to_provider_name": rs_refer[0].to_provider_name,
-                            "reason": rs_refer[0].refer_cause,
-                            "start_date": moment(rs_refer[0].date_serv).format('YYYY-MM-DD')
+                    const rs_refers = await hisModel.getRefer(db, hn, dateServe, v.seq);
+                    if (rs_refers && rs_refers.length > 0) {
+                        for (const rs_refer of rs_refers) {
+                            refer = {
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rs_refer[0].seq,
+                                "date_serv": moment(rs_refer[0].date_serve).format('YYYY-MM-DD'),
+                                "time_serv": rs_refer[0].time_serv,
+                                "to_provider_code": rs_refer[0].depto_provider_codeartment,
+                                "to_provider_name": rs_refer[0].to_provider_name,
+                                "reason": rs_refer[0].refer_cause,
+                                "start_date": moment(rs_refer[0].date_serv).format('YYYY-MM-DD')
+                            }
+                            objService.refer.push(refer);
                         }
-                        objService.refer = refer;
                     }
                 }
             }
