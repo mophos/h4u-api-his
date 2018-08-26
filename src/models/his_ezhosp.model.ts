@@ -13,21 +13,17 @@ import Knex = require('knex');
 export class HisEzhospModel {
 
     async getServices(db: Knex, hn: any, dateServe: any) {
-
-        let data = await db.raw(`
-        select o.vn as seq, o.vstdttm as date_serve, 
-        DATE_FORMAT(time(o.vstdttm),'%h:%i:%s') as time_serv, 
-        c.namecln as department
-        FROM ovst as o 
-        Inner Join cln as c ON c.cln = o.cln 
-        WHERE o.hn ='${hn}' and DATE(o.vstdttm) = '${dateServe}'`);
-        return data[0];
+      return db('view_opd_visit as visit')
+        .select('visit.vn as seq', 'visit.date as date_serve',
+          'visit.time as time_serv', 'visit.dep_name as department')
+        .where('visit.hn', '=' , hn)
+        .where('visit.date', '=' , dateServe);
     }
 
     getHospital(db: Knex, hn: any) {
-        return db('setup as s')
-            .select('s.hcode as provider_code', 'h.namehosp as provider_name')
-            .leftJoin('hospcode as h', 'h.off_id', '=', 's.hcode')
+        return db('sys_hospital')
+            .select('hcode as provider_code', 'hname as provider_name')
+            .limit(1);
     }
 
     getAllergyDetail(db: Knex, hn: any) {
@@ -45,11 +41,13 @@ export class HisEzhospModel {
 
 
     getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
-      return db('ovstdx as o')
-          .select('o.vn as seq', 'ovst.vstdttm as date_serve', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
-          .select(db.raw(`time(ovst.vstdttm) as time_serv`))
-          .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
-          .where('o.vn', seq);
+      return db('view_opd_dx a dx')
+          .leftJoin('opd_visit as visit', 'dx.vn', 'visit.vn')
+          .select('dx.vn as seq', 'visit.date as date_serve', 
+              'visit.time as time_serv', 'dx.diag as icd_code', 
+              'dx.desc as icd_desc', 'dx.type as diag_type')
+          .where('visit.hn', hn)
+          .where('visit.date', dateServe);
     }
 
     getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
@@ -68,57 +66,46 @@ export class HisEzhospModel {
     }
 
 
-    async getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
-        let data = await db.raw(`
-        select p.vn as seq,p.prscdate as date_serve,
-        DATE_FORMAT(time(p.prsctime),'%h:%i:%s') as time_serv, 
-        pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
-        FROM prsc as p 
-        Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
-        Left Join medusage as m ON m.dosecode = pd.medusage
-        Left Join meditem as med ON med.meditem = pd.meditem
-        WHERE p.vn = '${seq}' GROUP BY pd.qty`);
-        return data[0];
+    getDrugs(knex: Knex, hn: any, dateServe: any, seq: any) {
+      return knex
+          .select('drug.vn as seq', 'drug.date as date_serve',
+            'drug.time_inp as time_serv', 'drugname as drug_name', 'no as qty', 'unit')
+          .select(knex.raw("concat(method_name, ' ', no_use, ' ' , unit_use ) "))
+          .select('freq_name as usage_line2', 'times_name as usage_line3')
+          .from('view_pharmacy_opd_drug as drug')
+          .where('hn', "=", hn)
+          .where('date', "=", dateServe)
+          .where('no', '>' , 0)
+          .where('price', '>' , 0);
     }
 
-    async getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
-        let data = await db.raw(`
-        SELECT
-        seq,date_serve,time_serv,lab_test as lab_name,
-        hi.Get_Labresult(t.lab_table,t.labfield,t.lab_number) as lab_result,
-        reference as standard_result
-        FROM
-        (SELECT DISTINCT
-        l.ln as lab_number,
-        l.vn as seq,
-        l.hn as hn,
-        
-        DATE_FORMAT(date(l.vstdttm),'%Y%m%d') as date_serve,	
-        DATE_FORMAT(time(l.vstdttm),'%h:%i:%s') as time_serv,
-
-        lb.fieldname as lab_code_local,
-        
-        replace(lb.fieldlabel,"'",'\`') as lab_test, lb.filename as lab_table,
-        lb.fieldname as labfield,
-        concat(lb.normal,' ',lb.unit) as reference,
-        replace(lab.labname,"'",'\`') as lab_group_name,
-        l.labcode as lab_group
-        FROM 
-        hi.lbbk as l 
-        inner join hi.lab on l.labcode=lab.labcode and l.finish=1 and l.vn='${seq}'
-        inner join hi.lablabel as lb on l.labcode = lb.labcode
-        group by l.ln,l.labcode,lb.filename,lb.fieldname
-        ) as t `);
-        return data[0];
+    getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
+      return db
+          .from('view_lab_result as lab')
+          .leftJoin('opd_visit as visit' , 'lab.vn', 'visit.vn')
+          .select('visit.vn as seq', 'visit.date as date_serve',
+                  'visit.time as time_serv', 'lab_code as lab_test', 'lab.lab_name', 
+                  'lab.result as lab_result')
+          .select(db.raw("concat(lab.minresult), ' - ' , lab.maxresult,' ',lab.unit) as standard_result"))
+          .where('visit.hn', "=", hn)
+          .where('visit.date', "=", dateServe);
     }
 
-
-    getAppointment(db: Knex, hn: any, dateServ: any, seq: any) {
-        return db('oapp as o')
-            .select('o.vn as seq', 'o.vstdate as date_serve', 'o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
-            .select(db.raw(`time(ovst.vstdttm) as time_serv`))
-            .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
-            .where('o.vn', seq);
+    getAppointment(knex: Knex, hn: any, dateServ: any, seq: any) {
+      return knex
+          .select('opd_fu.hn', 'opd_fu.vn as seq',
+              'opd_visit.date as date_serve', 'opd_visit.time as time_serv',
+              'opd_fu.date as date_input', 'opd_fu.fu_date as date',
+              'opd_fu.fu_time as time', 
+              'opd_visit.dep as local_code',
+              'lib_clinic.standard as clinic_code',
+              'lib_clinic.clinic as department',
+              'opd_fu.detail')
+          .from('opd_fu')
+          .leftJoin('opd_visit', 'opd_fu.vn', 'opd_visit.vn')
+          .leftJoin('lib_clinic', 'opd_visit.dep', 'lib_clinic.code')
+          .where('opd_visit.hn', "=", hn)
+          .where('opd_visit.date', "=", dateServ);
     }
 
     async getVaccine(db: Knex, hn: any) {
@@ -159,62 +146,17 @@ export class HisEzhospModel {
         o.hn='${hn}'`);
         return data[0];
     }
-    async getProcedure(db: Knex, hn: any, dateServe: any, seq: any) {
-        let data = await db.raw(`
-        SELECT
-        o.hn as pid,
-        o.vn as seq,
-        DATE_FORMAT(date(o.vstdttm),'%Y%m%d') as date_serv,	
-        DATE_FORMAT(time(o.nrxtime),'%h:%i:%s') as time_serv, 
-        p.icd9cm as procedcode,	
-        p.icd9name as procedname,
-        DATE_FORMAT(date(p.opdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time
-    from
-        hi.ovst o 
-    inner join 
-        hi.ovstdx ox on o.vn = ox.vn 
-    inner join
-        hi.oprt p on o.vn = p.vn 
-    left outer join
-        hi.cln c on o.cln = c.cln
-    LEFT OUTER JOIN 
-        hi.dct on (
-            CASE WHEN LENGTH(o.dct) = 5 THEN dct.lcno = o.dct 
-                WHEN LENGTH(o.dct) = 4 THEN dct.dct = substr(o.dct,1,2)  
-                WHEN LENGTH(o.dct) = 2 THEN dct.dct = o.dct END )
-    where 
-    o.vn = '${seq}' and p.an = 0 
-    group by 
-        p.vn,p.icd9cm 
-    UNION 
-    SELECT 
-        o.hn as pid,
-        o.vn as seq,
-        DATE_FORMAT(date(o.vstdttm),'%Y%m%d') as date_serv,
-        DATE_FORMAT(time(o.nrxtime),'%h:%i:%s') as time_serv, 
-        i.ICD10TM as procedcode,
-        i.name_Tx as procedname,
-        DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time
-    
-    FROM
-        hi.dtdx 
-    INNER JOIN 
-        hi.icd9dent as i on dtdx.dttx=i.code_tx
-    INNER JOIN 
-        hi.dt on dtdx.dn=dt.dn
-    INNER JOIN
-        hi.ovst as o on dt.vn=o.vn and o.cln='40100'
-    left outer join 
-        hi.cln c on o.cln = c.cln  
-    left join dentist as d on dt.dnt=d.codedtt
-    where 
-        o.vn = '${seq}'
-    group by 
-        dtdx.dn,procedcode
-        `);
-        return data[0];
-    }
 
+    getProcedure(knex: Knex, hn: any, dateServe: any, seq: any) {
+      return knex
+          .select('op.vn as visitno', 'visit.date as date_serv', 
+            'visit.time as time_serv',
+            'hn as pid', 'op as procedcode',
+            'desc as procedname', 'icd_9 as icdcm', 'dr')
+          .select(knex.raw(" '' as start_date "))
+          .select(knex.raw(" '' as start_time "))
+          .from('view_opd_op as op')
+          .leftJoin('opd_visit as visit', 'op.vn', 'opd_visit.vn')
+          .where('hn', "=", hn);
+    }
 }
