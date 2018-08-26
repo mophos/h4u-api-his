@@ -159,8 +159,8 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     const drugs = [];
                     const lab = [];
                     const procedure = [];
-                    let appointment: any = [];
-                    let refer: any = [];
+                    const appointment = [];
+                    const refer = [];
 
                     const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServe, v.seq);
                     if (rs_diagnosis.length) {
