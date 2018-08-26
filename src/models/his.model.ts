@@ -18,7 +18,7 @@ export class HisModel {
 
   getProfile(db: Knex, hn: any) {
     // ชื่อ
-    // return [{title_name:'',first_name:'',last_name:''}]
+    // return [{hn:'',cid:'',title_name:'',first_name:'',last_name:''}]
   }
 
   getAllergyDetail(db: Knex, hn: any) {

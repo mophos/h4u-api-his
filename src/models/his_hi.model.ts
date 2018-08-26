@@ -15,14 +15,27 @@ export class HisHiModel {
     async getServices(db: Knex, hn: any, dateServe: any) {
 
         let data = await db.raw(`
-        select o.vn as seq, o.vstdttm as date_serve, 
+        select o.vn as seq,p.pname as title_name,p.fname as first_name,p.lname as last_name, 
+		DATE_FORMAT(date(o.vstdttm),'%Y-%m-%d') as date_serve, 
         DATE_FORMAT(time(o.vstdttm),'%h:%i:%s') as time_serv, 
         c.namecln as department
         FROM ovst as o 
-        Inner Join cln as c ON c.cln = o.cln 
+        INNER JOIN cln as c ON c.cln = o.cln 
+        INNER JOIN pt as p	ON p.hn = o.hn
         WHERE o.hn ='${hn}' and DATE(o.vstdttm) = '${dateServe}'`);
         return data[0];
     }
+    async getProfile(db: Knex, hn: any) {
+        // ชื่อ
+        // return [{title_name:'',first_name:'',last_name:''}]
+        let data = await db.raw(`
+        select p.hn as hn, p.pop_id as cid, p.pname as title_name,p.fname as first_name,p.lname as last_name
+        FROM pt as p 
+        WHERE p.hn ='${hn}'`);
+        return data[0];
+
+    }
+
 
     getHospital(db: Knex, hn: any) {
         return db('setup as s')
