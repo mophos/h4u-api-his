@@ -10,7 +10,7 @@ import Knex = require('knex');
 //   let data = await knex.raw(`select * from opdconfig`);
 // return data[0];
 // }
-export class HisHiModel {
+export class HisEzhospModel {
 
     async getServices(db: Knex, hn: any, dateServe: any) {
 
@@ -45,11 +45,11 @@ export class HisHiModel {
 
 
     getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
-        return db('ovstdx as o')
-            .select('o.vn as seq', 'ovst.vstdttm as date_serve', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
-            .select(db.raw(`time(ovst.vstdttm) as time_serv`))
-            .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
-            .where('o.vn', seq);
+      return db('ovstdx as o')
+          .select('o.vn as seq', 'ovst.vstdttm as date_serve', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
+          .select(db.raw(`time(ovst.vstdttm) as time_serv`))
+          .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
+          .where('o.vn', seq);
     }
 
     getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
@@ -61,6 +61,7 @@ export class HisHiModel {
             'h.name as name_to', 
             'r.refer_hcode as depto_provider_codeartment', 
             'h.name as to_provider_name',
+            'r.cause5_name AS refer_cause',
             'r.cause5_name AS reason')
         .where('v.hn', hn)
         .where('r.vn', seq);
