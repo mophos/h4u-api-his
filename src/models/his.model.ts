@@ -16,6 +16,11 @@ export class HisModel {
     // return [{provider_code:'',provider_name:''}]
   }
 
+  getProfile(db: Knex, hn: any) {
+    // ชื่อ
+    // return [{title_name:'',first_name:'',last_name:''}]
+  }
+
   getAllergyDetail(db: Knex, hn: any) {
     // แพ้ยา
     // return [{drug_name:'',symptom:''}]
