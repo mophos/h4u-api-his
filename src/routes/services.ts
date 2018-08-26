@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import * as moment from 'moment';
 // model
+import { HisEzhospModel } from './../models/his_ezhosp.model';
 import { HisJhcisModel } from './../models/his_jhcis.model';
 import { HisHosxpv3Model } from './../models/his_hosxpv3.model';
 import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
@@ -21,7 +22,7 @@ router.get('/', (req, res, next) => {
 let hisModel: any;
 switch (provider) {
     case 'ezhosp':
-        // hisModel = new HisEzhospModel();
+        hisModel = new HisEzhospModel();
         break;
     case 'hosxpv3':
         hisModel = new HisHosxpv3Model();
