@@ -12,17 +12,17 @@ import Knex = require('knex');
 // }
 export class HisHiModel {
 
-    async getServices(db: Knex, hn: any, dateServe: any) {
+    async getServices(db: Knex, hn: any, dateServ: any) {
 
         let data = await db.raw(`
         select o.vn as seq,p.pname as title_name,p.fname as first_name,p.lname as last_name, 
-		DATE_FORMAT(date(o.vstdttm),'%Y-%m-%d') as date_serve, 
+		DATE_FORMAT(date(o.vstdttm),'%Y-%m-%d') as date_serv, 
         DATE_FORMAT(time(o.vstdttm),'%h:%i:%s') as time_serv, 
         c.namecln as department
         FROM ovst as o 
         INNER JOIN cln as c ON c.cln = o.cln 
         INNER JOIN pt as p	ON p.hn = o.hn
-        WHERE o.hn ='${hn}' and DATE(o.vstdttm) = '${dateServe}'`);
+        WHERE o.hn ='${hn}' and DATE(o.vstdttm) = '${dateServ}'`);
         return data[0];
     }
     async getProfile(db: Knex, hn: any) {
@@ -59,7 +59,7 @@ export class HisHiModel {
 
     getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('ovstdx as o')
-            .select('o.vn as seq', 'ovst.vstdttm as date_serve', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
+            .select('o.vn as seq', 'ovst.vstdttm as date_serv', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
             .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
             .where('o.vn', seq);
@@ -67,7 +67,7 @@ export class HisHiModel {
 
     getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('orfro as o')
-            .select('o.vn as seq', 'o.vstdate as date_serve', 'o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
+            .select('o.vn as seq', 'o.vstdate as date_serv', 'o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
             .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
             .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
@@ -78,7 +78,7 @@ export class HisHiModel {
 
     async getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
-        select p.vn as seq,p.prscdate as date_serve,
+        select p.vn as seq,p.prscdate as date_serv,
         DATE_FORMAT(time(p.prsctime),'%h:%i:%s') as time_serv, 
         pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
         FROM prsc as p 
@@ -92,7 +92,7 @@ export class HisHiModel {
     async getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
         SELECT
-        seq,date_serve,time_serv,lab_test as lab_name,
+        seq,date_serv,time_serv,lab_test as lab_name,
         hi.Get_Labresult(t.lab_table,t.labfield,t.lab_number) as lab_result,
         reference as standard_result
         FROM
@@ -101,7 +101,7 @@ export class HisHiModel {
         l.vn as seq,
         l.hn as hn,
         
-        DATE_FORMAT(date(l.vstdttm),'%Y%m%d') as date_serve,	
+        DATE_FORMAT(date(l.vstdttm),'%Y%m%d') as date_serv,	
         DATE_FORMAT(time(l.vstdttm),'%h:%i:%s') as time_serv,
 
         lb.fieldname as lab_code_local,
@@ -123,7 +123,7 @@ export class HisHiModel {
 
     getAppointment(db: Knex, hn: any, dateServ: any, seq: any) {
         return db('oapp as o')
-            .select('o.vn as seq', 'o.vstdate as date_serve', 'o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
+            .select('o.vn as seq', 'o.vstdate as date_serv', 'o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
             .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
             .where('o.vn', seq);
@@ -131,7 +131,7 @@ export class HisHiModel {
 
     async getVaccine(db: Knex, hn: any) {
         let data = await db.raw(`select 
-        o.vstdttm as date_serve,
+        o.vstdttm as date_serv,
         DATE_FORMAT(time(o.drxtime),'%h:%i:%s') as time_serv, 
         cv.NEW as vaccine_code, 
         h.namehpt as vaccine_name
@@ -149,7 +149,7 @@ export class HisHiModel {
         UNION
 
         select 
-        o.vstdttm as date_serve,
+        o.vstdttm as date_serv,
         DATE_FORMAT(time(o.drxtime),'%h:%i:%s') as time_serv, 
         vc.stdcode as vacine_code, 
         vc.\`name\` as vacine_name
