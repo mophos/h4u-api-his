@@ -67,21 +67,38 @@ let dbConnection: Knex.MySqlConnectionConfig = {
 }
 
 app.use((req, res, next) => {
-  req.db = Knex({
-    client: process.env.DB_CLIENT,
-    connection: dbConnection,
-    pool: {
-      min: 0,
-      max: 7,
-      afterCreate: (conn, done) => {
-        conn.query('SET NAMES ' + process.env.DB_CHARSET, (err) => {
-          done(err, conn);
-        });
-      }
-    },
-    debug: false,
-    acquireConnectionTimeout: 5000
-  });
+  let connectKnexconfig: any;
+  if (process.env.DB_CLIENT === 'mssql') {
+    connectKnexconfig = {
+      client: process.env.DB_CLIENT,
+      connection: dbConnection,
+    };
+    req.db = Knex(connectKnexconfig);
+  } else if (process.env.DB_CLIENT === 'pg') {
+    connectKnexconfig = {
+      client: process.env.DB_CLIENT,
+      searchPath: ['knex','public'],
+      connection: dbConnection,
+    };
+    req.db = Knex(connectKnexconfig);
+  } else {
+    req.db = Knex({
+      client: process.env.DB_CLIENT,
+      connection: dbConnection,
+      pool: {
+        min: 0,
+        max: 7,
+        afterCreate: (conn, done) => {
+          conn.query('SET NAMES ' + process.env.DB_CHARSET, (err) => {
+            done(err, conn);
+          });
+        }
+      },
+      debug: false,
+      acquireConnectionTimeout: 5000
+    });
+  }
+
 
   next();
 })
