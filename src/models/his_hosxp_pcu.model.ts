@@ -16,10 +16,15 @@ export class HisHosxppcuModel {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
+  getProfile(db: Knex, hn: any) {
+    return db('patient')
+    .select('pname as title_name', 'fname as first_name', 'lname as last_name')
+    .where('hn', hn)
+  }
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
-      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serv,v.vn as seq, v.vn`))
+      .select('v.vn as seq','v.vstdate as date_serve', 'v.vsttime as time_serv')
       .where('v.hn', hn)
       .where('v.vstdate', dateServe)
   }
@@ -41,7 +46,7 @@ export class HisHosxppcuModel {
 
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ovstdiag as o')
-      .select('o.vn', 'v.vstdate as date_serv',
+      .select('o.vn as seq', 'v.vstdate as date_serv',
         'v.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_desc', 't.name as diag_type')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
       .leftOuterJoin('ovst as v', 'v.vn', '=', 'o.vn')
@@ -50,7 +55,7 @@ export class HisHosxppcuModel {
   }
 
   async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
-    let data = await db.raw(`SELECT o.vn,d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
+    let data = await db.raw(`SELECT o.vn as seq,d.er_oper_code as procedure_code,e.name as procedure_name,date(d.begin_date_time) as start_date, 
     time(d.begin_date_time) as start_time,
     date(d.end_date_time) as end_date,TIME(d.end_date_time) as end_time
     FROM doctor_operation as d
@@ -58,7 +63,7 @@ export class HisHosxppcuModel {
     LEFT OUTER JOIN er_oper_code as e on e.er_oper_code=d.er_oper_code
     WHERE o.vn = ?
     UNION
-    SELECT o.vn,e.er_oper_code as procedure_code,c.name as procedure_name,o.vstdate as start_date, 
+    SELECT o.vn as seq,e.er_oper_code as procedure_code,c.name as procedure_name,o.vstdate as start_date, 
     time(e.begin_time) as start_time,o.vstdate as end_date,TIME(e.end_time) as end_date
     FROM er_regist_oper as e
     LEFT OUTER JOIN ovst o on o.vn=e.vn
@@ -71,8 +76,7 @@ export class HisHosxppcuModel {
   getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('referout as r')
       .select('o.vn as seq', 'o.vstdate as date_serv',
-        'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name',
-        'c.name as refer_cause')
+        'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name','c.name as refer_cause')
       .innerJoin('refer_cause as c', 'c.id', 'r.refer_cause')
       .innerJoin('ovst as o ', 'o.vn', 'r.vn')
       .innerJoin('hospcode as h', 'h.hospcode', 'r.refer_hospcode')
@@ -81,7 +85,7 @@ export class HisHosxppcuModel {
 
   getDrugs(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('opitemrece as o')
-      .select('o.vn', 'o.vstdate as date_serv', 'o.vsttime as time_serv',
+      .select('o.vn as seq', 'o.vstdate as date_serv', 'o.vsttime as time_serv',
         'o.icode as drugcode', 's.name as drug_name', 'o.qty', 's.units as unit',
         'u.name1 as usage_line1', 'u.name2 as usage_line2', 'u.name3 as usage_line3')
       .innerJoin('s_drugitems as s', 's.icode', 'o.icode')
@@ -93,7 +97,7 @@ export class HisHosxppcuModel {
   getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('lab_order as l')
       .select('o.vstdate as date_serv', 'o.vsttime as time_serv',
-        'o.vn', 'l.lab_items_name_ref as lab_name', 'l.lab_order_result as lab_result',
+        'o.vn as seq', 'l.lab_items_name_ref as lab_name', 'l.lab_order_result as lab_result',
         'l.lab_items_normal_value_ref as standard_resul')
       .innerJoin('lab_head as h', 'h.lab_order_number', 'l.lab_order_number')
       .innerJoin('ovst as o', 'o.vn', 'h.vn')
@@ -119,7 +123,7 @@ export class HisHosxppcuModel {
 
   getAppointment(db: Knex, hn: any, dateServ: any, vn: any) {
     return db('oapp as o')
-      .select('o.vn', 'v.vstdate as date_serv', 'v.vsttime as time_serv',
+      .select('o.vn as seq', 'v.vstdate as date_serv', 'v.vsttime as time_serv',
         'c.name as department', 'o.nextdate as date', 'o.nexttime as time', 'o.app_cause as detail')
       .innerJoin('ovst as v', 'v.vn', 'o.vn')
       .innerJoin('clinic as c', 'c.clinic', 'o.clinic')
