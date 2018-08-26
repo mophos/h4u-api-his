@@ -15,7 +15,9 @@ export class HisHiModel {
     async getServices(db: Knex, hn: any, dateServe: any) {
 
         let data = await db.raw(`
-        select o.vn as seq, o.vstdttm as date_serve, o.nrxtime as time_serv, c.namecln as department
+        select o.vn as seq, o.vstdttm as date_serve, 
+        DATE_FORMAT(time(o.vstdttm),'%h:%i:%s') as time_serv, 
+        c.namecln as department
         FROM ovst as o 
         Inner Join cln as c ON c.cln = o.cln 
         WHERE o.hn ='${hn}' and DATE(o.vstdttm) = '${dateServe}'`);
@@ -42,25 +44,30 @@ export class HisHiModel {
     }
 
 
-    getDiagnosis(db: Knex, hn: any, seq: any) {
+    getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('ovstdx as o')
-            .select('o.vn as seq', 'ovst.vstdttm as date_serve', 'ovst.nrxtime as time_serv', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
+            .select('o.vn as seq', 'ovst.vstdttm as date_serve', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
+            .select(db.raw(`time(ovst.vstdttm) as time_serv`))
             .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
             .where('o.vn', seq);
     }
 
-    getRefer(db: Knex, hn: any, seq: any) {
+    getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('orfro as o')
-            .select('o.vn as seq', 'o.vstdate as date_serve', 'o.vsttime as time_serv', 'o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
+            .select('o.vn as seq', 'o.vstdate as date_serve', 'o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
+            .select(db.raw(`time(ovst.vstdttm) as time_serv`))
             .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
+            .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
             .leftJoin('rfrcs as f', 'f.rfrcs', '=', 'o.rfrcs')
             .where('o.vn', seq);
     }
 
 
-    async getDrugs(db: Knex, hn: any, seq: any) {
+    async getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
-        select p.vn as seq,p.prscdate as date_serve,prsctime as time_serv, pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
+        select p.vn as seq,p.prscdate as date_serve,
+        DATE_FORMAT(time(p.prsctime),'%h:%i:%s') as time_serv, 
+        pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
         FROM prsc as p 
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
         Left Join medusage as m ON m.dosecode = pd.medusage
@@ -69,7 +76,7 @@ export class HisHiModel {
         return data[0];
     }
 
-    async getLabs(db: Knex, hn: any, seq: any) {
+    async getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
         SELECT
         seq,date_serve,time_serv,lab_test as lab_name,
@@ -82,7 +89,7 @@ export class HisHiModel {
         l.hn as hn,
         
         DATE_FORMAT(date(l.vstdttm),'%Y%m%d') as date_serve,	
-        DATE_FORMAT(time(l.vstdttm),'%i%s') as time_serv,
+        DATE_FORMAT(time(l.vstdttm),'%h:%i:%s') as time_serv,
 
         lb.fieldname as lab_code_local,
         
@@ -101,16 +108,18 @@ export class HisHiModel {
     }
 
 
-    getAppointment(db: Knex, hn: any, seq: any) {
+    getAppointment(db: Knex, hn: any, dateServ: any, seq: any) {
         return db('oapp as o')
-            .select('o.vn as seq', 'o.vstdate as date_serve', 'o.vsttime as time_serv', 'o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
+            .select('o.vn as seq', 'o.vstdate as date_serve', 'o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
+            .select(db.raw(`time(ovst.vstdttm) as time_serv`))
+            .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
             .where('o.vn', seq);
     }
 
     async getVaccine(db: Knex, hn: any) {
         let data = await db.raw(`select 
         o.vstdttm as date_serve,
-        o.drxtime as time_serv,
+        DATE_FORMAT(time(o.drxtime),'%h:%i:%s') as time_serv, 
         cv.NEW as vaccine_code, 
         h.namehpt as vaccine_name
         from 
@@ -128,7 +137,7 @@ export class HisHiModel {
 
         select 
         o.vstdttm as date_serve,
-        o.drxtime as time_serv,
+        DATE_FORMAT(time(o.drxtime),'%h:%i:%s') as time_serv, 
         vc.stdcode as vacine_code, 
         vc.\`name\` as vacine_name
         from 
@@ -145,17 +154,17 @@ export class HisHiModel {
         o.hn='${hn}'`);
         return data[0];
     }
-    async getProcedure(db: Knex, hn: any, seq: any) {
+    async getProcedure(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
         SELECT
         o.hn as pid,
         o.vn as seq,
         DATE_FORMAT(date(o.vstdttm),'%Y%m%d') as date_serv,	
-        o.nrxtime as time_serv, 
+        DATE_FORMAT(time(o.nrxtime),'%h:%i:%s') as time_serv, 
         p.icd9cm as procedcode,	
         p.icd9name as procedname,
         DATE_FORMAT(date(p.opdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(p.opdttm),'%i%s') as start_time
+        DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time
     from
         hi.ovst o 
     inner join 
@@ -178,11 +187,11 @@ export class HisHiModel {
         o.hn as pid,
         o.vn as seq,
         DATE_FORMAT(date(o.vstdttm),'%Y%m%d') as date_serv,
-        o.nrxtime as time_serv,  
+        DATE_FORMAT(time(o.nrxtime),'%h:%i:%s') as time_serv, 
         i.ICD10TM as procedcode,
         i.name_Tx as procedname,
         DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(dt.vstdttm),'%i%s') as start_time
+        DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time
     
     FROM
         hi.dtdx 
