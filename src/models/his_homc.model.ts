@@ -9,14 +9,23 @@ export class HisHomcModel {
     let sql = `SELECT OFF_ID as provider_code,NAME as provider_name from HOSPCODE where OFF_ID = ?`;
     return db.raw(sql, [hospcode]);
   }
+  getProfile(db: Knex, hn: any) {
+    return db('PATIENT')
+    .select('titleCode as title_name', 'firstName as first_name', 'lastName as last_name')
+    .where('hn', hn)
+  }
 
   getServices(db: Knex, date_serve: any, hn: any) {
-
-    let sql = `select o.vn as seq ,o.vstdate as date ,o.vsttime as time,k.department
-    from ovst as o
-    left outer join kskdepartment as k on k.depcode = o.main_dep 
-    where DATE(o.vstdate) = ? and o.hn = ?`;
-    return db.raw(sql, [date_serve, hn]);
+    let sql = `SELECT o.hn + o.regNo as seq,
+    convert(date,convert(char,o.registDate -5430000)) as date_serv,
+    CONVERT (time,(left (o.timePt,2)+':'+right (o.timePt,2))) as time_serv,
+    d.deptDesc as department
+    from OPD_H as o
+    left join DEPT d on(d.deptCode = o.dept)
+    where convert(date,convert(char,o.registDate -5430000)) = ? and o.hn = ?
+    `;
+    const result = db.raw(sql, [date_serve, hn]);
+    return result[0];
   }
 
   getAllergyDetail(db: Knex, hn: any) {
@@ -75,7 +84,10 @@ export class HisHomcModel {
     FROM referout r 
     LEFT OUTER JOIN refer_cause c on c.id = r.refer_cause
     WHERE r.vn = ? `;
-    return db.raw(sql, [vn]);
+    //return db.raw(sql, [vn]);
+    const result = db.raw(sql, [vn]);
+    return result[0];
+
     // return db('referout as r')
     //     .select('o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
     //     .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
@@ -94,7 +106,8 @@ export class HisHomcModel {
     left join OPD_H h on( p.hn = h.hn and p.registNo2 = h.regNo) 
     where p.hn = ? and convert(date,convert(char,p.registDate -5430000)) = ?    
     `;
-    return db.raw(sql, [hn, date_serv]);
+    const result = db.raw(sql, [hn, date_serv]);
+    return result[0];
   }
 
   getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
@@ -102,8 +115,10 @@ export class HisHomcModel {
     l.lab_items_normal_value_ref as standard_result
     from lab_order l  
     LEFT OUTER JOIN lab_head h on h.lab_order_number = l.lab_order_number
-    where h.vn = ? `;
-    return db.raw(sql, [vn]);
+    where h.vn = ? 
+    `;
+    const result = db.raw(sql, [vn]);
+    return result[0];
   }
 
 //   getAnc(db: Knex, vn: any) {
@@ -127,7 +142,8 @@ export class HisHomcModel {
     left join PPOP_VACCINE v on(v.VACCODE = p.VACCODE)
     where o.hn = ?
     `;
-    return db.raw(sql, [hn, hn]);
+    const result = db.raw(sql, [hn, hn]);
+    return result[0];
   }
 
   getAppointment(db: Knex, hn: any, date_serv: any) {
@@ -139,6 +155,7 @@ export class HisHomcModel {
     left join OPD_H p on( a.hn = p.hn and a.regNo = p.regNo) 
     where p.hn = ? and convert(date,convert(char,p.registDate -5430000)) = ?
     `;
-    return db.raw(sql, [hn,date_serv]);
+    const result = db.raw(sql, [hn,date_serv]);
+    return result[0];
   }
 }

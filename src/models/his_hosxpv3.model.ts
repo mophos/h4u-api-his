@@ -16,6 +16,12 @@ export class HisHosxpv3Model {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
+  
+  getProfile(db: Knex, hn: any) {
+    return db('patient')
+    .select('pname as title_name', 'fname as first_name', 'lname as last_name')
+    .where('hn', hn)
+  }
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
