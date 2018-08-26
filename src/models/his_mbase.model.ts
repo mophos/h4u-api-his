@@ -83,7 +83,7 @@ export class HisMbaseModel {
   }
 
 
-  async getDiagnosis(db: Knex, hn: any, seq: any) {
+  async getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
     let data = await db.raw(`
     SELECT 
     a.VISIT_ID as seq,
@@ -105,7 +105,7 @@ export class HisMbaseModel {
     return data[0];
   }
 
-  async getRefer(db: Knex, hn: any, seq: any) {
+  async getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
     let data = await db.raw(`
     SELECT
       a.VISIT_ID AS seq,
@@ -127,7 +127,7 @@ export class HisMbaseModel {
   }
 
 
-  async getDrugs(db: Knex, hn: any, seq: any) {
+  async getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
     let data = await db.raw(`
     SELECT   
     a.VISIT_ID as "seq",
@@ -148,7 +148,7 @@ export class HisMbaseModel {
     return data[0];
   }
 
-  async getLabs(db: Knex, hn: any, seq: any) {
+  async getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
     let data = await db.raw(`
     SELECT
     a.VISIT_ID seq,
@@ -167,7 +167,7 @@ export class HisMbaseModel {
   }
 
 
-  async getAppointment(db: Knex, hn: any, seq: any) {
+  async getAppointment(db: Knex, hn: any, dateServ: any, seq: any) {
     let data = await db.raw(`
     SELECT
       c.VISIT_ID as seq,
@@ -201,7 +201,7 @@ export class HisMbaseModel {
     AND a.HN  = '${hn}' `);
     return data[0];
   }
-  async getProcedure(db: Knex, hn: any, seq: any) {
+  async getProcedure(db: Knex, hn: any, dateServe: any, seq: any) {
     let data = await db.raw(`
     SELECT
         a.VISIT_ID AS seq,

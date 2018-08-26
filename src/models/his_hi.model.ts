@@ -44,7 +44,7 @@ export class HisHiModel {
     }
 
 
-    getDiagnosis(db: Knex, hn: any, seq: any) {
+    getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('ovstdx as o')
             .select('o.vn as seq', 'ovst.vstdttm as date_serve', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
@@ -52,7 +52,7 @@ export class HisHiModel {
             .where('o.vn', seq);
     }
 
-    getRefer(db: Knex, hn: any, seq: any) {
+    getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('orfro as o')
             .select('o.vn as seq', 'o.vstdate as date_serve', 'o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
@@ -63,7 +63,7 @@ export class HisHiModel {
     }
 
 
-    async getDrugs(db: Knex, hn: any, seq: any) {
+    async getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
         select p.vn as seq,p.prscdate as date_serve,
         DATE_FORMAT(time(p.prsctime),'%h:%i:%s') as time_serv, 
@@ -76,7 +76,7 @@ export class HisHiModel {
         return data[0];
     }
 
-    async getLabs(db: Knex, hn: any, seq: any) {
+    async getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
         SELECT
         seq,date_serve,time_serv,lab_test as lab_name,
@@ -108,7 +108,7 @@ export class HisHiModel {
     }
 
 
-    getAppointment(db: Knex, hn: any, seq: any) {
+    getAppointment(db: Knex, hn: any, dateServ: any, seq: any) {
         return db('oapp as o')
             .select('o.vn as seq', 'o.vstdate as date_serve', 'o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
@@ -154,7 +154,7 @@ export class HisHiModel {
         o.hn='${hn}'`);
         return data[0];
     }
-    async getProcedure(db: Knex, hn: any, seq: any) {
+    async getProcedure(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
         SELECT
         o.hn as pid,

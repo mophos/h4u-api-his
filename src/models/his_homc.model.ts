@@ -70,7 +70,7 @@ export class HisHomcModel {
     //   .where('vn', vn);
   }
 
-  getRefer(db: Knex, hn: any, vn: any) {
+  getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     let sql = `SELECT r.refer_hospcode, c.name as refer_cause
     FROM referout r 
     LEFT OUTER JOIN refer_cause c on c.id = r.refer_cause
@@ -97,7 +97,7 @@ export class HisHomcModel {
     return db.raw(sql, [hn, date_serv]);
   }
 
-  getLabs(db: Knex, hn: any, vn: any) {
+  getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
     let sql = `select l.lab_items_name_ref as lab_name,l.lab_order_result as lab_result,
     l.lab_items_normal_value_ref as standard_result
     from lab_order l  
