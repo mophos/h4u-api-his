@@ -28,25 +28,25 @@ export class HisBudhospModel {
   }
 
 
-  getDiagnosis(db: Knex, hn: any, vn: any) {
+  getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     // return [{icd_code:'',icd_desc:'',diage_type:''}]
   }
 
-  getRefer(db: Knex, hn: any, vn: any) {
+  getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     // return [{hcode_to:'',name_to:'',reason:''}]
   }
 
 
-  getDrugs(db: Knex, hn: any, vn: any) {
+  getDrugs(db: Knex, hn: any, dateServe: any, vn: any) {
     // return [{drug_name:'',qty:'',unit:'',usage_line1:'',usage_line2:'',usage_line3:''}]
   }
 
-  getLabs(db: Knex, hn: any, vn: any) {
+  getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
     // return [{lab_name:'',lab_result:'',standard_result:'',seq:'',time_serv:'',date_serve:''}]
   }
 
 
-  getAppointment(db: Knex, hn: any, vn: any) {
+  getAppointment(db: Knex, hn: any, dateServ: any, vn: any) {
     // return [{date:'',time:'',department:'',detail:''}]
   }
 
