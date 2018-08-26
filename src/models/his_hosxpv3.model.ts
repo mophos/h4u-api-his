@@ -42,14 +42,14 @@ export class HisHosxpv3Model {
       .where('pa.hn', hn);
   }
 
-
-  getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
+  getDiagnosis(db: Knex, hn: any, vn: any) {
     return db('ovstdiag as o')
       .select('o.vn', 'o.vstdate as date_serv',
         'o.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_desc', 't.name as diag_type')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
       .leftOuterJoin('diagtype as t', 't.diagtype', 'o.diagtype')
-      .where('vn', vn);
+      .where('vn', vn)
+      .andWhere('i.code', '=', 'o.icd10');
   }
 
   async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
