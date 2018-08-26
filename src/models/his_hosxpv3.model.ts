@@ -25,8 +25,8 @@ export class HisHosxpv3Model {
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
-      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serv, k.department as clinic,v.vn as seq`))
-      .innerJoin('kskdepartment as k', 'k.depcode', 'v.main_dep')
+      .select('v.vn as seq','v.vstdate as date_serve', 'v.vsttime as time_serv')
+      .leftOuterJoin('kskdepartment as k', 'k.depcode', '=', 'v.main_dep')
       .where('v.hn', hn)
       .where('v.vstdate', dateServe)
   }
