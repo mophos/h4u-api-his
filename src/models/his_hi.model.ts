@@ -25,6 +25,17 @@ export class HisHiModel {
         WHERE o.hn ='${hn}' and DATE(o.vstdttm) = '${dateServe}'`);
         return data[0];
     }
+    async getProfile(db: Knex, hn: any) {
+        // ชื่อ
+        // return [{title_name:'',first_name:'',last_name:''}]
+        let data = await db.raw(`
+        select p.hn as hn, p.pop_id as cid, p.pname as title_name,p.fname as first_name,p.lname as last_name
+        FROM pt as p 
+        WHERE p.hn ='${hn}'`);
+        return data[0];
+
+    }
+
 
     getHospital(db: Knex, hn: any) {
         return db('setup as s')
