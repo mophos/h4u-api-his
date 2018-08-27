@@ -11,6 +11,7 @@ import { HisHomcModel } from './../models/his_homc.model';
 import { HisBudhospModel } from './../models/his_budhosp.model';
 import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
 import { HisSsbModel } from './../models/his_ssb.model';
+import { HisHosxpv4pgModel } from '../models/his_hosxpv4_pg.model';
 
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
@@ -30,6 +31,9 @@ switch (provider) {
         break;
     case 'hosxpv4':
         hisModel = new HisHosxpv4Model();
+        break;
+    case 'hosxpv4pg':
+        hisModel = new HisHosxpv4pgModel();
         break;
     case 'ssb':
         hisModel = new HisSsbModel();
