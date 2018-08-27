@@ -12,6 +12,7 @@ import { HisBudhospModel } from './../models/his_budhosp.model';
 import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
 import { HisSsbModel } from './../models/his_ssb.model';
 import { HisHosxpv4pgModel } from '../models/his_hosxpv4_pg.model';
+import { HisHospitalOsModel } from './../models/his_hospitalos.model';
 
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
@@ -54,7 +55,7 @@ switch (provider) {
         hisModel = new HisHosxppcuModel();
         break;
     case 'hospitalos':
-        // hisModel = new HisHospitalOsModel();
+        hisModel = new HisHospitalOsModel();
         break;
     case 'jhos':
         hisModel = new HisJhosModel();
