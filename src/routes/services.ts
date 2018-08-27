@@ -152,7 +152,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
 
             let rs_services: any = await hisModel.getServices(db, hn, dateServe);
-            console.log('Service : ', rs_services);
+            // console.log('Service : ', rs_services);
             if (rs_services.length) {
                 for (const v of rs_services) {
                     const diagnosis = [];
@@ -163,7 +163,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     const refer = [];
                     
                     const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServe, v.seq);
-                    console.log('Diag :', rs_diagnosis);
+                    // console.log('Diag :', rs_diagnosis);
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
@@ -251,7 +251,6 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.lab = lab;
                     }
 
-
                     const rs_apps = await hisModel.getAppointment(db, hn, dateServe, v.seq);
                     if (rs_apps && rs_apps.length > 0) {
                         for (const rs_app of rs_apps) {
@@ -302,8 +301,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 res.send({ ok: false });
             }
         } catch (error) {
-            console.log(error);
-
+            // console.log(error);
             res.send({ ok: false, error: error.message });
         }
     } else {
