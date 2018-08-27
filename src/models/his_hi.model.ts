@@ -51,7 +51,8 @@ export class HisHiModel {
 
     getChronic(db: Knex, hn: any) {
         return db('chronic as c')
-            .select('c.chronic as icd_code', 'i.name_t as icd_name', 'c.date_diag as start_date')
+            .select('c.chronic as icd_code', 'c.date_diag as start_date')
+            .select(db.raw(`IF(i.name_t!='', i.name_t, "-") as icd_name`))
             .innerJoin('icd101 as i', 'i.icd10', '=', 'c.chronic')
             .where('c.pid', hn);
     }
@@ -59,8 +60,9 @@ export class HisHiModel {
 
     getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('ovstdx as o')
-            .select('o.vn as seq', 'ovst.vstdttm as date_serv', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
+            .select('o.vn as seq', 'ovst.vstdttm as date_serv', 'o.icd10 as icd_code', 'o.cnt as diag_type')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
+            .select(db.raw(`IF(o.icd10name!='', o.icd10name, "-") as icd_desc`))
             .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
             .where('o.vn', seq);
     }
@@ -81,9 +83,9 @@ export class HisHiModel {
         select p.vn as seq,p.prscdate as date_serv,
         DATE_FORMAT(time(p.prsctime),'%h:%i:%s') as time_serv, 
         pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,
-        IF(m.doseprn1!='', m.doseprn1, "") as usage_line1 ,
-        IF(m.doseprn2!='', m.doseprn2, "") as usage_line2,
-        '' as usage_line3
+        IF(m.doseprn1!='', m.doseprn1, "-") as usage_line1 ,
+        IF(m.doseprn2!='', m.doseprn2, "-") as usage_line2,
+        IF(m.doseprn2!='', m.doseprn2, "-") as usage_line3
         FROM prsc as p 
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
         Left Join medusage as m ON m.dosecode = pd.medusage
