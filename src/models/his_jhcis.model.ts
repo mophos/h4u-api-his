@@ -58,7 +58,7 @@ export class HisJhcisModel {
 
   getServices(db: Knex, hn, dateServe) {
     return db('visit as v')
-      .select(db.raw(`v.visitdate as date_serve, time_format(v.timestart, '%H:%i') as time_serv, "" as clinic,
+      .select(db.raw(`v.visitdate as date_serv, time_format(v.timestart, '%H:%i') as time_serv, "" as clinic,
           v.visitno as seq, v.weight, v.height, substring_index(v.pressure, '/', 1) as dbp,
           substring_index(v.pressure, '/', -1) as sbp, round(((v.weight) / ((v.height / 100) * (v.height / 100))), 2) as bmi,
           v.vitalcheck as pe, v.refertohos as hcode_to,
@@ -133,7 +133,7 @@ export class HisJhcisModel {
 
   getVaccine(db: Knex, hn) {
     return db('visitepi as v')
-      .select('v.vaccinecode as vaccine_code', 'd.drugname as vaccine_name', 'v.dateepi as date_serve')
+      .select('v.vaccinecode as vaccine_code', 'd.drugname as vaccine_name', 'v.dateepi as date_serv')
       .leftJoin('cdrug as d', 'v.vaccinecode', 'd.drugcode')
       .where('v.pid', hn)
   }
@@ -172,11 +172,11 @@ export class HisJhcisModel {
   //     .innerJoin('cdisease as cd', 'pc.chroniccode', 'cd.diseasecode')
   //     .where('pc.pid', hn);
   // }
-  // getSeq(db: Knex, date_serve: any, hn: any) {
+  // getSeq(db: Knex, date_serv: any, hn: any) {
   //   return db('visit as v')
   //     .select('v.visitno as seq', 'v.visitdate as date', `'' as department`, db.raw(`time_format(v.timestart,'%H%i') as time`))
   //     .where('v.pid', hn)
-  //     .where('v.visitdate', date_serve)
+  //     .where('v.visitdate', date_serv)
   // }
 
   getScreening(db: Knex, vn: any) {
