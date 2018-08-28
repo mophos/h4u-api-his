@@ -85,7 +85,7 @@ export class HisHiModel {
         pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,
         IF(m.doseprn1!='', m.doseprn1, "-") as usage_line1 ,
         IF(m.doseprn2!='', m.doseprn2, "-") as usage_line2,
-        IF(m.doseprn2!='', m.doseprn2, "-") as usage_line3
+        '-' as usage_line3
         FROM prsc as p 
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
         Left Join medusage as m ON m.dosecode = pd.medusage
@@ -182,7 +182,9 @@ export class HisHiModel {
         p.icd9cm as procedcode,	
         p.icd9name as procedname,
         DATE_FORMAT(date(p.opdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time
+        DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time,
+        '' as end_date,	
+        '' as end_time
     from
         hi.ovst o 
     inner join 
@@ -209,7 +211,9 @@ export class HisHiModel {
         i.ICD10TM as procedcode,
         i.name_Tx as procedname,
         DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time
+        DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time,
+        '' as end_date,	
+        '' as end_time
     
     FROM
         hi.dtdx 
