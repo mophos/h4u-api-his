@@ -34,31 +34,13 @@ export class HisHomcModel {
       .where('hn', hn);
   }
 
-  getDisease(db: Knex, hn: any) {
+  getChronic(db: Knex, hn: any) {
     return db('person_chronic as pc')
       .select('pc.icd10 as icd10_code', 'i.name as icd10_desc')
       .leftOuterJoin('patient as pa', 'pa.hn', '=', 'pc.hn')
       .leftOuterJoin('person as pe', 'pe.cid', '=', 'pa.cid')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
       .where('pa.hn', hn);
-  }
-  
-  getDepartment(db: Knex, vn: any) {
-    return db('ovst as o')
-      .select('k.department')
-      .innerJoin('kskdepartment as k', 'k.depcode', '=', 'o.main_dep')
-      .where('vn', vn);
-  }
-
-  getScreening(db: Knex, vn: any) {
-    return db('opdscreen as o')
-      .select('o.bw as weight', 'o.height', 'o.bpd as dbp', 'o.bps as sbp', 'o.bmi')
-      .where('vn', vn);
-  }
-  getPe(db: Knex, vn: any) {
-    return db('opdscreen as s')
-      .select('s.pe as PE')
-      .where('vn', vn);
   }
 
   getDiagnosis(db: Knex, hn: any, date_serv: any) {
@@ -111,13 +93,14 @@ export class HisHomcModel {
   }
 
   getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
-    let sql = `select l.lab_items_name_ref as lab_name,l.lab_order_result as lab_result,
-    l.lab_items_normal_value_ref as standard_result
-    from lab_order l  
-    LEFT OUTER JOIN lab_head h on h.lab_order_number = l.lab_order_number
-    where h.vn = ? 
+    let sql = `select l.hn + l.reg_flag as seq,
+    convert(date,convert(char,l.res_date -5430000)) as date_serv,
+    l.res_time as time_serv,l.result_name as lab_name,
+    l.real_res as lab_result,l.resNormal as standard_result 
+    from Labres_d l where l.hn = ?
+    and convert(date,convert(char,l.res_date -5430000)) = ? 
     `;
-    const result = db.raw(sql, [vn]);
+    const result = db.raw(sql, [hn, dateServe]);
     return result[0];
   }
 
