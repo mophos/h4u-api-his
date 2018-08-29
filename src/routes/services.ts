@@ -22,8 +22,13 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/testenv', (req, res, next) => {
-    let db = req.db;
-    res.send({ ok: true, rows: db });
+    try {
+        let db = req.db;
+        res.send({ ok: true, rows: db });
+
+    } catch (error) {
+        res.send({ ok: false, error: error });
+    }
 });
 
 // ห้ามแก้ไข // 
