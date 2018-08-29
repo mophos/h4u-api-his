@@ -177,8 +177,8 @@ export class HisHiModel {
         o.vn as seq,
         DATE_FORMAT(date(o.vstdttm),'%Y%m%d') as date_serv,	
         DATE_FORMAT(time(o.nrxtime),'%h:%i:%s') as time_serv, 
-        p.icd9cm as procedcode,	
-        p.icd9name as procedname,
+        p.icd9cm as procedure_code,	
+        p.icd9name as procedure_name,
         DATE_FORMAT(date(p.opdttm),'%Y%m%d') as start_date,	
         DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time
     from
