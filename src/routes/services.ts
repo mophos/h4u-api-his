@@ -18,7 +18,12 @@ const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
 
 router.get('/', (req, res, next) => {
-    res.render('index', { title: 'MOPH H4U API' });
+    res.send({ title: 'MOPH H4U API' });
+});
+
+router.get('/testenv', (req, res, next) => {
+    let db = req.db;
+    res.send({ ok: true, rows: db });
 });
 
 // ห้ามแก้ไข // 
