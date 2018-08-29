@@ -1,12 +1,18 @@
 {
-  "apps": [{
-    "name": "app",
-    "script": "app/bin/www.js",
-    "node_args": "--harmony",
-    "log_date_format": "YYYY - MM - DD HH: mm Z",
-    "env": {
-      "NODE_ENV" : "production",
-      "PORT": 3000
+  "apps": [
+    {
+      "name": "h4u-api-his",
+      "script": "app/bin/www.js",
+      "node_args": "--harmony",
+      "log_date_format": "YYYY - MM - DD HH: mm Z",
+      "env": {
+        "NODE_ENV": "production",
+        "PORT": 3001
+      }
+    },
+    {
+      "name": "h4u-web-his",
+      "script": "../h4u-web-his/server.js"
     }
-  }]
+  ]
 }

@@ -75,17 +75,17 @@ switch (provider) {
 }
 
 // ห้ามแก้ไข // 
-router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
+router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Response) => {
     let db = req.db;
     let hn = req.params.hn;
-    let dateServe = req.params.dateServe;
+    let dateServ = req.params.dateServ;
     let uid = req.params.uid;
     let requestId = req.params.request_id;
     let objService: any = {};
     let providerCode;
     let providerName;
     let profile = [];
-    if (requestId && hn && dateServe && uid) {
+    if (requestId && hn && dateServ && uid) {
         try {
             let rs_hospital: any = await hisModel.getHospital(db, hn);
             if (rs_hospital.length) {
@@ -151,18 +151,17 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 objService.allergy = allergy;
             }
 
-            let rs_services: any = await hisModel.getServices(db, hn, dateServe);
+            let rs_services: any = await hisModel.getServices(db, hn, dateServ);
             // console.log('Service : ', rs_services);
             if (rs_services.length) {
+                const diagnosis = [];
+                const drugs = [];
+                const lab = [];
+                const procedure = [];
+                const appointment = [];
+                const refer = [];
                 for (const v of rs_services) {
-                    const diagnosis = [];
-                    const drugs = [];
-                    const lab = [];
-                    const procedure = [];
-                    const appointment = [];
-                    const refer = [];
-
-                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServe, v.seq);
+                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServ, v.seq);
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
@@ -182,7 +181,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.diagnosis = diagnosis;
                     }
 
-                    const rs_procedure = await hisModel.getProcedure(db, hn, dateServe, v.seq)
+                    const rs_procedure = await hisModel.getProcedure(db, hn, dateServ, v.seq)
                     if (rs_procedure.length) {
                         for (const rp of rs_procedure) {
                             const objProcedure = {
@@ -206,7 +205,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_drugs = await hisModel.getDrugs(db, hn, dateServe, v.seq);
+                    const rs_drugs = await hisModel.getDrugs(db, hn, dateServ, v.seq);
                     if (rs_drugs.length) {
                         for (const rd of rs_drugs) {
                             const objDrug = {
@@ -230,7 +229,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_lab = await hisModel.getLabs(db, hn, dateServe, v.seq);
+                    const rs_lab = await hisModel.getLabs(db, hn, dateServ, v.seq);
                     if (rs_lab.length) {
                         for (const rl of rs_lab) {
                             const objLab = {
@@ -251,7 +250,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_apps = await hisModel.getAppointment(db, hn, dateServe, v.seq);
+                    const rs_apps = await hisModel.getAppointment(db, hn, dateServ, v.seq);
                     if (rs_apps && rs_apps.length > 0) {
                         for (const rs_app of rs_apps) {
                             const objAppointment = {
@@ -272,7 +271,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.appointment = appointment;
                     }
 
-                    const rs_refers = await hisModel.getRefer(db, hn, dateServe, v.seq);
+                    const rs_refers = await hisModel.getRefer(db, hn, dateServ, v.seq);
                     if (rs_refers && rs_refers.length > 0) {
                         for (const rs_refer of rs_refers) {
                             const objRefer = {
@@ -302,7 +301,6 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
             }
         } catch (error) {
             console.log(error);
-
             res.send({ ok: false, error: error.message });
         }
     } else {
