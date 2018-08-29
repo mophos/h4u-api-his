@@ -80,7 +80,10 @@ export class HisHiModel {
         let data = await db.raw(`
         select p.vn as seq,p.prscdate as date_serv,
         DATE_FORMAT(time(p.prsctime),'%h:%i:%s') as time_serv, 
-        pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
+        pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,
+        IF(m.doseprn1!='', m.doseprn1, "") as usage_line1 ,
+        IF(m.doseprn2!='', m.doseprn2, "") as usage_line2,
+        '' as usage_line3
         FROM prsc as p 
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
         Left Join medusage as m ON m.dosecode = pd.medusage

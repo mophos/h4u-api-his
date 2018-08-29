@@ -11,6 +11,8 @@ import { HisHomcModel } from './../models/his_homc.model';
 import { HisBudhospModel } from './../models/his_budhosp.model';
 import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
 import { HisSsbModel } from './../models/his_ssb.model';
+import { HisHosxpv4pgModel } from '../models/his_hosxpv4_pg.model';
+import { HisHospitalOsModel } from './../models/his_hospitalos.model';
 
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
@@ -31,6 +33,9 @@ switch (provider) {
     case 'hosxpv4':
         hisModel = new HisHosxpv4Model();
         break;
+    case 'hosxpv4pg':
+        hisModel = new HisHosxpv4pgModel();
+        break;
     case 'ssb':
         hisModel = new HisSsbModel();
         break;
@@ -50,7 +55,7 @@ switch (provider) {
         hisModel = new HisHosxppcuModel();
         break;
     case 'hospitalos':
-        // hisModel = new HisHospitalOsModel();
+        hisModel = new HisHospitalOsModel();
         break;
     case 'jhos':
         hisModel = new HisJhosModel();
@@ -248,7 +253,6 @@ router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Res
                         }
                         objService.lab = lab;
                     }
-
 
                     const rs_apps = await hisModel.getAppointment(db, hn, dateServ, v.seq);
                     if (rs_apps && rs_apps.length > 0) {
