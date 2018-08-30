@@ -18,13 +18,13 @@ export class HisHosxppcuModel {
   }
   getProfile(db: Knex, hn: any) {
     return db('patient')
-    .select('pname as title_name', 'fname as first_name', 'lname as last_name')
-    .where('hn', hn)
+      .select('pname as title_name', 'fname as first_name', 'lname as last_name')
+      .where('hn', hn)
   }
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
-      .select('v.vn as seq','v.vstdate as date_serve', 'v.vsttime as time_serv')
+      .select('v.vn as seq', 'v.vstdate as date_serve', 'v.vsttime as time_serv')
       .where('v.hn', hn)
       .where('v.vstdate', dateServe)
   }
@@ -84,7 +84,7 @@ export class HisHosxppcuModel {
   getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('referout as r')
       .select('o.vn as seq', 'o.vstdate as date_serv',
-        'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name','c.name as refer_cause')
+        'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name', 'c.name as refer_cause')
       .innerJoin('refer_cause as c', 'c.id', 'r.refer_cause')
       .innerJoin('ovst as o ', 'o.vn', 'r.vn')
       .innerJoin('hospcode as h', 'h.hospcode', 'r.refer_hospcode')

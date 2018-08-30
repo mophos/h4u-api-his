@@ -13,12 +13,23 @@ import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
 import { HisSsbModel } from './../models/his_ssb.model';
 import { HisHosxpv4pgModel } from '../models/his_hosxpv4_pg.model';
 import { HisHospitalOsModel } from './../models/his_hospitalos.model';
+import { HisMbaseModel } from './../models/his_mbase.model';
 
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
 
 router.get('/', (req, res, next) => {
-    res.render('index', { title: 'MOPH H4U API' });
+    res.send({ title: 'MOPH H4U API' });
+});
+
+router.get('/testenv', (req, res, next) => {
+    try {
+        let db = req.db;
+        res.send({ ok: true, rows: db });
+
+    } catch (error) {
+        res.send({ ok: false, error: error });
+    }
 });
 
 // ห้ามแก้ไข // 
@@ -75,22 +86,25 @@ switch (provider) {
     case 'budhosp':
         hisModel = new HisBudhospModel();
         break;
+    case 'mbase':
+        hisModel = new HisMbaseModel();
+        break;
     default:
     // hisModel = new HisModel();
 }
 
 // ห้ามแก้ไข // 
-router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
+router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Response) => {
     let db = req.db;
     let hn = req.params.hn;
-    let dateServe = req.params.dateServe;
+    let dateServ = req.params.dateServ;
     let uid = req.params.uid;
     let requestId = req.params.request_id;
     let objService: any = {};
     let providerCode;
     let providerName;
     let profile = [];
-    if (requestId && hn && dateServe && uid) {
+    if (requestId && hn && dateServ && uid) {
         try {
             let rs_hospital: any = await hisModel.getHospital(db, hn);
             if (rs_hospital.length) {
@@ -156,39 +170,37 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 objService.allergy = allergy;
             }
 
-            let rs_services: any = await hisModel.getServices(db, hn, dateServe);
+            let rs_services: any = await hisModel.getServices(db, hn, dateServ);
             // console.log('Service : ', rs_services);
             if (rs_services.length) {
+                const diagnosis = [];
+                const drugs = [];
+                const lab = [];
+                const procedure = [];
+                const appointment = [];
+                const refer = [];
                 for (const v of rs_services) {
-                    const diagnosis = [];
-                    const drugs = [];
-                    const lab = [];
-                    const procedure = [];
-                    const appointment = [];
-                    const refer = [];
-                    
-                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServe, v.seq);
-                    // console.log('Diag :', rs_diagnosis);
+                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServ, v.seq);
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
-                                request_id: requestId,
-                                uid: uid,
-                                provider_code: providerCode,
-                                provider_name: providerName,
-                                seq: rg.seq,
-                                date_serv: moment(rg.date_serv).format('YYYY-MM-DD'),
-                                time_serv: rg.time_serv,
-                                icd_code: rg.icd_code,
-                                icd_name: rg.icd_desc,
-                                diag_type: rg.diag_type,
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rg.seq,
+                                "date_serv": moment(rg.date_serv).format('YYYY-MM-DD'),
+                                "time_serv": rg.time_serv,
+                                "icd_code": rg.icd_code,
+                                "icd_name": rg.icd_name,
+                                "diag_type": rg.diag_type
                             }
                             diagnosis.push(objDiagnosis);
                         }
                         objService.diagnosis = diagnosis;
                     }
 
-                    const rs_procedure = await hisModel.getProcedure(db, hn, dateServe, v.seq)
+                    const rs_procedure = await hisModel.getProcedure(db, hn, dateServ, v.seq)
                     if (rs_procedure.length) {
                         for (const rp of rs_procedure) {
                             const objProcedure = {
@@ -203,7 +215,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "procedure_name": rp.procedure_name,
                                 "start_date": moment(rp.start_date).format('YYYY-MM-DD'),
                                 "start_time": rp.start_time,
-                                "end_date": moment(rp.end_date).format('YYYY-MM-DD'),
+                                "end_date": rp.end_date ? moment(rp.end_date).format('YYYY-MM-DD') : rp.end_date,
                                 "end_time": rp.end_time
                             }
                             procedure.push(objProcedure);
@@ -212,7 +224,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_drugs = await hisModel.getDrugs(db, hn, dateServe, v.seq);
+                    const rs_drugs = await hisModel.getDrugs(db, hn, dateServ, v.seq);
                     if (rs_drugs.length) {
                         for (const rd of rs_drugs) {
                             const objDrug = {
@@ -236,7 +248,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_lab = await hisModel.getLabs(db, hn, dateServe, v.seq);
+                    const rs_lab = await hisModel.getLabs(db, hn, dateServ, v.seq);
                     if (rs_lab.length) {
                         for (const rl of rs_lab) {
                             const objLab = {
@@ -256,7 +268,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.lab = lab;
                     }
 
-                    const rs_apps = await hisModel.getAppointment(db, hn, dateServe, v.seq);
+                    const rs_apps = await hisModel.getAppointment(db, hn, dateServ, v.seq);
                     if (rs_apps && rs_apps.length > 0) {
                         for (const rs_app of rs_apps) {
                             const objAppointment = {
@@ -277,7 +289,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.appointment = appointment;
                     }
 
-                    const rs_refers = await hisModel.getRefer(db, hn, dateServe, v.seq);
+                    const rs_refers = await hisModel.getRefer(db, hn, dateServ, v.seq);
                     if (rs_refers && rs_refers.length > 0) {
                         for (const rs_refer of rs_refers) {
                             const objRefer = {
@@ -306,7 +318,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 res.send({ ok: false });
             }
         } catch (error) {
-            // console.log(error);
+            console.log(error);
             res.send({ ok: false, error: error.message });
         }
     } else {

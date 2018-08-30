@@ -16,11 +16,11 @@ export class HisHosxpv3Model {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
-  
+
   getProfile(db: Knex, hn: any) {
     return db('patient')
-    .select('pname as title_name', 'fname as first_name', 'lname as last_name')
-    .where('hn', hn)
+      .select('pname as title_name', 'fname as first_name', 'lname as last_name')
+      .where('hn', hn)
   }
 
   // getServices(db: Knex, hn, dateServe) {
@@ -51,7 +51,7 @@ export class HisHosxpv3Model {
       .where('pa.hn', hn);
   }
 
-  getDiagnosis(db: Knex, hn: any ,dateServe:any, vn: any) {
+  getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     // console.log( db('ovstdiag as o')
     // .select('o.vn as seq', 'o.vstdate as date_serv',
     //   'o.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_desc', 't.name as diag_type')
