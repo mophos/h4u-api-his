@@ -211,7 +211,7 @@ router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Res
                                 "procedure_name": rp.procedure_name,
                                 "start_date": moment(rp.start_date).format('YYYY-MM-DD'),
                                 "start_time": rp.start_time,
-                                "end_date": moment(rp.end_date).format('YYYY-MM-DD'),
+                                "end_date": rp.end_date ? moment(rp.end_date).format('YYYY-MM-DD') : rp.end_date,
                                 "end_time": rp.end_time
                             }
                             procedure.push(objProcedure);

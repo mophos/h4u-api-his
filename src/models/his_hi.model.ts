@@ -180,7 +180,9 @@ export class HisHiModel {
         p.icd9cm as procedure_code,	
         p.icd9name as procedure_name,
         DATE_FORMAT(date(p.opdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time
+        DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time,
+        '' as end_date,
+        '' as end_time
     from
         hi.ovst o 
     inner join 
@@ -207,7 +209,9 @@ export class HisHiModel {
         i.ICD10TM as procedure_code,
         i.name_Tx as procedure_name,
         DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time
+        DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time,
+        '' as end_date,
+        '' as end_time
     
     FROM
         hi.dtdx 
