@@ -46,7 +46,7 @@ export class HisModel {
   }
 
   getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
-    // return [{lab_name:'',lab_result:'',standard_result:'',seq:'',time_serv:'',date_serve:''}]
+    // return [{lab_name:'',lab_result:'',standard_result:'',seq:'',time_serv:'',date_serv:''}]
   }
 
 
@@ -55,7 +55,7 @@ export class HisModel {
   }
 
   getVaccine(db: Knex, hn: any) {
-    // return [{date_serve:'',time_serv:'',vaccine_code:'',vaccine_name:''}]]
+    // return [{date_serv:'',time_serv:'',vaccine_code:'',vaccine_name:''}]]
   }
 
 }

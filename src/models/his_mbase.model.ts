@@ -19,7 +19,7 @@ export class HisMbaseModel {
     return data[0];
   }
 
-  async getServices(db: Knex, date_serve: any, hn: any) {
+  async getServices(db: Knex, dateServ: any, hn: any) {
 
     let data = await db.raw(`
     SELECT a.VISIT_ID as seq, DATE(a.REG_DATETIME) as date, TIME(a.REG_DATETIME)as time,
@@ -27,7 +27,7 @@ export class HisMbaseModel {
       FROM opd_visits a 
       INNER JOIN service_units b ON a.UNIT_REG = b.UNIT_ID
       WHERE a.is_cancel = 0
-      AND DATE(a.REG_DATETIME) = '${date_serve}' AND a.HN ='${hn}'`);
+      AND DATE(a.REG_DATETIME) = '${dateServ}' AND a.HN ='${hn}'`);
     return data[0];
   }
 

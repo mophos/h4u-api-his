@@ -8,7 +8,7 @@ export class HisHosxpv4Model {
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
-      .select(db.raw(`v.vstdate as date_serve, v.vsttime as time_serv, k.department as clinic,
+      .select(db.raw(`v.vstdate as date_serv, v.vsttime as time_serv, k.department as clinic,
           v.vn as seq, v.vn`))
       .innerJoin('kskdepartment as k', 'k.depcode', 'v.main_dep')
       .where('v.hn', hn)
@@ -104,14 +104,14 @@ export class HisHosxpv4Model {
 
   getVaccine(db: Knex, vn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`o.vstdate as date_serv,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')
       .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
       .where('o.vn', vn)
       .union(function () {
-        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
+        this.select(db.raw(`o.vstdate as date_serv,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
           .innerJoin('ovst as o', 'o.vn', 'l.vn')
           .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
           .from('ovst_vaccine as l')

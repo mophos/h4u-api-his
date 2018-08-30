@@ -14,7 +14,7 @@ export class HisEzhospModel {
 
     async getServices(db: Knex, hn: any, dateServe: any) {
         return db('view_opd_visit as visit')
-            .select('visit.vn as seq', 'visit.date as date_serve',
+            .select('visit.vn as seq', 'visit.date as date_serv',
                 'visit.time as time_serv', 'visit.dep_name as department')
             .where('visit.hn', '=', hn)
             .where('visit.date', '=', dateServe);
@@ -43,7 +43,7 @@ export class HisEzhospModel {
     getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('view_opd_dx a dx')
             .leftJoin('opd_visit as visit', 'dx.vn', 'visit.vn')
-            .select('dx.vn as seq', 'visit.date as date_serve',
+            .select('dx.vn as seq', 'visit.date as date_serv',
                 'visit.time as time_serv', 'dx.diag as icd_code',
                 'dx.desc as icd_name', 'dx.type as diag_type')
             .where('visit.hn', hn)
@@ -54,7 +54,7 @@ export class HisEzhospModel {
         return db('refer_out as r')
             .leftJoin('lib_hospcode as h', 'r.refer_hcode', 'h.off_id')
             .leftJoin('opd_visit as v', 'r.vn', 'v.vn')
-            .select('r.vn as seq', 'v.date as date_serve', 'v.time as time_serv',
+            .select('r.vn as seq', 'v.date as date_serv', 'v.time as time_serv',
                 'r.refer_hcode as hcode_to',
                 'h.name as name_to',
                 'r.refer_hcode as depto_provider_codeartment',
@@ -68,7 +68,7 @@ export class HisEzhospModel {
 
     getDrugs(knex: Knex, hn: any, dateServe: any, seq: any) {
         return knex
-            .select('drug.vn as seq', 'drug.date as date_serve',
+            .select('drug.vn as seq', 'drug.date as date_serv',
                 'drug.time_inp as time_serv', 'drugname as drug_name', 'no as qty', 'unit')
             .select(knex.raw("concat(method_name, ' ', no_use, ' ' , unit_use ) "))
             .select('freq_name as usage_line2', 'times_name as usage_line3')
@@ -83,7 +83,7 @@ export class HisEzhospModel {
         return db
             .from('view_lab_result as lab')
             .leftJoin('opd_visit as visit', 'lab.vn', 'visit.vn')
-            .select('visit.vn as seq', 'visit.date as date_serve',
+            .select('visit.vn as seq', 'visit.date as date_serv',
                 'visit.time as time_serv', 'lab_code as lab_test', 'lab.lab_name',
                 'lab.result as lab_result')
             .select(db.raw("concat(lab.minresult), ' - ' , lab.maxresult,' ',lab.unit) as standard_result"))
@@ -94,7 +94,7 @@ export class HisEzhospModel {
     getAppointment(knex: Knex, hn: any, dateServ: any, seq: any) {
         return knex
             .select('opd_fu.hn', 'opd_fu.vn as seq',
-                'opd_visit.date as date_serve', 'opd_visit.time as time_serv',
+                'opd_visit.date as date_serv', 'opd_visit.time as time_serv',
                 'opd_fu.date as date_input', 'opd_fu.fu_date as date',
                 'opd_fu.fu_time as time',
                 'opd_visit.dep as local_code',
@@ -110,7 +110,7 @@ export class HisEzhospModel {
 
     async getVaccine(db: Knex, hn: any) {
         let data = await db.raw(`select 
-        o.vstdttm as date_serve,
+        o.vstdttm as date_serv,
         DATE_FORMAT(time(o.drxtime),'%h:%i:%s') as time_serv, 
         cv.NEW as vaccine_code, 
         h.namehpt as vaccine_name
@@ -128,7 +128,7 @@ export class HisEzhospModel {
         UNION
 
         select 
-        o.vstdttm as date_serve,
+        o.vstdttm as date_serv,
         DATE_FORMAT(time(o.drxtime),'%h:%i:%s') as time_serv, 
         vc.stdcode as vacine_code, 
         vc.\`name\` as vacine_name
