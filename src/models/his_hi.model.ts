@@ -183,7 +183,7 @@ export class HisHiModel {
         p.icd9name as procedname,
         DATE_FORMAT(date(p.opdttm),'%Y%m%d') as start_date,	
         DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time,
-        '' as end_date,	
+        DATE_FORMAT(date(p.opdttm),'%Y%m%d') as end_date,	
         '' as end_time
     from
         hi.ovst o 
@@ -212,7 +212,7 @@ export class HisHiModel {
         i.name_Tx as procedname,
         DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as start_date,	
         DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time,
-        '' as end_date,	
+        DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as end_date,	
         '' as end_time
     
     FROM
