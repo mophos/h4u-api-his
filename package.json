@@ -19,11 +19,14 @@
     "knex": "^0.15.2",
     "moment": "^2.22.2",
     "morgan": "^1.8.1",
+    "mssql": "^4.1.0",
     "mysql": "^2.16.0",
+    "node-mssql-connector": "^1.2.0",
     "pg": "^7.4.3",
     "pm2": "^2.10.4",
     "request": "^2.87.0",
     "serve-favicon": "^2.4.1",
+    "tedious": "^2.2.4",
     "typescript": "^2.9.2"
   },
   "devDependencies": {
