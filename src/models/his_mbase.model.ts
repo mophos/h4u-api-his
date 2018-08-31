@@ -13,21 +13,49 @@ export class HisMbaseModel {
   async getHospital(db: Knex, hn: any) {
     let data = await db.raw(`
     SELECT
-    a.offid as hcode, b.HOSP_NAME as hname
+    a.offid as provider_code, b.HOSP_NAME as provider_name
     FROM gcoffice a , hospitals b
     WHERE a.offid = b.HOSP_ID `);
     return data[0];
   }
-
-  async getServices(db: Knex, date_serve: any, hn: any) {
-
+  async getProfile(db: Knex, hn: any) {
+    // ชื่อ
+    // return [{title_name:'',first_name:'',last_name:''}]
     let data = await db.raw(`
-    SELECT a.VISIT_ID as seq, DATE(a.REG_DATETIME) as date, TIME(a.REG_DATETIME)as time,
+    select b.hn as hn, 
+    a.CID as cid,
+    CASE 
+        WHEN PRENAME not in('') THEN PRENAME
+        WHEN DATEDIFF(now(),BIRTHDATE)/365.25 < '20' AND sex='1' AND MARRIAGE = '4'THEN 'สามเณร'
+
+        WHEN DATEDIFF(now(),BIRTHDATE)/365.25 >= '20' AND sex='1' AND MARRIAGE = '4'THEN 'พระภิกษุ'
+
+        WHEN DATEDIFF(now(),BIRTHDATE)/365.25 < '15'  AND sex='1' THEN 'เด็กชาย'
+
+        WHEN DATEDIFF(now(),BIRTHDATE)/365.25 >= '15' AND sex='1' THEN 'นาย'
+
+        WHEN DATEDIFF(now(),BIRTHDATE)/365.25 < '15'  AND sex='2' THEN 'เด็กหญิง'
+
+        WHEN DATEDIFF(now(),BIRTHDATE)/365.25 >= '15' AND sex='2' AND MARRIAGE='1' THEN 'นางสาว'
+    ELSE 'นาง'
+    END AS title_name,
+            a.FNAME as first_name,
+            a.LNAME as last_name
+            FROM population a
+    INNER JOIN cid_hn b ON a.CID = b.CID
+    WHERE b.HN ='${hn}'`);
+    return data[0];
+
+  }
+
+  async getServices(db: Knex, hn: any, dateServe: any) {
+    let data = await db.raw(`
+    SELECT a.VISIT_ID as seq, DATE(a.REG_DATETIME) as date_serv, TIME(a.REG_DATETIME)as time_serv,
       b.UNIT_NAME as department
-      FROM opd_visits a 
+      FROM opd_visits as a 
       INNER JOIN service_units b ON a.UNIT_REG = b.UNIT_ID
       WHERE a.is_cancel = 0
-      AND DATE(a.REG_DATETIME) = '${date_serve}' AND a.HN ='${hn}'`);
+      AND DATE(a.REG_DATETIME) = '${dateServe}' AND a.HN ='${hn}'`);
     return data[0];
   }
 
