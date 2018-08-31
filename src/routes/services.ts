@@ -86,7 +86,7 @@ switch (provider) {
     case 'budhosp':
         hisModel = new HisBudhospModel();
         break;
-    case 'mbase':
+    case 'mbase':  // ห้ามลบครับ ของ อุบล อิอิอิ
         hisModel = new HisMbaseModel();
         break;
     default:
