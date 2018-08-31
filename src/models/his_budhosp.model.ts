@@ -42,7 +42,7 @@ export class HisBudhospModel {
   }
 
   getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
-    // return [{lab_name:'',lab_result:'',standard_result:'',seq:'',time_serv:'',date_serve:''}]
+    // return [{lab_name:'',lab_result:'',standard_result:'',seq:'',time_serv:'',date_serv:''}]
   }
 
 
@@ -51,7 +51,7 @@ export class HisBudhospModel {
   }
 
   getVaccine(db: Knex, hn: any) {
-    // return [{date_serve:'',time_serv'',vaccine_code:'',vaccine_name:''}]]
+    // return [{date_serv:'',time_serv'',vaccine_code:'',vaccine_name:''}]]
   }
 
 }

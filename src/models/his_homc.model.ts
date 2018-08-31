@@ -11,11 +11,11 @@ export class HisHomcModel {
   }
   getProfile(db: Knex, hn: any) {
     return db('PATIENT')
-    .select('titleCode as title_name', 'firstName as first_name', 'lastName as last_name')
-    .where('hn', hn)
+      .select('titleCode as title_name', 'firstName as first_name', 'lastName as last_name')
+      .where('hn', hn)
   }
 
-  getServices(db: Knex, date_serve: any, hn: any) {
+  getServices(db: Knex, dateServ: any, hn: any) {
     let sql = `SELECT o.hn + o.regNo as seq,
     convert(date,convert(char,o.registDate -5430000)) as date_serv,
     CONVERT (time,(left (o.timePt,2)+':'+right (o.timePt,2))) as time_serv,
@@ -24,7 +24,7 @@ export class HisHomcModel {
     left join DEPT d on(d.deptCode = o.dept)
     where convert(date,convert(char,o.registDate -5430000)) = ? and o.hn = ?
     `;
-    const result = db.raw(sql, [date_serve, hn]);
+    const result = db.raw(sql, [dateServ, hn]);
     return result[0];
   }
 
@@ -53,7 +53,7 @@ export class HisHomcModel {
     where p.DiagType in('I','E') and p.pt_status in('O','Z')
     and o.hn = ? and convert(date,convert(char,p.VisitDate -5430000)) = ?
     `,
-    [date_serv, hn]);
+      [date_serv, hn]);
     return data[0];
     // return db('ovstdiag as o')
     //   .select('o.icd10 as icd10_code', 'i.name as icd10_desc', 'o.diagtype as diage_type')
@@ -104,17 +104,17 @@ export class HisHomcModel {
     return result[0];
   }
 
-//   getAnc(db: Knex, vn: any) {
-//     let sql = `SELECT a.preg_no as ga, a.current_preg_age as anc_no, s.service_result as result
-// from person_anc a  
-// left outer join person p on p.person_id = a.person_id
-// LEFT OUTER JOIN patient e on e.cid=p.cid
-// LEFT OUTER JOIN ovst o on o.hn = e.hn
-// left outer join person_anc_service s on s.person_anc_id=a.person_anc_id
-// where (a.discharge <> 'Y' or a.discharge IS NULL) 
-// and o.vn = ? `;
-//     return db.raw(sql, [vn]);
-//   }
+  //   getAnc(db: Knex, vn: any) {
+  //     let sql = `SELECT a.preg_no as ga, a.current_preg_age as anc_no, s.service_result as result
+  // from person_anc a  
+  // left outer join person p on p.person_id = a.person_id
+  // LEFT OUTER JOIN patient e on e.cid=p.cid
+  // LEFT OUTER JOIN ovst o on o.hn = e.hn
+  // left outer join person_anc_service s on s.person_anc_id=a.person_anc_id
+  // where (a.discharge <> 'Y' or a.discharge IS NULL) 
+  // and o.vn = ? `;
+  //     return db.raw(sql, [vn]);
+  //   }
 
   getVacine(db: Knex, hn: any) {
     let sql = `select convert(date,convert(char,o.registDate -5430000)) as date_serv,
@@ -138,7 +138,7 @@ export class HisHomcModel {
     left join OPD_H p on( a.hn = p.hn and a.regNo = p.regNo) 
     where p.hn = ? and convert(date,convert(char,p.registDate -5430000)) = ?
     `;
-    const result = db.raw(sql, [hn,date_serv]);
+    const result = db.raw(sql, [hn, date_serv]);
     return result[0];
   }
 }
