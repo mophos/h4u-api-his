@@ -19,7 +19,7 @@ export class HisHosxpv3Model {
 
   getProfile(db: Knex, hn: any) {
     return db('patient')
-      .select('pname as title_name', 'fname as first_name', 'lname as last_name')
+      .select('hn','cid','pname as title_name', 'fname as first_name', 'lname as last_name')
       .where('hn', hn)
   }
 
