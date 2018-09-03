@@ -27,7 +27,7 @@ export class HisModel {
   }
 
   getChronic(db: Knex, hn: any) {
-    // แพ้ยา โรคเรื้อรัง
+    // โรคเรื้อรัง
     // return [{icd_code:'',icd_name:'',start_date:''}]
   }
 
