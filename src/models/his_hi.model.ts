@@ -62,8 +62,9 @@ export class HisHiModel {
         return db('ovstdx as o')
             .select('o.vn as seq', 'ovst.vstdttm as date_serv', 'o.icd10 as icd_code', 'o.cnt as diag_type')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
-            .select(db.raw(`IF(o.icd10name!='', o.icd10name, "-") as icd_name`))
+            .select(db.raw(`IF(o.icd10name!='', o.icd10name, i.icd10name) as icd_name`))
             .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
+            .innerJoin('icd101 as i', 'i.icd10', '=', 'o.icd10')
             .where('o.vn', seq);
     }
 
@@ -80,12 +81,15 @@ export class HisHiModel {
 
     async getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
-        select p.vn as seq,p.prscdate as date_serv,
+        select p.vn as seq,
+        DATE_FORMAT(date(p.prscdate),'%Y%m%d') as date_serv,
         DATE_FORMAT(time(p.prsctime),'%h:%i:%s') as time_serv, 
-        pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,
-        IF(m.doseprn1!='', m.doseprn1, "-") as usage_line1 ,
-        IF(m.doseprn2!='', m.doseprn2, "-") as usage_line2,
-        '-' as usage_line3
+        pd.nameprscdt as drug_name,
+        pd.qty as qty, 
+        med.pres_unt as unit ,
+        IF(m.doseprn1!='', m.doseprn1, 'no list') as usage_line1 ,
+        IF(m.doseprn2!='', m.doseprn2, 'no list') as usage_line2,
+        '' as usage_line3
         FROM prsc as p 
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
         Left Join medusage as m ON m.dosecode = pd.medusage
@@ -183,8 +187,8 @@ export class HisHiModel {
         p.icd9name as procedure_name,
         DATE_FORMAT(date(p.opdttm),'%Y%m%d') as start_date,	
         DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time,
-        '' as end_date,
-        '' as end_time
+        DATE_FORMAT(date(p.opdttm),'%Y%m%d') as end_date,
+        '00:00:00' as end_time
     from
         hi.ovst o 
     inner join 
@@ -212,8 +216,8 @@ export class HisHiModel {
         i.name_Tx as procedure_name,
         DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as start_date,	
         DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time,
-        '' as end_date,
-        '' as end_time
+        DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as end_date,
+        '00:00:00' as end_time
     
     FROM
         hi.dtdx 
