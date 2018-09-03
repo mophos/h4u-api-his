@@ -54,7 +54,7 @@ export class HisHosxpv3Model {
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ovstdiag as o')
       .select('o.vn as seq', 'o.vstdate as date_serv',
-        'o.vsttime as time_serv', 'o.icd10 as icd_code', db.raw('if(i.tname is not null,i.tname,i.name) as icd_desc'), 't.name as diag_type')
+        'o.vsttime as time_serv', 'o.icd10 as icd_code', db.raw('if(i.tname is not null,i.tname,i.name) as icd_name'), 't.name as diag_type')
       .join('icd101 as i', 'i.code', '=', 'o.icd10')
       .join('diagtype as t', 't.diagtype', 'o.diagtype')
       .where('o.vn', vn);
