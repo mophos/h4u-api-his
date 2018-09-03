@@ -44,7 +44,7 @@ export class HisHosxpv3Model {
 
   getChronic(db: Knex, hn: any) {
     return db('person_chronic as pc')
-      .select('pc.regdate as start_date', 'pc.icd10 as icd10_code', 'i.name as icd_name')
+      .select('pc.regdate as start_date', 'pc.icd10 as icd_code', 'i.name as icd_name')
       .leftOuterJoin('person as pe', 'pe.person_id', '=', 'pc.person_id')
       .leftOuterJoin('patient as pa', 'pa.cid', '=', 'pe.cid')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
