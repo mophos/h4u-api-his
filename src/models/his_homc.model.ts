@@ -7,15 +7,8 @@ export class HisHomcModel {
 
   async getHospital(db: Knex, hn: any) {
     let data = await db.raw(`SELECT OFF_ID as provider_code,NAME as provider_name from HOSPCODE where OFF_ID = '10705'`);
-    // console.log('Hospital ======', sql);
-    // const result = await db.raw(sql);
     return data;
   }
-  // getHospital(db:Knex, hn:any) {
-  //   return db('HOSPCODE')
-  //   .select('SELECT OFF_ID as provider_code', 'NAME as provider_name')
-  //   .where('OFF_ID', 10669)
-  // }
 
   getProfile(db: Knex, hn: any) {
     return db('PATIENT')
@@ -48,8 +41,6 @@ export class HisHomcModel {
     or p.ICDCode between 'I05' and 'I099' or p.ICDCode between 'I26' and 'I289' or p.ICDCode between 'I30' and 'I528'
     or p.ICDCode between 'G80' and 'G839' or p.ICDCode between 'D50' and 'D649' or p.ICDCode between 'N17' and 'N19'
     )`);
-    console.log('Chronic -> ', data);
-    // const result = await db.raw(sql, [hn]);
     return data;
   }
 
@@ -66,7 +57,6 @@ export class HisHomcModel {
     from OPD_H as o
     left join DEPT d on(d.deptCode = o.dept)
     where o.hn = '${hn}' and convert(date,convert(char,o.registDate -5430000)) = '${dateServe}'`);
-    console.log("Service ==============================>", data);
     return data;
   }
 
@@ -86,8 +76,6 @@ export class HisHomcModel {
     let data = await db.raw(`select r.RegNo as seq,r.ReferDate as date_serv,'' as time_serv,r.ReferHCODE as to_provider_code,h.OFF_NAME2 as to_provider_name,s.REASON_DESC as reason,
     '' as start_date from Refer r left join HOSPCODE h on r.ReferHCODE=h.OFF_ID 
     left join REFERRS s on r.ReferReason=s.REASON_CODE where r.Hn='${hn}' and r.ReferDate='${dateServe}'`);
-    //return db.raw(sql, [vn]);
-    //const result = db.raw(sql, [hn,dateServe,vn]);
     return data;
 
   }
