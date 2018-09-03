@@ -86,7 +86,7 @@ switch (provider) {
     case 'budhosp':
         hisModel = new HisBudhospModel();
         break;
-    case 'mbase':  // ห้ามลบครับ ของ อุบล อิอิอิ
+    case 'mbase':
         hisModel = new HisMbaseModel();
         break;
     default:
@@ -115,6 +115,7 @@ router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Res
             if (rs_profile.length) {
                 profile = rs_profile;
             }
+
             const rs_vaccine: any = await hisModel.getVaccine(db, hn);
             if (rs_vaccine.length) {
                 let vaccines: any = [];

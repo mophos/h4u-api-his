@@ -4,169 +4,172 @@ const dbName = process.env.HIS_DB_NAME;
 
 export class HisSsbModel {
 
-  getHospital(db: Knex, hn: any) {
-    return db('opdconfig as o')
-      .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
+  async getHospital(db: Knex, hn: any) {
+    let data = await db.raw(`SELECT CODE as provider_code,right(THAINAME,LEN(THAINAME)-1) as provider_name from SYSCONFIG WHERE CTRLCODE='20010' and CODE='10672'`);
+    return data;
   }
 
-  getPtDetail(db: Knex, hn: any) {
-    return db('patient')
-      .select('cid', 'pname as title_name', 'fname as first_name', 'lname as last_name')
-      .where('hn', hn);
+  async getProfile(db: Knex, hn: any) {
+    let data = await db.raw(`SELECT '' as title_name,right(FIRSTname,len(FIRSTname)-1) as first_name,
+    right(lastname,len(lastname)-1) as last_name from PATIENT_NAME where HN = '${hn}' and suffix='0'`);
+    return data;
   }
 
-  getAllergyDetail(db: Knex, hn: any) {
-    return db('opd_allergy')
-      .select('agent as drug_name', 'symptom as symptom_desc')
-      .where('hn', hn);
+  async getVaccine(db: Knex, hn: any) {
+    let data = await db.raw(`select top 1 '2018-05-05' as date_serv,
+    '' as time_serv,
+    '' as vaccine_code,'' as vaccine_name 
+    from VNMST 
+    where VNMST.HN = '${hn}' `);
+   
+    // console.log('Vaccine', data);
+    return data;
   }
 
-  getBloodgrp(db: Knex, hn: any) {
-    return db('patient')
-      .select('bloodgrp as blood_group')
-      .where('hn', hn);
-  }
-  getSex(db: Knex, hn: any) {
-    return db('patient')
-      .select('sex')
-      .where('hn', hn);
-  }
-
-  getDisease(db: Knex, hn: any) {
-    return db('person_chronic as pc')
-      .select('pc.icd10 as icd10_code', 'i.name as icd10_desc')
-      .leftOuterJoin('patient as pa', 'pa.hn', '=', 'pc.hn')
-      .leftOuterJoin('person as pe', 'pe.cid', '=', 'pa.cid')
-      .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
-      .where('pa.hn', hn);
-  }
-  getSeq(db: Knex, dateServ: any, hn: any) {
-
-    let sql = `select o.vn as seq ,o.vstdate as date ,o.vsttime as time,k.department
-    from ovst as o
-    left outer join kskdepartment as k on k.depcode = o.main_dep 
-    where DATE(o.vstdate) = ? and o.hn = ?`;
-    return db.raw(sql, [dateServ, hn]);
+  async getChronic(db: Knex, hn: any) {
+    let data = await db.raw(`select top 1 '' as icd_code,'' as icd_name,'2018-05-05' as start_date
+    from VNMST 
+    where VNMST.HN = '${hn}'`);
+    return data;
+        // let data = await db.raw(`select distinct p.ICDCode as icd_code,ic.DES as icd_name--,p.VisitDate as start_date
+    // from PATDIAG p
+    // left join OPD_H o on(o.hn = p.Hn and o.regNo = p.regNo) 
+    // left join ICD101 ic on(ic.CODE = p.ICDCode)
+    // where o.hn='${hn}' and  p.DiagType in('I') and p.dxtype = '1'
+    // and
+    // ( p.ICDCode between 'I60' and 'I698' or p.ICDCode between 'J45' and 'J46' or p.ICDCode between 'I10' and 'I159'
+    // or p.ICDCode between 'A15' and 'A199' or p.ICDCode between 'E10' and 'E149' or p.ICDCode between 'F30' and 'F399'
+    // or p.ICDCode between 'J43' and 'J449' or p.ICDCode between 'J429' and 'J429' or p.ICDCode between 'I20' and 'I259'
+    // or p.ICDCode between 'I05' and 'I099' or p.ICDCode between 'I26' and 'I289' or p.ICDCode between 'I30' and 'I528'
+    // or p.ICDCode between 'G80' and 'G839' or p.ICDCode between 'D50' and 'D649' or p.ICDCode between 'N17' and 'N19'
+    // )`);
+    // return data;
   }
 
-  getDate(db: Knex, vn: any) {
-    return db('ovst as o')
-      .select('o.vstdate as date')
-      .where('vn', vn);
+  async getAllergyDetail(db: Knex, hn: any) {
+    let data = await db.raw(`select SUBSTRING(STOCK_MASTER.ENGLISHNAME,2,LEN(STOCK_MASTER.ENGLISHNAME)) as drug_name,
+    SUBSTRING(SYSCONFIG.THAINAME,2,LEN(SYSCONFIG.THAINAME)) as symptom
+    from PATIENT_ALLERGIC
+    inner join STOCK_MASTER on PATIENT_ALLERGIC.MEDICINE = STOCK_MASTER.STOCKCODE
+    inner join SYSCONFIG on PATIENT_ALLERGIC.ADVERSEREACTIONS1 = SYSCONFIG.CODE and SYSCONFIG.CTRLCODE = '20028'
+    where HN='${hn}'`);
+    return data;
   }
 
-  getTime(db: Knex, vn: any) {
-    return db('ovst as o')
-      .select('o.vsttime as time')
-      .where('vn', vn);
+  async getServices(db: Knex, hn: any, dateServe: any) {
+    let data = await db.raw(`select VNMST.hn+''+ VNMST.VN as seq,
+    convert(varchar,YEAR(VNPRES.REGINDATETIME)) + '-' + 
+    convert(varchar,MONTH(VNPRES.REGINDATETIME)) + '-' + 
+    convert(varchar,DAY(VNPRES.REGINDATETIME)) as date_serv,
+    convert(varchar,VNPRES.REGINDATETIME,108) as time_serv,VNPRES.CLINIC as department
+    from VNPRES 
+    inner join VNMST on VNPRES.VISITDATE = VNMST.VISITDATE and VNPRES.VN = VNMST.VN
+    where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
+    return data;
   }
 
-  getDepartment(db: Knex, vn: any) {
-    return db('ovst as o')
-      .select('k.department')
-      .innerJoin('kskdepartment as k', 'k.depcode', '=', 'o.main_dep')
-      .where('vn', vn);
+  async getDiagnosis(db: Knex, hn: any, dateServe: any) {
+    let data = await db.raw(`select VNMST.hn+''+ VNMST.VN as seq,
+    convert(varchar,YEAR(VNDIAG.DIAGDATETIME)) + '-' + 
+    convert(varchar,MONTH(VNDIAG.DIAGDATETIME)) + '-' + 
+    convert(varchar,DAY(VNDIAG.DIAGDATETIME)) as date_serv,
+    convert(varchar,VNDIAG.DIAGDATETIME,108) as time_serv,
+    VNDIAG.ICDCODE as icd_code,ICD_MASTER.ENGLISHNAME as icd_name,
+    case when VNDIAG.TYPEOFTHISDIAG = '1' then 'Primary'
+    when VNDIAG.TYPEOFTHISDIAG = '2' then 'Complication'
+    when VNDIAG.TYPEOFTHISDIAG = '3' then 'Other'
+    when VNDIAG.TYPEOFTHISDIAG = '4' then 'Comorbidity'
+    else '' end as diag_type
+    from VNDIAG 
+    inner join VNMST on VNDIAG.VISITDATE = VNMST.VISITDATE and VNDIAG.VN = VNMST.VN
+    inner join ICD_MASTER on VNDIAG.ICDCODE = ICD_MASTER.ICDCODE
+    where VNMST.hn = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
+    return data;
   }
 
-  getScreening(db: Knex, vn: any) {
-    return db('opdscreen as o')
-      .select('o.bw as weight', 'o.height', 'o.bpd as dbp', 'o.bps as sbp', 'o.bmi')
-      .where('vn', vn);
-  }
-  getPe(db: Knex, vn: any) {
-    return db('opdscreen as s')
-      .select('s.pe as PE')
-      .where('vn', vn);
+  async getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
+    let data = await db.raw(`select top 1 ''  as seq,'${dateServe}' as date_serv,'' as time_serv,'' as to_provider_code,'' as to_provider_name,'' as reason,
+    '' as start_date from VNMST 
+    where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
+    return data;
+
   }
 
-  getDiagnosis(db: Knex, hn: any, vn: any) {
-    return db('ovstdiag as o')
-      .select('o.icd10 as icd10_code', 'i.name as icd10_desc', 'o.diagtype as diage_type')
-      .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
-      .where('vn', vn);
+  async getProcedure(db: Knex, hn: any, dateServe: any, vn:any) {
+    let data = await db.raw(`select top 1 '' as seq ,
+    '' as date_serv, '' as time_serv,'' as procedure_code,'' as icd_name,
+    '' as start_date,'' as end_date
+    from VNMST 
+    where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
+    return data;
   }
 
-  getRefer(db: Knex, hn: any, vn: any) {
-    let sql = `SELECT r.refer_hospcode, c.name as refer_cause
-    FROM referout r 
-    LEFT OUTER JOIN refer_cause c on c.id = r.refer_cause
-    WHERE r.vn = ? `;
-    return db.raw(sql, [vn]);
-    // return db('referout as r')
-    //     .select('o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
-    //     .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
-    //     .leftJoin('rfrcs as f', 'f.rfrcs', '=', 'o.rfrcs')
-    //     .where('vn', vn);
+  async getDrugs(db: Knex, hn: any, dateServe: any) {
+    let data = await db.raw(`SELECT VNMST.hn+''+ VNMST.VN as seq,
+    convert(varchar,YEAR(VNMEDICINE.makedatetime)) + '-' + 
+    convert(varchar,MONTH(VNMEDICINE.makedatetime)) + '-' + 
+    convert(varchar,DAY(VNMEDICINE.makedatetime)) as date_serv,
+    convert(varchar,VNMEDICINE.makedatetime,108) as time_serv,
+    ISNULL(SUBSTRING(STOCK_MASTER.ENGLISHNAME,2,LEN(STOCK_MASTER.ENGLISHNAME)),
+    SUBSTRING(STOCK_MASTER.THAINAME,2,LEN(STOCK_MASTER.THAINAME))) as drug_name,
+    VNMEDICINE.QTY as qty,
+    VNMEDICINE.UNITCODE,
+    SUBSTRING(sysqty.THAINAME,2,LEN(sysqty.THAINAME)) as unit,
+    case when VNMEDICINE.DOSETYPE IS NULL THEN
+    VNMEDICINE.DOSEMEMO
+    ELSE
+    SUBSTRING(sysdosetype.THAINAME,2,LEN(sysdosetype.THAINAME)) + ' ' +
+    SUBSTRING(sysdoseqty.THAINAME,2,LEN(sysdoseqty.THAINAME)) + ' ' +
+    SUBSTRING(sysqty.THAINAME,2,LEN(sysqty.THAINAME)) END AS usage_line1,
+    SUBSTRING(sysdose.THAINAME,2,LEN(sysdose.THAINAME)) AS usage_line2,
+    SUBSTRING(sysaux.THAINAME,2,LEN(sysaux.THAINAME)) AS usage_line3
+    from VNMEDICINE 
+    inner join STOCK_MASTER on VNMEDICINE.stockcode = STOCK_MASTER.STOCKCODE
+    inner join VNMST on VNMEDICINE.VISITDATE = VNMST.VISITDATE and VNMEDICINE.VN = VNMST.VN
+    inner join SYSCONFIG sysqty on VNMEDICINE.UNITCODE = sysqty.CODE and sysqty.CTRLCODE = '20034'
+    left outer join SYSCONFIG sysdosetype on VNMEDICINE.DOSETYPE = sysdosetype.CODE and sysdosetype.CTRLCODE = '20031'
+    left outer join SYSCONFIG sysdoseqty on VNMEDICINE.DOSEQTYCODE = sysdoseqty.CODE and sysdoseqty.CTRLCODE = '20033'
+    left outer join SYSCONFIG sysdose on VNMEDICINE.DOSECODE = sysdose.CODE and sysdose.CTRLCODE = '20032'
+    left outer join SYSCONFIG sysaux on VNMEDICINE.AUXLABEL1 = sysaux.CODE and sysaux.CTRLCODE = '20030'
+    where LEN(VNMEDICINE.STOCKCODE) >5 and VNMST.HN = '${hn}' and VNMST.VISITDATE  = '${dateServe}'`);
+    return data;
   }
 
-
-  getDrugs(db: Knex, hn: any, vn: any) {
-    // let sql = `
-    // select pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,m.doseprn1 as usage_line1 ,m.doseprn2 as usage_line2,'' as usage_line3
-    // FROM prsc as p 
-    // Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
-    // Left Join medusage as m ON m.dosecode = pd.medusage
-    // Left Join meditem as med ON med.meditem = pd.meditem
-    // WHERE p.vn = ?
-    // `;
-    let sql = `select s.name as drug_name,o.qty,s.units ,u.name1 as usage_line1,u.name2 as usage_line2,u.name3 as usage_line3  
-    from opitemrece o  
-    left outer join s_drugitems s on s.icode=o.icode  
-    left outer join drugusage u on u.drugusage=o.drugusage  
-    where o.drugusage <> '' and o.vn=?
-    `;
-    return db.raw(sql, [vn]);
+  async getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
+    let data = await db.raw(`SELECT ROW_NUMBER() OVER(ORDER BY LABRESULT.RESULTDATETIME) as seq,
+    convert(varchar,YEAR(LABRESULT.RESULTDATETIME)) + '-' + 
+    convert(varchar,MONTH(LABRESULT.RESULTDATETIME)) + '-' + 
+    convert(varchar,DAY(LABRESULT.RESULTDATETIME)) as date_serv,
+    convert(varchar,LABRESULT.RESULTDATETIME,108) as time_serv,
+    SUBSTRING(SYSCONFIG.THAINAME,2,LEN(SYSCONFIG.THAINAME)) as lab_name,
+    RESULTVALUE as lab_result,
+    NORMALRESULTVALUE as standard_result
+    from LABRESULT
+    inner join SYSCONFIG on LABRESULT.LABCODE = SYSCONFIG.CODE and SYSCONFIG.CTRLCODE = '20067'
+    where HN = '${hn}' and convert(date,convert(char,LABRESULT.RESULTDATETIME)) = '${dateServe}'
+    AND RESULTDATETIME IS NOT NULL`);
+    console.log('LAB ===========================>', data);
+    return data;
   }
 
-  getLabs(db: Knex, hn: any, vn: any) {
-    let sql = `select l.lab_items_name_ref as lab_name,l.lab_order_result as lab_result,
-    l.lab_items_normal_value_ref as standard_result
-    from lab_order l  
-    LEFT OUTER JOIN lab_head h on h.lab_order_number = l.lab_order_number
-    where h.vn = ? `;
-    return db.raw(sql, [vn]);
-  }
+  async getAppointment(db: Knex, hn: any, dateServe: any) {
+    let data = await db.raw(`select ROW_NUMBER() OVER(ORDER BY MAKEDATETIME) as seq,
+    convert(varchar,YEAR(HNAPPMNT.MAKEDATETIME)) + '-' + 
+    convert(varchar,MONTH(HNAPPMNT.MAKEDATETIME)) + '-' + 
+    convert(varchar,DAY(HNAPPMNT.MAKEDATETIME)) as date_serv,
+    convert(varchar,HNAPPMNT.MAKEDATETIME,108) as time_serv,
+    substring(SYSCONFIG.THAINAME,2,len(SYSCONFIG.THAINAME)) as clinic,
+    convert(varchar,YEAR(HNAPPMNT.APPOINTMENTDATETIME)) + '-' + 
+    convert(varchar,MONTH(HNAPPMNT.APPOINTMENTDATETIME)) + '-' + 
+    convert(varchar,DAY(HNAPPMNT.APPOINTMENTDATETIME)) as appoint_date,
+    convert(varchar,HNAPPMNT.APPOINTMENTDATETIME,108) as appoint_time,
+    SUBSTRING(PROCE.THAINAME,2,LEN(PROCE.THAINAME)) as detail
+    
+    from HNAPPMNT
+    inner join SYSCONFIG on HNAPPMNT.APPOINTMENTWITHCLINIC = SYSCONFIG.CODE and SYSCONFIG.CTRLCODE = '20016'
+    inner join SYSCONFIG PROCE on HNAPPMNT.PROCEDURECODE = PROCE.CODE and PROCE.CTRLCODE = '20109'
 
-  getAnc(db: Knex, vn: any) {
-    let sql = `SELECT a.preg_no as ga, a.current_preg_age as anc_no, s.service_result as result
-from person_anc a  
-left outer join person p on p.person_id = a.person_id
-LEFT OUTER JOIN patient e on e.cid=p.cid
-LEFT OUTER JOIN ovst o on o.hn = e.hn
-left outer join person_anc_service s on s.person_anc_id=a.person_anc_id
-where (a.discharge <> 'Y' or a.discharge IS NULL) 
-and o.vn = ? `;
-    return db.raw(sql, [vn]);
-  }
-
-  getVacine(db: Knex, vn: any) {
-    let sql = `SELECT v.vaccine_code, v.vaccine_name
-    FROM person_vaccine_list l 
-    LEFT OUTER JOIN person p on p.person_id=l.person_id
-    LEFT OUTER JOIN patient e on e.cid=p.cid
-    LEFT OUTER JOIN ovst o on o.hn = e.hn
-    LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
-    where o.vn = ?
-    UNION
-    SELECT v.vaccine_code, v.vaccine_name
-    FROM ovst_vaccine l 
-    LEFT OUTER JOIN ovst o on o.vn=l.vn
-    LEFT OUTER JOIN person_vaccine v on v.person_vaccine_id=l.person_vaccine_id
-    where o.vn = ? `;
-    return db.raw(sql, [vn, vn]);
-  }
-
-
-  getAppointment(db: Knex, hn: any, vn: any) {
-    // return db('oapp as o')
-    //     .select('o.fudate as date', 'o.futime as time', 'o.cln as department', 'o.dscrptn as detail')
-    //     .where('vn', vn);
-
-    let sql = `select o.nextdate as date,o.nexttime as time,c.name as department,o.app_cause as detail
-    from oapp o  
-    left outer join ovst v on o.vn=v.vn  and o.hn = v.hn  
-    left outer join clinic c on o.clinic=c.clinic  
-    where o.vn = ? `;
-    return db.raw(sql, [vn]);
+    where hn = '${hn}'`);
+    return data;
   }
 }

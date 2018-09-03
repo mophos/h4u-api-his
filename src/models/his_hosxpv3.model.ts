@@ -44,7 +44,7 @@ export class HisHosxpv3Model {
 
   getChronic(db: Knex, hn: any) {
     return db('person_chronic as pc')
-      .select('pc.regdate as start_date', 'pc.icd10 as icd10_code', 'i.name as icd_name')
+      .select('pc.regdate as start_date', 'pc.icd10 as icd_code', 'i.name as icd_name')
       .leftOuterJoin('person as pe', 'pe.person_id', '=', 'pc.person_id')
       .leftOuterJoin('patient as pa', 'pa.cid', '=', 'pe.cid')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
@@ -54,7 +54,7 @@ export class HisHosxpv3Model {
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ovstdiag as o')
       .select('o.vn as seq', 'o.vstdate as date_serv',
-        'o.vsttime as time_serv', 'o.icd10 as icd_code', db.raw('if(i.tname is not null,i.tname,i.name) as icd_desc'), 't.name as diag_type')
+        'o.vsttime as time_serv', 'o.icd10 as icd_code', db.raw('if(i.tname is not null,i.tname,i.name) as icd_name'), 't.name as diag_type')
       .join('icd101 as i', 'i.code', '=', 'o.icd10')
       .join('diagtype as t', 't.diagtype', 'o.diagtype')
       .where('o.vn', vn);
