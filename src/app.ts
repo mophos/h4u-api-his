@@ -75,6 +75,7 @@ app.use((req, res, next) => {
     };
     req.db = Knex(connectKnexconfig);
   } else if (process.env.DB_CLIENT === 'pg') {
+    console.log("MSSQL Connect");
     connectKnexconfig = {
       client: process.env.DB_CLIENT,
       searchPath: ['knex', 'public'],
