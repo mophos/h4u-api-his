@@ -1,8 +1,8 @@
 'use strict';
-require('dotenv').config();
-
-import * as express from 'express';
 import * as path from 'path';
+let envPath = path.join(__dirname, '../h4u-config');
+require('dotenv').config({ path: envPath });
+import * as express from 'express';
 import * as favicon from 'serve-favicon';
 import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
@@ -78,7 +78,7 @@ app.use((req, res, next) => {
     console.log("MSSQL Connect");
     connectKnexconfig = {
       client: process.env.DB_CLIENT,
-      searchPath: ['knex','public'],
+      searchPath: ['knex', 'public'],
       connection: dbConnection,
     };
     req.db = Knex(connectKnexconfig);
