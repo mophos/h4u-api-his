@@ -150,7 +150,7 @@ export class HisHosxpv4Model {
     group by a.vn,a.op
     
     
-    order by a.vn,procedcode`);
+    order by a.vn,procedcode`, [vn, vn, vn, vn]);
     return sql[0];
   }
 
