@@ -10,7 +10,7 @@ import Knex = require('knex');
 // return data[0];
 // }
 
-export class HisHosxpv3Model {
+export class HisHosxpv4Model {
 
   getHospital(db: Knex, hn: any) {
     return db('opdconfig as o')
