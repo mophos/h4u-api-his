@@ -55,8 +55,103 @@ export class HisHosxpv3Model {
 
   async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
     // return [{seq:'',procedure_code:'',procedure_name:'',date_serv:'',time_serv:'',start_date:'',start_time:'',end_date:'',end_time:''}];
-    let sql = await db.raw(``);
-    return null;
+    let sql = await db.raw(`
+    select ifnull(o.vn,'') as seq
+    ,ifnull(o.vstdate,'') as date_serv
+    ,ifnull(o.vsttime,'') as time_serv
+    ,ifnull(a.op,'') as procedure_code
+    ,ifnull(a.cc,'') as procedure_name
+    ,ifnull(o.vstdate,'') as start_date
+    ,ifnull(SUBSTR(a.t,12,8),'') as start_time
+    ,ifnull(o.vstdate,'') as end_date
+    ,ifnull(SUBSTR(a.e,12,8),'') as end_time
+    
+    from (select o.vn,o.vstdate,odx.icd10 op,0 ServicePrice,i9.name as cc,ero.begin_date_time as t,ero.end_date_time as e,'OPD' type
+    
+    from ovst o
+    
+    left join ovstdiag odx on odx.vn=o.vn 
+    LEFT JOIN er_oper_code er on er.er_oper_code=odx.icd10
+    left join icd9cm1 i9 on i9.code=odx.icd10
+    LEFT JOIN doctor_operation ero on ero.vn=o.vn
+    where o.vn=?
+    and odx.icd10 regexp '^[0-9]'
+    
+    
+    
+    union
+    
+    select o.vn,o.vstdate,op.icd9cm,op.price,op.name as cc,er.begin_time as t,er.end_time as e,'ER' type
+    
+    from ovst o
+    
+    left join er_regist_oper er on er.vn=o.vn
+    
+    left join er_oper_code op on er.er_oper_code=op.er_oper_code
+    
+    where o.vn=er.vn and o.vn=?
+    
+    and op.icd9cm is not null and op.icd9cm<>''
+    
+    
+    
+    union
+    
+    select o.vn,o.vstdate,h3.icd10tm,h2.service_price,h3.health_med_operation_item_name as cc,h1.service_time as t,h1.service_time as e,'Health' type
+    
+    from ovst o
+    
+    left join health_med_service h1 on h1.vn=o.vn
+    
+    left join health_med_service_operation h2 on h2.health_med_service_id=h1.health_med_service_id
+    
+    left join health_med_operation_item h3 on h3.health_med_operation_item_id=h2.health_med_operation_item_id
+    
+    where o.vn=h1.vn and o.vn=?
+    
+    and h3.icd10tm is not null
+    
+    
+    
+    union
+    
+    select o.vn,o.vstdate,tm.icd10tm_operation_code,tm.opd_price1,tm.name as cc,dt.begin_time as t,dt.end_time as e,'DENT' type
+    
+    from ovst o
+    
+    left join dtmain dt on dt.vn=o.vn
+    
+    left join dttm tm on dt.tmcode=tm.code
+    
+    where o.vn=dt.vn and o.vn=?
+    
+    and tm.icd10tm_operation_code is not null) a
+    
+    
+    
+    left join ovst o on a.vn=o.vn
+    
+    left join ovst_seq q on q.vn=o.vn
+    
+    left join patient pt on pt.hn=o.hn
+    
+    left join person p on p.patient_hn=pt.hn
+    
+    left join spclty s on s.spclty=o.spclty
+    
+    left join doctor d on d.code=o.doctor
+    
+    
+    
+    where a.op<>'' and a.op is not null and a.op<>'9990'
+    
+    
+    
+    group by a.vn,a.op
+    
+    
+    order by a.vn,procedcode`);
+    return sql[0];
   }
 
   async getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
