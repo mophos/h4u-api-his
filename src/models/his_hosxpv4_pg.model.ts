@@ -46,19 +46,35 @@ export class HisHosxpv4pgModel {
 
   async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
     let data =  await db.raw(`
-    SELECT o.vn as seq,d.er_oper_code as procedure_code,e.name as procedure_name, o.vstdate as date_serv,
-    vsttime as time_serv,d.begin_date_time::date as start_date,d.begin_date_time::time as start_time,d.end_date_time::date as end_date,d.end_date_time::time as end_time
-    FROM doctor_operation  d
-    LEFT OUTER JOIN ovst as o on o.vn=d.vn
-    LEFT OUTER JOIN er_oper_code as e on e.er_oper_code=d.er_oper_code
-    WHERE o.vn = '${vn}'
-    UNION
-    SELECT o.vn as seq,e.er_oper_code as procedure_code,c.name as procedure_name, o.vstdate as date_serv,
-    vsttime as time_serv,o.vstdate as start_date,e.begin_time::time as start_time,o.vstdate as end_date,e.end_time::time as end_time
-    FROM er_regist_oper as e
-    LEFT OUTER JOIN ovst o on o.vn=e.vn
-    LEFT OUTER JOIN er_oper_code as c on c.er_oper_code=e.er_oper_code
-    WHERE o.vn = '${vn}'
+    SELECT o.vn as seq,d.er_oper_code::varchar as procedure_code,e.name as procedure_name, o.vstdate as date_serv,
+vsttime as time_serv,d.begin_date_time::date as re_format,d.begin_date_time::time as start_time,d.end_date_time::date as end_date,d.end_date_time::time as end_time
+FROM doctor_operation  d
+LEFT OUTER JOIN ovst as o on o.vn=d.vn
+LEFT OUTER JOIN er_oper_code as e on e.er_oper_code=d.er_oper_code
+WHERE o.vn = '${vn}'
+UNION ALL
+SELECT o.vn as seq,e.er_oper_code::varchar as procedure_code,c.name as procedure_name, o.vstdate as date_serv,
+vsttime as time_serv,o.vstdate as start_date,e.begin_time::time as start_time,o.vstdate as end_date,e.end_time::time as end_time
+FROM er_regist_oper as e
+LEFT OUTER JOIN ovst o on o.vn=e.vn
+LEFT OUTER JOIN er_oper_code as c on c.er_oper_code=e.er_oper_code
+WHERE o.vn = '${vn}'
+UNION ALL
+SELECT l.vn as seq,m.code as procedure_code,i.name as procedure_name,l.request_date::date as date_serv,
+l.request_time::time as time_serv,l.enter_date::date as start_date,l.enter_time::time as start_time,l.leave_date::date as end_date, l.leave_time::time as end_time
+from operation_list as  l
+LEFT OUTER JOIN operation_detail as a on a.operation_id=l.operation_id
+LEFT OUTER JOIN operation_item as i on i.operation_item_id=a.operation_item_id
+LEFT OUTER JOIN icd9cm1 as m on m.code=i.icd9
+where l.vn = '${vn}' and l.confirm_receive = 'Y' 
+UNION ALL
+SELECT d.vn as seq,d.icd10 as procedure_code, i.name as procedure_name,s.vstdate::date as date_serv,
+s.vsttime::time as time_serv,d.vstdate::date as start_date, d.vsttime::time as start_time, d.vstdate::date as end_date, 
+d.vsttime::time as end_time
+from ovstdiag as d
+left outer join icd9cm1 i on i.code = d.icd10 
+LEFT OUTER JOIN ovst s on s.vn=d.vn
+where d.vn = '${vn}' and substring(d.icd10,1,1) in ('0','1','2','3','4','5','6','7','8','9')
     `);
     return data;
         // UNION
