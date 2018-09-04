@@ -151,7 +151,7 @@ export class HisHosxpv4Model {
     
     
     order by a.vn,procedcode`, [vn, vn, vn, vn]);
-    return sql[0];
+    return null;
   }
 
   async getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
