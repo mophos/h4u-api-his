@@ -197,9 +197,11 @@ order by a.vn,Procedure_code`, [vn, vn, vn, vn]);
   }
 
   async getAppointment(db: Knex, hn: any, dateServ: any, vn: any) {
-    let sql = await db.raw(`SELECT oa.vn as seq,oa.clinic as department,oa.vstdate as date_serv,
+    let sql = await db.raw(`
+    SELECT oa.vn as seq,c.name as department,oa.vstdate as date_serv,
       oa.entry_time as time_serv,oa.nextdate as date,oa.nexttime as time,oa.note as detail
-      FROM oapp oa where o.vn = ?`, vn);
+      FROM oapp oa 
+      left join clinic c on c.clinic= oa.clinic where oa.vn = ?`, vn);
     return sql[0];
   }
 }
