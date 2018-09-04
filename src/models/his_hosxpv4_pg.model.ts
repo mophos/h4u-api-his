@@ -37,11 +37,11 @@ export class HisHosxpv4pgModel {
 
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ovstdiag as o')
-      .select('o.vn', 'o.vstdate as date_serv',
-        'o.vsttime as time_serv', 'o.icd10 as icd10_code', 'i.name as icd10_desc', 't.name as diag_type')
-      .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
-      .leftOuterJoin('diagtype as t', 't.diagtype', 'o.diagtype')
-      .where('vn', vn);
+      .select('o.vn as seq', 'o.vstdate as date_serv',
+        'o.vsttime as time_serv', 'o.icd10 as icd_code', db.raw('if(i.tname is not null,i.tname,i.name) as icd_name'), 't.name as diag_type')
+      .join('icd101 as i', 'i.code', '=', 'o.icd10')
+      .join('diagtype as t', 't.diagtype', 'o.diagtype')
+      .where('o.vn', vn);
   }
 
   async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
