@@ -54,6 +54,7 @@ export class HisHosxpv3Model {
   }
 
   async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
+    // return [{seq:'',procedure_code:'',procedure_name:'',date_serv:'',time_serv:'',start_date:'',start_time:'',end_date:'',end_time:''}];
     let sql = await db.raw(``);
     return null;
   }
