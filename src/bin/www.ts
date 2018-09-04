@@ -11,7 +11,7 @@ import * as http from 'http';
  */
 
 // const port = normalizePort(3318);
-const port = normalizePort(process.env.PORT || 3000);
+const port = normalizePort(process.env.PORT || 3001);
 app.set('port', port);
 
 /**

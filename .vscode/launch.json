@@ -12,11 +12,11 @@
 			"runtimeExecutable": null,
 			"runtimeArgs": [
 				"--nolazy",
-        "--harmony"
+				"--harmony"
 			],
 			"env": {
 				"NODE_ENV": "development",
-                "PORT": "3000"
+				"PORT": "3001"
 			},
 			"externalConsole": false,
 			"sourceMaps": true,
