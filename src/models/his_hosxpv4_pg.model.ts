@@ -35,13 +35,22 @@ export class HisHosxpv4pgModel {
       .where('hn', hn);
   }
 
+  // getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
+  //   return db('ovstdiag as o')
+  //     .select('o.vn as seq', 'o.vstdate as date_serv',
+  //       'o.vsttime as time_serv', 'o.icd10 as icd_code', db.raw('if(i.tname is not null,i.tname,i.name) as icd_name'), 't.name as diag_type')
+  //     .join('icd101 as i', 'i.code', '=', 'o.icd10')
+  //     .join('diagtype as t', 't.diagtype', 'o.diagtype')
+  //     .where('o.vn', vn);
+  // }
+  
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ovstdiag as o')
-      .select('o.vn as seq', 'o.vstdate as date_serv',
-        'o.vsttime as time_serv', 'o.icd10 as icd_code', db.raw('if(i.tname is not null,i.tname,i.name) as icd_name'), 't.name as diag_type')
-      .join('icd101 as i', 'i.code', '=', 'o.icd10')
-      .join('diagtype as t', 't.diagtype', 'o.diagtype')
-      .where('o.vn', vn);
+      .select('o.vn', 'o.vstdate as date_serv',
+        'o.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_name', 't.name as diag_type')
+      .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
+      .leftOuterJoin('diagtype as t', 't.diagtype', 'o.diagtype')
+      .where('vn', vn);
   }
 
   async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
@@ -77,22 +86,6 @@ LEFT OUTER JOIN ovst s on s.vn=d.vn
 where d.vn = '${vn}' and substring(d.icd10,1,1) in ('0','1','2','3','4','5','6','7','8','9')
     `);
     return data;
-        // UNION
-    // SELECT l.vn as seq,m.code as procedure_code,i.name as procedure_name,l.request_date::date as date_serv,
-    // l.request_time::time as time_serv,l.enter_date::date as start_date,l.enter_time::time as start_time,l.leave_date::date as end_date, l.leave_time::time as end_time
-    // from operation_list as  l
-    // LEFT OUTER JOIN operation_detail as a on a.operation_id=l.operation_id
-    // LEFT OUTER JOIN operation_item as i on i.operation_item_id=a.operation_item_id
-    // LEFT OUTER JOIN icd9cm1 as m on m.code=i.icd9
-    // where l.confirm_receive = 'Y' and l.vn = '${vn}'
-    // UNION
-    // SELECT d.vn as seq,d.icd10 as procedure_code, i.name as procedure_name,s.vstdate::date as date_serv,
-    // s.vsttime::time as time_serv,d.vstdate::date as start_date, d.vsttime::time as start_time, d.vstdate::date as end_date, 
-    // d.vsttime::time as end_time
-    // from ovstdiag as d
-    // left outer join icd9cm1 i on i.code = d.icd10 
-    // LEFT OUTER JOIN ovst s on s.vn=d.vn
-    // where d.vn = '${vn}' and substring(d.icd10,1,1) in ('0','1','2','3','4','5','6','7','8','9')
   }
 
   getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
