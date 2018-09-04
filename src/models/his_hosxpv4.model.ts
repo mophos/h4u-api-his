@@ -153,7 +153,7 @@ group by a.vn,a.op
 
 
 order by a.vn,Procedure_code`, [vn, vn, vn, vn]);
-    return null;
+    return sql[0];
   }
 
   async getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
