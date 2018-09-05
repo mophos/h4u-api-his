@@ -6,14 +6,17 @@ const hospcode = process.env.HIS_CODE;
 export class HisHomcModel {
 
   async getHospital(db: Knex, hn: any) {
-    let data = await db.raw(`SELECT OFF_ID as provider_code,NAME as provider_name from HOSPCODE where OFF_ID = '10705'`);
+    let data = await db.raw(`SELECT OFF_ID as provider_code,rtrim(NAME) as provider_name from HOSPCODE where OFF_ID = '10705'`);
+    // console.log('Hospital ======', sql);
+    // const result = await db.raw(sql);
     return data;
   }
 
-  getProfile(db: Knex, hn: any) {
-    return db('PATIENT')
-    .select('titleCode as title_name', 'firstName as first_name', 'lastName as last_name')
-    .where('hn', hn)
+  async getProfile(db: Knex, hn: any) {
+    let data = await db.raw(`select p.hn as hn,rtrim(t.titleName) as title_name,rtrim(p.firstName) as first_name,rtrim(p.lastName) as last_name,rtrim(s.CardID) as cid 
+    from PATIENT p left join PTITLE t on p.titleCode=t.titleCode left join PatSS s on p.hn=s.hn where p.hn='${hn}'`);
+    //console.log('Vaccine', data);
+    return data;
   }
 
   async getVaccine(db: Knex, hn: any) {
@@ -29,7 +32,7 @@ export class HisHomcModel {
   }
 
   async getChronic(db: Knex, hn: any) {
-    let data = await db.raw(`select distinct p.ICDCode as icd_code,ic.DES as icd_name--,p.VisitDate as start_date
+    let data = await db.raw(`select distinct rtrim(p.ICDCode) as icd_code,rtrim(ic.DES) as icd_name--,p.VisitDate as start_date
     from PATDIAG p
     left join OPD_H o on(o.hn = p.Hn and o.regNo = p.regNo) 
     left join ICD101 ic on(ic.CODE = p.ICDCode)
@@ -41,6 +44,7 @@ export class HisHomcModel {
     or p.ICDCode between 'I05' and 'I099' or p.ICDCode between 'I26' and 'I289' or p.ICDCode between 'I30' and 'I528'
     or p.ICDCode between 'G80' and 'G839' or p.ICDCode between 'D50' and 'D649' or p.ICDCode between 'N17' and 'N19'
     )`);
+    // const result = await db.raw(sql, [hn]);
     return data;
   }
 
@@ -63,7 +67,7 @@ export class HisHomcModel {
   async getDiagnosis(db: Knex, hn: any, dateServe: any) {
     let data = await db.raw(`select o.hn + p.regNo as seq,
     convert(date,convert(char,p.VisitDate -5430000)) as date_serv, 
-    o.timePt as time_serv,p.ICDCode as icd_code,ic.DES as icd_name,p.DiagType as diag_type
+    SUBSTRING(o.timePt,1,2)+':'+SUBSTRING(o.timePt,3,4) as time_serv,rtrim(p.ICDCode) as icd_code,rtrim(ic.DES) as icd_name,p.DiagType as diag_type
     from PATDIAG p
     left join OPD_H o on(o.hn = p.Hn and o.regNo = p.regNo) 
     left join ICD101 ic on(ic.CODE = p.ICDCode)
@@ -76,6 +80,8 @@ export class HisHomcModel {
     let data = await db.raw(`select r.RegNo as seq,r.ReferDate as date_serv,'' as time_serv,r.ReferHCODE as to_provider_code,h.OFF_NAME2 as to_provider_name,s.REASON_DESC as reason,
     '' as start_date from Refer r left join HOSPCODE h on r.ReferHCODE=h.OFF_ID 
     left join REFERRS s on r.ReferReason=s.REASON_CODE where r.Hn='${hn}' and r.ReferDate='${dateServe}'`);
+    //return db.raw(sql, [vn]);
+    //const result = db.raw(sql, [hn,dateServe,vn]);
     return data;
 
   }
@@ -84,21 +90,21 @@ export class HisHomcModel {
     let data = await db.raw(`select o.REGNO as seq ,
     (o.OR_DATE) as date_serv, o.OR_TIME as time_serv,o.ORCODE as procedure_code,o.ORDESC as icd_name,
     (o.START_DATE) as start_date,(o.END_DATE) as end_date
-    from  ORREQ_H o
+    from ORREQ_H o
     left join OPD_H p on( o.HN = p.hn and o.REGNO = p.regNo) 
     where o.HN='${hn}' and p.registDate = '${dateServe}'`);
     return data;
   }
 
   async getDrugs(db: Knex, hn: any, dateServe: any) {
-    let data = await db.raw(`select p.hn + p.registNo2 as seq,
+    let data = await db.raw(`select p.hn + p.registNo as seq,
     convert(date,convert(char,p.registDate -5430000)) as date_serv,
-    convert(char(5), p.firstIssTime, 108) as time_serv,m.name as drug_name,
-    p.qty as qty,p.unit as unit,p.lamedTimeText as usage_line1,p.lamedText as usage_line2, ' ' as usage_line3 
+    convert(char(5), p.firstIssTime, 108) as time_serv,rtrim(m.name) as drug_name,
+    p.qty as qty,rtrim(p.unit) as unit,rtrim(p.lamedTimeText) as usage_line1,rtrim(p.lamedText) as usage_line2, '' as usage_line3 
     from Patmed p
     left join Med_inv m on (m.code = p.invCode)
     left join Deptq_d d on (d.hn = p.hn and d.regNo = p.registNo)
-    left join OPD_H h on( p.hn = h.hn and p.registNo2 = h.regNo) 
+    left join OPD_H h on( p.hn = h.hn and p.registNo = h.regNo) 
     where p.hn = '${hn}' and convert(date,convert(char,p.registDate -5430000)) = '${dateServe}'`);
     return data;
   }
@@ -106,8 +112,8 @@ export class HisHomcModel {
   async getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
     let data = await db.raw(`select l.hn + l.reg_flag as seq,
     convert(date,convert(char,l.res_date -5430000)) as date_serv,
-    l.res_time as time_serv,l.result_name as lab_name,
-    l.real_res as lab_result,l.resNormal as standard_result 
+    SUBSTRING(l.res_time,1,2)+':'+SUBSTRING(l.res_time,3,4) as time_serv,rtrim(l.result_name) as lab_name,
+    l.real_res as lab_result,rtrim(replace(l.low_normal,'999999.999',''))+'-'+rtrim(replace(l.high_normal,'999999.999','')) as standard_result 
     from Labres_d l where l.hn = '${hn}'
     and convert(date,convert(char,l.res_date -5430000)) = '${dateServe}'`);
     return data;
@@ -115,7 +121,8 @@ export class HisHomcModel {
 
   async getAppointment(db: Knex, hn: any, dateServe: any) {
     let data = await db.raw(`select p.hn + p.regNo as seq,a.pre_dept_code as clinic,
-    convert(date,convert(char,p.registDate -5430000)) as date_serv,p.timePt as time_serv,
+    convert(date,convert(char,p.registDate -5430000)) as date_serv,
+    SUBSTRING(p.timePt,1,2)+':'+SUBSTRING(p.timePt,3,4) as time_serv,
     convert(date,convert(char,a.appoint_date -5430000)) as appoint_date,
     a.appoint_time_from as appoint_time,a.appoint_note as detail 
     from Appoint a
