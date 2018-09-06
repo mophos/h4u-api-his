@@ -27,7 +27,7 @@ export class HisModel {
   }
 
   getChronic(db: Knex, hn: any) {
-    // แพ้ยา โรคเรื้อรัง
+    // โรคเรื้อรัง
     // return [{icd_code:'',icd_name:'',start_date:''}]
   }
 
@@ -40,6 +40,9 @@ export class HisModel {
     // return [{hcode_to:'',name_to:'',reason:''}]
   }
 
+  async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
+    // return [{seq:'',procedure_code:'',procedure_name:'',date_serv:'',time_serv:'',start_date:'',start_time:'',end_date:'',end_time:''}];
+  }
 
   getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
     // return [{drug_name:'',qty:'',unit:'',usage_line1:'',usage_line2:'',usage_line3:''}]
