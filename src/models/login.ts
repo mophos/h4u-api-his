@@ -10,7 +10,7 @@ export class LoginModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'POST',
-        url: 'http://localhost:3002/login/h4u-login',
+        url: 'https://h4u.moph.go.th/api/officer/v1/login/h4u-login',
         agentOptions: {
           rejectUnauthorized: false
         },

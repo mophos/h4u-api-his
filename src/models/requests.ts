@@ -6,7 +6,7 @@ export class RequestsModel {
       var options = {
         method: 'GET',
         // url: `https://h4u.moph/go.th/api/officer/v1/requests?status=${status}`,
-        url: `http://localhost:3002/requests?status=${status}`,
+        url: `https://h4u.moph.go.th/api/officer/v1/requests?status=${status}`,
         agentOptions: {
           rejectUnauthorized: false
         },
@@ -33,7 +33,7 @@ export class RequestsModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'POST',
-        url: `http://localhost:3002/requests/nodata`,
+        url: `https://h4u.moph.go.th/api/officer/v1/requests/nodata`,
         agentOptions: {
           rejectUnauthorized: false
         },
@@ -63,7 +63,7 @@ export class RequestsModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'POST',
-        url: `http://localhost:3002/requests/cancel`,
+        url: `https://h4u.moph.go.th/api/officer/v1/requests/cancel`,
         agentOptions: {
           rejectUnauthorized: false
         },

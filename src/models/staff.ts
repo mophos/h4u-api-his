@@ -5,7 +5,7 @@ export class StaffModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'GET',
-        url: `http://localhost:3002/staff/officers?query=${query}&status=${status}`,
+        url: `https://h4u.moph.go.th/api/officer/v1/staff/officers?query=${query}&status=${status}`,
         agentOptions: {
           rejectUnauthorized: false
         },
@@ -32,7 +32,7 @@ export class StaffModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'PUT',
-        url: `http://localhost:3002/staff/officers`,
+        url: `https://h4u.moph.go.th/api/officer/v1/staff/officers`,
         agentOptions: {
           rejectUnauthorized: false
         },
@@ -62,7 +62,7 @@ export class StaffModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'GET',
-        url: `http://localhost:3002/staff/officers/permission?email=${email}`,
+        url: `https://h4u.moph.go.th/api/officer/v1/staff/officers/permission?email=${email}`,
         agentOptions: {
           rejectUnauthorized: false
         },
@@ -89,7 +89,7 @@ export class StaffModel {
   //   return new Promise((resolve: any, reject: any) => {
   //     var options = {
   //       method: 'POST',
-  //       url: `http://localhost:3002/requests/nodata`,
+  //       url: `https://h4u.moph.go.th/api/officer/v1/requests/nodata`,
   //       agentOptions: {
   //         rejectUnauthorized: false
   //       },

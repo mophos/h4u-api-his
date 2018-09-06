@@ -6,7 +6,7 @@ export class StandardModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'GET',
-        url: `http://localhost:3002/standard/permission`,
+        url: `https://h4u.moph.go.th/api/officer/v1/standard/permission`,
         agentOptions: {
           rejectUnauthorized: false
         },

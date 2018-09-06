@@ -6,7 +6,7 @@ export class MemberModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'GET',
-        url: `http://localhost:3002/member/officer?email=${email}`,
+        url: `https://h4u.moph.go.th/api/officer/v1/member/officer?email=${email}`,
         agentOptions: {
           rejectUnauthorized: false
         },
@@ -33,7 +33,7 @@ export class MemberModel {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'POST',
-        url: `http://localhost:3002/member/register`,
+        url: `https://h4u.moph.go.th/api/officer/v1/member/register`,
         agentOptions: {
           rejectUnauthorized: false
         },
