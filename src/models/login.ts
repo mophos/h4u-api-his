@@ -4,14 +4,13 @@ import * as bcrypt from 'bcrypt';
 ;
 
 export class LoginModel {
-  
 
-  smartHealhtLogin(username: any, password: any) {
+
+  h4uLogin(username: any, password: any) {
     return new Promise((resolve: any, reject: any) => {
       var options = {
         method: 'POST',
-        url: 'http://203.157.103.123/h4u/api/login/smh-login',
-        //url: 'https://smarthealth.service.moph.go.th/phps/public/api/v3/gettoken',
+        url: 'http://localhost:3002/login/h4u-login',
         agentOptions: {
           rejectUnauthorized: false
         },
@@ -36,11 +35,11 @@ export class LoginModel {
   }
 
   async compareHash(password, hash) {
-    if(bcrypt.compareSync(password, hash)) {
+    if (bcrypt.compareSync(password, hash)) {
       return true;
-     } else {
+    } else {
       return false;
-     }
+    }
   }
 
 }

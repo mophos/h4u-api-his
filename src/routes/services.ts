@@ -19,6 +19,8 @@ const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
 
 router.get('/', (req, res, next) => {
+    console.log('decoded', req.decoded);
+
     res.send({ title: 'MOPH H4U API' });
 });
 
