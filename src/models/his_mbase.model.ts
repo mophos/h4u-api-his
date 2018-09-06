@@ -19,10 +19,8 @@ export class HisMbaseModel {
     return data[0];
   }
   async getProfile(db: Knex, hn: any) {
-    // ชื่อ
-    // return [{title_name:'',first_name:'',last_name:''}]
     let data = await db.raw(`
-    select b.hn as hn, 
+    SELECT b.hn as hn, 
     a.CID as cid,
     CASE 
         WHEN PRENAME not in('') THEN PRENAME
@@ -46,7 +44,7 @@ export class HisMbaseModel {
     WHERE b.HN ='${hn}'`);
     return data[0];
 
-  }
+}
 
   async getServices(db: Knex, hn: any, dateServe: any) {
     let data = await db.raw(`
@@ -221,11 +219,17 @@ export class HisMbaseModel {
     DATE(a.REG_DATETIME) date_serv,
     TIME(a.REG_DATETIME)  time_serv,
     c.DRUG_THO as  vaccine_code,
-      c.DRUG_NAME as vaccine_name
+		c.DRUG_NAME as vaccine_name
     FROM  opd_visits a
     INNER JOIN prescriptions b ON a.VISIT_ID = b.VISIT_ID  AND b.IS_CANCEL = 0
-    LEFT  JOIN drugs_tho  c  ON b.DRUG_ID  = c.DRUG_ID
+    INNER JOIN drugs_tho  c  ON b.DRUG_ID  = c.DRUG_ID
+		AND c.DRUG_THO IN('010','041','042','043','DHB','DHB2','DHB3','101','021','031','044','051','061','071','085','MEAS')
+		OR c.DRUG_THO BETWEEN 'JE1' AND 'JE3'
+		OR c.DRUG_THO BETWEEN 'OPV1' AND 'OPV5'
+		OR c.DRUG_THO BETWEEN 'DTP1' AND 'DTP5'
+		OR c.DRUG_THO BETWEEN 'TT1' AND 'TT5'
     WHERE a.IS_CANCEL = 0
+		AND c.DRUG_ID <> ' '
     AND a.HN  = '${hn}' `);
     return data[0];
   }
@@ -237,8 +241,8 @@ export class HisMbaseModel {
         TIME(a.REG_DATETIME) AS time_serv,
         c. CODE AS procedure_code,
         c.TNAME AS procedure_name,
-        DATE(b.OP_BEGIN) AS start_date,
-        DATE(b.OP_END) AS end_date
+        DATE(b.OP_DT) AS start_date,
+        IF(DATE(b.OP_END)!='0000-00-00', DATE(b.OP_END), DATE(b.OP_DT)) AS end_date
       FROM
         opd_visits a
       INNER JOIN opd_operations b ON a.VISIT_ID = b.VISIT_ID
