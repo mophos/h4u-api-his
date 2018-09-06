@@ -106,9 +106,10 @@ router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Res
     let providerCode;
     let providerName;
     let profile = [];
+    let providerCodeToken = req.decoded.provider_code;
     if (requestId && hn && dateServ && uid) {
         try {
-            let rs_hospital: any = await hisModel.getHospital(db, hn);
+            let rs_hospital: any = await hisModel.getHospital(db, providerCodeToken, hn);
             if (rs_hospital.length) {
                 providerCode = rs_hospital[0].provider_code;
                 providerName = rs_hospital[0].provider_name;

@@ -12,14 +12,14 @@ import Knex = require('knex');
 
 export class HisHosxpv3Model {
 
-  getHospital(db: Knex, hn: any) {
+  getHospital(db: Knex, providerCode: any, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
 
   getProfile(db: Knex, hn: any) {
     return db('patient')
-      .select('hn','cid','pname as title_name', 'fname as first_name', 'lname as last_name')
+      .select('hn', 'cid', 'pname as title_name', 'fname as first_name', 'lname as last_name')
       .where('hn', hn)
   }
 

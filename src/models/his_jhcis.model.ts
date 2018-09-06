@@ -4,7 +4,7 @@ import Knex = require('knex');
 
 export class HisJhcisModel {
 
-  getHospital(db: Knex, hn: any) {
+  getHospital(db: Knex, providerCode: any, hn: any) {
     return db('person as p')
       .innerJoin('chospital as c', 'p.pcucodeperson', 'c.hoscode')
       .select('c.hoscode as hcode', 'c.hosname as hname')

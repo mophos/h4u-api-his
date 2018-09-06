@@ -12,7 +12,7 @@ import Knex = require('knex');
 // }
 export class HisBudhospModel {
 
-  getHospital(db: Knex, hn: any) {
+  getHospital(db: Knex, providerCode: any, hn: any) {
     // ชื่อสถานพยาบาล
     // return [{provider_code:'',provider_name:''}]
   }

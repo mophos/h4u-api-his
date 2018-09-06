@@ -5,18 +5,16 @@ const hospcode = process.env.HIS_CODE;
 
 export class HisHomcModel {
 
-  async getHospital(db: Knex, hn: any) {
-    let data = await db.raw(`SELECT OFF_ID as provider_code,rtrim(NAME) as provider_name from HOSPCODE where OFF_ID = '10705'`);
-    // console.log('Hospital ======', sql);
-    // const result = await db.raw(sql);
-    return data;
+  async getHospital(db: Knex, providerCode: any, hn: any) {
+    let data = await db.raw(`SELECT OFF_ID as provider_code,rtrim(NAME) as provider_name from HOSPCODE where OFF_ID = '${providerCode}'`);
+    return data[0];
   }
 
   async getProfile(db: Knex, hn: any) {
     let data = await db.raw(`select p.hn as hn,rtrim(t.titleName) as title_name,rtrim(p.firstName) as first_name,rtrim(p.lastName) as last_name,rtrim(s.CardID) as cid 
     from PATIENT p left join PTITLE t on p.titleCode=t.titleCode left join PatSS s on p.hn=s.hn where p.hn='${hn}'`);
     //console.log('Vaccine', data);
-    return data;
+    return data[0];
   }
 
   async getVaccine(db: Knex, hn: any) {
@@ -28,7 +26,7 @@ export class HisHomcModel {
     left join PPOP_VACCINE v on(v.VACCODE = p.VACCODE)
     where o.hn = '${hn}'`);
     // console.log('Vaccine', data);
-    return data;
+    return data[0];
   }
 
   async getChronic(db: Knex, hn: any) {
@@ -45,12 +43,12 @@ export class HisHomcModel {
     or p.ICDCode between 'G80' and 'G839' or p.ICDCode between 'D50' and 'D649' or p.ICDCode between 'N17' and 'N19'
     )`);
     // const result = await db.raw(sql, [hn]);
-    return data;
+    return data[0];
   }
 
   async getAllergyDetail(db: Knex, hn: any) {
     let data = await db.raw(`select v.gen_name as drug_name,m.alergyNote as symptom from medalery m left join Med_inv v on m.medCode=v.abbr where hn='${hn}'`);
-    return data;
+    return data[0];
   }
 
   async getServices(db: Knex, hn: any, dateServe: any) {
@@ -61,7 +59,7 @@ export class HisHomcModel {
     from OPD_H as o
     left join DEPT d on(d.deptCode = o.dept)
     where o.hn = '${hn}' and convert(date,convert(char,o.registDate -5430000)) = '${dateServe}'`);
-    return data;
+    return data[0];
   }
 
   async getDiagnosis(db: Knex, hn: any, dateServe: any) {
@@ -73,7 +71,7 @@ export class HisHomcModel {
     left join ICD101 ic on(ic.CODE = p.ICDCode)
     where p.DiagType in('I','E') and p.pt_status in('O','Z')
     and o.hn = '${hn}' and convert(date,convert(char,p.VisitDate -5430000)) = '${dateServe}'`);
-    return data;
+    return data[0];
   }
 
   async getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
@@ -82,18 +80,18 @@ export class HisHomcModel {
     left join REFERRS s on r.ReferReason=s.REASON_CODE where r.Hn='${hn}' and r.ReferDate='${dateServe}'`);
     //return db.raw(sql, [vn]);
     //const result = db.raw(sql, [hn,dateServe,vn]);
-    return data;
+    return data[0];
 
   }
 
-  async getProcedure(db: Knex, hn: any, dateServe: any, vn:any) {
+  async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
     let data = await db.raw(`select o.REGNO as seq ,
     (o.OR_DATE) as date_serv, o.OR_TIME as time_serv,o.ORCODE as procedure_code,o.ORDESC as icd_name,
     (o.START_DATE) as start_date,(o.END_DATE) as end_date
     from ORREQ_H o
     left join OPD_H p on( o.HN = p.hn and o.REGNO = p.regNo) 
     where o.HN='${hn}' and p.registDate = '${dateServe}'`);
-    return data;
+    return data[0];
   }
 
   async getDrugs(db: Knex, hn: any, dateServe: any) {
@@ -106,7 +104,7 @@ export class HisHomcModel {
     left join Deptq_d d on (d.hn = p.hn and d.regNo = p.registNo)
     left join OPD_H h on( p.hn = h.hn and p.registNo = h.regNo) 
     where p.hn = '${hn}' and convert(date,convert(char,p.registDate -5430000)) = '${dateServe}'`);
-    return data;
+    return data[0];
   }
 
   async getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
@@ -116,7 +114,7 @@ export class HisHomcModel {
     l.real_res as lab_result,rtrim(replace(l.low_normal,'999999.999',''))+'-'+rtrim(replace(l.high_normal,'999999.999','')) as standard_result 
     from Labres_d l where l.hn = '${hn}'
     and convert(date,convert(char,l.res_date -5430000)) = '${dateServe}'`);
-    return data;
+    return data[0];
   }
 
   async getAppointment(db: Knex, hn: any, dateServe: any) {
@@ -128,6 +126,6 @@ export class HisHomcModel {
     from Appoint a
     left join OPD_H p on( a.hn = p.hn and a.regNo = p.regNo) 
     where p.hn = '${hn}' and convert(date,convert(char,p.registDate -5430000)) = '${dateServe}'`);
-    return data;
+    return data[0];
   }
 }

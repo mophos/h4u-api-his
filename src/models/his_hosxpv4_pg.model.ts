@@ -1,7 +1,7 @@
 import Knex = require('knex');
 export class HisHosxpv4pgModel {
 
-  getHospital(db: Knex, hn: any) {
+  getHospital(db: Knex, providerCode:any, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }

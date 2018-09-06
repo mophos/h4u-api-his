@@ -10,7 +10,7 @@ import Knex = require('knex');
 // return data[0];
 // }
 export class HisMbaseModel {
-  async getHospital(db: Knex, hn: any) {
+  async getHospital(db: Knex, providerCode: any, hn: any) {
     let data = await db.raw(`
     SELECT
     a.offid as provider_code, b.HOSP_NAME as provider_name
@@ -44,7 +44,7 @@ export class HisMbaseModel {
     WHERE b.HN ='${hn}'`);
     return data[0];
 
-}
+  }
 
   async getServices(db: Knex, hn: any, dateServe: any) {
     let data = await db.raw(`

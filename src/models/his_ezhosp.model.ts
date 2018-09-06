@@ -20,7 +20,7 @@ export class HisEzhospModel {
             .where('visit.date', '=', dateServe);
     }
 
-    getHospital(db: Knex, hn: any) {
+    getHospital(db: Knex, providerCode: any, hn: any) {
         return db('sys_hospital')
             .select('hcode as provider_code', 'hname as provider_name')
             .limit(1);
