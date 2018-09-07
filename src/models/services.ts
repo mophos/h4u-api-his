@@ -5,7 +5,7 @@ export class ServicesModel {
   sendServices(token, services) {
     return new Promise((resolve: any, reject: any) => {
       var options = {
-        method: 'GET',
+        method: 'POST',
         url: `https://h4u.moph.go.th/api/officer/v1/services`,
         agentOptions: {
           rejectUnauthorized: false
