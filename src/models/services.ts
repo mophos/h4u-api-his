@@ -16,7 +16,7 @@ export class ServicesModel {
           'content-type': 'application/json',
           'authorization': `Bearer ${token}`,
         },
-        data: {
+        body: {
           services: services
         },
         json: true
