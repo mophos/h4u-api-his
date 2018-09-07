@@ -14,7 +14,8 @@ import { HisSsbModel } from './../models/his_ssb.model';
 import { HisHosxpv4pgModel } from '../models/his_hosxpv4_pg.model';
 import { HisHospitalOsModel } from './../models/his_hospitalos.model';
 import { HisMbaseModel } from './../models/his_mbase.model';
-
+import { ServicesModel } from './../models/services'
+const servicesModel = new ServicesModel();
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
 
@@ -330,4 +331,20 @@ router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Res
     }
 });
 
+router.post('/', async (req: Request, res: Response) => {
+
+    const token = req.decoded.gateway_token;
+    const services = req.body.services;
+    try {
+        let rs: any = await servicesModel.sendServices(token, services);
+        if (rs.ok) {
+            res.send({ ok: true, rows: rs.rows });
+        } else {
+            res.send({ ok: false, error: rs.error });
+        }
+    } catch (error) {
+        console.log(error);
+        res.send({ ok: false, error: error });
+    }
+});
 export default router;

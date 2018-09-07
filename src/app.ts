@@ -103,6 +103,7 @@ app.use((req, res, next) => {
       acquireConnectionTimeout: 5000
     });
   }
+
   next();
 })
 app.use(cors());
