@@ -70,43 +70,41 @@ let dbConnection: Knex.MySqlConnectionConfig = {
   database: process.env.DB_NAME
 }
 
-// app.use((req, res, next) => {
-//   let connectKnexconfig: any;
-//   if (process.env.DB_CLIENT === 'mssql') {
-//     connectKnexconfig = {
-//       client: process.env.DB_CLIENT,
-//       connection: dbConnection,
-//     };
-//     req.db = Knex(connectKnexconfig);
-//   } else if (process.env.DB_CLIENT === 'pg') {
-//     console.log("MSSQL Connect");
-//     connectKnexconfig = {
-//       client: process.env.DB_CLIENT,
-//       searchPath: ['knex', 'public'],
-//       connection: dbConnection,
-//     };
-//     req.db = Knex(connectKnexconfig);
-//   } else {
-//     req.db = Knex({
-//       client: process.env.DB_CLIENT,
-//       connection: dbConnection,
-//       pool: {
-//         min: 0,
-//         max: 7,
-//         afterCreate: (conn, done) => {
-//           conn.query('SET NAMES ' + process.env.DB_CHARSET, (err) => {
-//             done(err, conn);
-//           });
-//         }
-//       },
-//       debug: false,
-//       acquireConnectionTimeout: 5000
-//     });
-//   }
-
-
-//   next();
-// })
+app.use((req, res, next) => {
+  let connectKnexconfig: any;
+  if (process.env.DB_CLIENT === 'mssql') {
+    connectKnexconfig = {
+      client: process.env.DB_CLIENT,
+      connection: dbConnection,
+    };
+    req.db = Knex(connectKnexconfig);
+  } else if (process.env.DB_CLIENT === 'pg') {
+    console.log("MSSQL Connect");
+    connectKnexconfig = {
+      client: process.env.DB_CLIENT,
+      searchPath: ['knex', 'public'],
+      connection: dbConnection,
+    };
+    req.db = Knex(connectKnexconfig);
+  } else {
+    req.db = Knex({
+      client: process.env.DB_CLIENT,
+      connection: dbConnection,
+      pool: {
+        min: 0,
+        max: 7,
+        afterCreate: (conn, done) => {
+          conn.query('SET NAMES ' + process.env.DB_CHARSET, (err) => {
+            done(err, conn);
+          });
+        }
+      },
+      debug: false,
+      acquireConnectionTimeout: 5000
+    });
+  }
+  next();
+})
 app.use(cors());
 app.use('/', index);
 app.use('/login', loginRoutes);
