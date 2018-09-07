@@ -1,7 +1,7 @@
 'use strict';
 import * as path from 'path';
 let envPath = path.join(__dirname, '../h4u-config');
-require('dotenv').config({ envPath });
+require('dotenv').config({ path: envPath });
 import * as express from 'express';
 import * as favicon from 'serve-favicon';
 import * as logger from 'morgan';
