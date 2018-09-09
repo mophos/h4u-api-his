@@ -7,7 +7,7 @@ export class HisJhcisModel {
   getHospital(db: Knex, providerCode: any, hn: any) {
     return db('person as p')
       .innerJoin('chospital as c', 'p.pcucodeperson', 'c.hoscode')
-      .select('c.hoscode as hcode', 'c.hosname as hname')
+      .select('c.hoscode as provider_code', 'c.hosname as provider_name')
       .where('p.pid', hn)
   }
 
@@ -38,7 +38,7 @@ export class HisJhcisModel {
 
   getChronic(db: Knex, hn: any) {
     return db('personchronic as pc')
-      .select('pc.chroniccode as icd10_code', 'cd.diseasenamethai as icd10_desc')
+      .select('pc.chroniccode as icd_code', 'cd.diseasenamethai as icd_name')
       .innerJoin('cdisease as cd', 'pc.chroniccode', 'cd.diseasecode')
       .where('pc.pid', hn);
   }
@@ -58,7 +58,7 @@ export class HisJhcisModel {
 
   getServices(db: Knex, hn, dateServe) {
     return db('visit as v')
-      .select(db.raw(`v.visitdate as date_serv, time_format(v.timestart, '%H:%i') as time_serv, "" as clinic,
+      .select(db.raw(`v.visitdate as date_serv, time_format(v.timestart, '%H:%i:%s') as time_serv, "" as clinic,
           v.visitno as seq, v.weight, v.height, substring_index(v.pressure, '/', 1) as dbp,
           substring_index(v.pressure, '/', -1) as sbp, round(((v.weight) / ((v.height / 100) * (v.height / 100))), 2) as bmi,
           v.vitalcheck as pe, v.refertohos as hcode_to,
