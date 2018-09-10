@@ -15,6 +15,7 @@ import { HisHosxpv4pgModel } from '../models/his_hosxpv4_pg.model';
 import { HisHospitalOsModel } from './../models/his_hospitalos.model';
 import { HisMbaseModel } from './../models/his_mbase.model';
 import { ServicesModel } from './../models/services'
+import { HospitalosModel } from './../models/his_hospital_os';
 const servicesModel = new ServicesModel();
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
@@ -91,6 +92,9 @@ switch (provider) {
         break;
     case 'mbase':
         hisModel = new HisMbaseModel();
+        break;
+    case 'hospitalos':
+        hisModel = new HospitalosModel();
         break;
     default:
     // hisModel = new HisModel();
