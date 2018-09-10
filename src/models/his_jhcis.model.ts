@@ -93,7 +93,7 @@ export class HisJhcisModel {
 
   getAppointment(db: Knex, hn: any, dateServ: any, visitno: any) {
     return db('visitdiagappoint')
-      .select(db.raw(`visitno,appodate as date ,"" as time, appotype ,
+      .select(db.raw(`visitno,appodate as date ,"00:00:00" as time, appotype , "00:00:00" as time_serv,
     (case appotype when "1" then "รับยาฯ"
     when "2" then "ฟังผล(Follow Up)"
     when "3" then "ทำแผล/ล้างแผล"
@@ -133,7 +133,8 @@ export class HisJhcisModel {
 
   getVaccine(db: Knex, hn) {
     return db('visitepi as v')
-      .select('v.vaccinecode as vaccine_code', 'd.drugname as vaccine_name', 'v.dateepi as date_serv')
+      .select('v.vaccinecode as vaccine_code', 'd.drugname as vaccine_name', 'v.dateepi as date_serv',
+      db.raw(`'00:00:00' as time_serv`))
       .leftJoin('cdrug as d', 'v.vaccinecode', 'd.drugcode')
       .where('v.pid', hn)
   }
