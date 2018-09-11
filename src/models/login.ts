@@ -1,6 +1,6 @@
 const request = require("request");
 // import * as jwt from 'jsonwebtoken'
-import * as bcrypt from 'bcrypt';
+// import * as bcrypt from 'bcrypt';
 ;
 
 export class LoginModel {
@@ -34,12 +34,12 @@ export class LoginModel {
     });
   }
 
-  async compareHash(password, hash) {
-    if (bcrypt.compareSync(password, hash)) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  // async compareHash(password, hash) {
+  //   if (bcrypt.compareSync(password, hash)) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
 }
