@@ -22,11 +22,6 @@ export class HisModel {
     // return [{hn:'',cid:'',title_name:'',first_name:'',last_name:''}]
   }
 
-  getProfile(db: Knex, hn: any) {
-    // ชื่อ
-    // return [{hn:'',cid:'',title_name:'',first_name:'',last_name:''}]
-  }
-
   async getServices(db: Knex, hn: any, dateServe: any) {
     // 
   }
