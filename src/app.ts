@@ -1,8 +1,8 @@
 'use strict';
-require('dotenv').config();
-
-import * as express from 'express';
 import * as path from 'path';
+let envPath = path.join(__dirname, '../h4u-config');
+require('dotenv').config({ path: envPath });
+import * as express from 'express';
 import * as favicon from 'serve-favicon';
 import * as logger from 'morgan';
 import * as cookieParser from 'cookie-parser';
@@ -10,6 +10,9 @@ import * as bodyParser from 'body-parser';
 import index from './routes/index';
 import loginRoutes from './routes/login';
 import servicesRoute from './routes/services';
+import requestsRoute from './routes/requests';
+import staffRoute from './routes/staff';
+import standardRoute from './routes/standard';
 import * as ejs from 'ejs';
 import { JwtModel } from './models/jwt';
 import Knex = require('knex');
@@ -36,6 +39,7 @@ app.use(cors());
 // Check Token 
 let checkAuth = (req, res, next) => {
   let token: string = null;
+  // console.log(req.headers.authorization);
 
   if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
     token = req.headers.authorization.split(' ')[1];
@@ -67,28 +71,48 @@ let dbConnection: Knex.MySqlConnectionConfig = {
 }
 
 app.use((req, res, next) => {
-  req.db = Knex({
-    client: process.env.DB_CLIENT,
-    connection: dbConnection,
-    pool: {
-      min: 0,
-      max: 7,
-      afterCreate: (conn, done) => {
-        conn.query('SET NAMES ' + process.env.DB_CHARSET, (err) => {
-          done(err, conn);
-        });
-      }
-    },
-    debug: false,
-    acquireConnectionTimeout: 5000
-  });
+  let connectKnexconfig: any;
+  if (process.env.DB_CLIENT === 'mssql') {
+    connectKnexconfig = {
+      client: process.env.DB_CLIENT,
+      connection: dbConnection,
+    };
+    req.db = Knex(connectKnexconfig);
+  } else if (process.env.DB_CLIENT === 'pg') {
+    console.log("MSSQL Connect");
+    connectKnexconfig = {
+      client: process.env.DB_CLIENT,
+      searchPath: ['knex', 'public'],
+      connection: dbConnection,
+    };
+    req.db = Knex(connectKnexconfig);
+  } else {
+    req.db = Knex({
+      client: process.env.DB_CLIENT,
+      connection: dbConnection,
+      pool: {
+        min: 0,
+        max: 7,
+        afterCreate: (conn, done) => {
+          conn.query('SET NAMES ' + process.env.DB_CHARSET, (err) => {
+            done(err, conn);
+          });
+        }
+      },
+      debug: false,
+      acquireConnectionTimeout: 5000
+    });
+  }
 
   next();
 })
 app.use(cors());
 app.use('/', index);
-app.use('/services', servicesRoute);
 app.use('/login', loginRoutes);
+app.use('/services', checkAuth, servicesRoute);
+app.use('/requests', checkAuth, requestsRoute);
+app.use('/staff', checkAuth, staffRoute);
+app.use('/standard', checkAuth, standardRoute);
 
 
 

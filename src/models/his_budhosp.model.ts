@@ -12,7 +12,7 @@ import Knex = require('knex');
 // }
 export class HisBudhospModel {
 
-  getHospital(db: Knex, hn: any) {
+  getHospital(db: Knex, providerCode: any, hn: any) {
     // ชื่อสถานพยาบาล
     // return [{provider_code:'',provider_name:''}]
   }
@@ -24,12 +24,12 @@ export class HisBudhospModel {
 
   getChronic(db: Knex, hn: any) {
     // โรคเรื้อรัง
-    // return [{icd_code:'',icd_desc:'',start_date:''}]
+    // return [{icd_code:'',icd_name:'',start_date:''}]
   }
 
 
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
-    // return [{icd_code:'',icd_desc:'',diage_type:''}]
+    // return [{icd_code:'',icd_name:'',diage_type:''}]
   }
 
   getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
@@ -42,7 +42,7 @@ export class HisBudhospModel {
   }
 
   getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
-    // return [{lab_name:'',lab_result:'',standard_result:'',seq:'',time_serv:'',date_serve:''}]
+    // return [{lab_name:'',lab_result:'',standard_result:'',seq:'',time_serv:'',date_serv:''}]
   }
 
 
@@ -51,7 +51,7 @@ export class HisBudhospModel {
   }
 
   getVaccine(db: Knex, hn: any) {
-    // return [{date_serve:'',time_serv'',vaccine_code:'',vaccine_name:''}]]
+    // return [{date_serv:'',time_serv'',vaccine_code:'',vaccine_name:''}]]
   }
 
 }

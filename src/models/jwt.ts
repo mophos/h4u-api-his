@@ -10,6 +10,10 @@ export class JwtModel {
     return token;
   }
 
+  decode(token) {
+    let decode = jwt.decode(token);
+    return decode;
+  }
   verify(token: string) {
     return new Promise((resolve, reject) => {
       jwt.verify(token, this.secretKey, (err, decoded) => {

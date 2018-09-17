@@ -4,7 +4,7 @@ const dbName = process.env.HIS_DB_NAME;
 
 export class HisJhosModel {
 
-  getHospital(db: Knex, hn: any) {
+  getHospital(db: Knex, providerCode: any, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
   }
@@ -40,13 +40,13 @@ export class HisJhosModel {
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
       .where('pa.hn', hn);
   }
-  getSeq(db: Knex, date_serve: any, hn: any) {
+  getSeq(db: Knex, dateServ: any, hn: any) {
 
     let sql = `select o.vn as seq ,o.vstdate as date ,o.vsttime as time,k.department
     from ovst as o
     left outer join kskdepartment as k on k.depcode = o.main_dep 
     where DATE(o.vstdate) = ? and o.hn = ?`;
-    return db.raw(sql, [date_serve, hn]);
+    return db.raw(sql, [dateServ, hn]);
   }
 
   getDate(db: Knex, vn: any) {

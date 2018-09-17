@@ -10,3 +10,4 @@ apps/*
 .env
 app/*
 package-lock.json
+h4u-config

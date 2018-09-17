@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import * as moment from 'moment';
 // model
+import { HisEzhospModel } from './../models/his_ezhosp.model';
 import { HisJhcisModel } from './../models/his_jhcis.model';
 import { HisHosxpv3Model } from './../models/his_hosxpv3.model';
 import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
@@ -9,19 +10,37 @@ import { HisJhosModel } from './../models/his_jhos.model';
 import { HisHomcModel } from './../models/his_homc.model';
 import { HisBudhospModel } from './../models/his_budhosp.model';
 import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
-
+import { HisSsbModel } from './../models/his_ssb.model';
+import { HisHosxpv4pgModel } from '../models/his_hosxpv4_pg.model';
+import { HisHospitalOsModel } from './../models/his_hospitalos.model';
+import { HisMbaseModel } from './../models/his_mbase.model';
+import { ServicesModel } from './../models/services'
+import { HospitalosModel } from './../models/his_hospital_os';
+const servicesModel = new ServicesModel();
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
 
 router.get('/', (req, res, next) => {
-    res.render('index', { title: 'MOPH H4U API' });
+    console.log('decoded', req.decoded);
+
+    res.send({ title: 'MOPH H4U API' });
+});
+
+router.get('/testenv', (req, res, next) => {
+    try {
+        let db = req.db;
+        res.send({ ok: true, rows: db });
+
+    } catch (error) {
+        res.send({ ok: false, error: error });
+    }
 });
 
 // ห้ามแก้ไข // 
 let hisModel: any;
 switch (provider) {
     case 'ezhosp':
-        // hisModel = new HisEzhospModel();
+        hisModel = new HisEzhospModel();
         break;
     case 'hosxpv3':
         hisModel = new HisHosxpv3Model();
@@ -29,8 +48,11 @@ switch (provider) {
     case 'hosxpv4':
         hisModel = new HisHosxpv4Model();
         break;
+    case 'hosxpv4pg':
+        hisModel = new HisHosxpv4pgModel();
+        break;
     case 'ssb':
-        // hisModel = new HisSsbModel();
+        hisModel = new HisSsbModel();
         break;
     case 'infod':
         // hisModel = new HisInfodModel();
@@ -48,7 +70,7 @@ switch (provider) {
         hisModel = new HisHosxppcuModel();
         break;
     case 'hospitalos':
-        // hisModel = new HisHospitalOsModel();
+        hisModel = new HisHospitalOsModel();
         break;
     case 'jhos':
         hisModel = new HisJhosModel();
@@ -68,24 +90,32 @@ switch (provider) {
     case 'budhosp':
         hisModel = new HisBudhospModel();
         break;
+    case 'mbase':
+        hisModel = new HisMbaseModel();
+        break;
+    case 'hospitalos':
+        hisModel = new HospitalosModel();
+        break;
     default:
     // hisModel = new HisModel();
 }
 
 // ห้ามแก้ไข // 
-router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Response) => {
+router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Response) => {
     let db = req.db;
     let hn = req.params.hn;
-    let dateServe = req.params.dateServe;
+    let dateServ = req.params.dateServ;
     let uid = req.params.uid;
     let requestId = req.params.request_id;
     let objService: any = {};
     let providerCode;
     let providerName;
     let profile = [];
-    if (requestId && hn && dateServe && uid) {
+
+    let providerCodeToken = req.decoded.provider_code;
+    if (requestId && hn && dateServ && uid) {
         try {
-            let rs_hospital: any = await hisModel.getHospital(db, hn);
+            let rs_hospital: any = await hisModel.getHospital(db, providerCodeToken, hn);
             if (rs_hospital.length) {
                 providerCode = rs_hospital[0].provider_code;
                 providerName = rs_hospital[0].provider_name;
@@ -103,7 +133,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         "uid": uid,
                         "provider_code": providerCode,
                         "provider_name": providerName,
-                        "date_serv": moment(rv.date_serve).format('YYYY-MM-DD'),
+                        "date_serv": moment(rv.date_serv).format('YYYY-MM-DD'),
                         "time_serv": rv.time_serv,
                         "vaccine_code": rv.vaccine_code,
                         "vaccine_name": rv.vaccine_name
@@ -149,38 +179,37 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 objService.allergy = allergy;
             }
 
-            let rs_services: any = await hisModel.getServices(db, hn, dateServe);
+            let rs_services: any = await hisModel.getServices(db, hn, dateServ);
             // console.log('Service : ', rs_services);
             if (rs_services.length) {
+                const diagnosis = [];
+                const drugs = [];
+                const lab = [];
+                const procedure = [];
+                const appointment = [];
+                const refer = [];
                 for (const v of rs_services) {
-                    const diagnosis = [];
-                    const drugs = [];
-                    const lab = [];
-                    const procedure = [];
-                    let appointment: any = [];
-                    let refer: any = [];
-
-                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServe, v.seq);
+                    const rs_diagnosis = await hisModel.getDiagnosis(db, hn, dateServ, v.seq);
                     if (rs_diagnosis.length) {
                         for (const rg of rs_diagnosis) {
                             const objDiagnosis = {
-                                request_id: requestId,
-                                uid: uid,
-                                provider_code: providerCode,
-                                provider_name: providerName,
-                                seq: rg.seq,
-                                date_serv: moment(rg.date_serve).format('YYYY-MM-DD'),
-                                time_serv: rg.time_serv,
-                                icd_code: rg.icd_code,
-                                icd_name: rg.icd_desc,
-                                diag_type: rg.diag_type,
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rg.seq,
+                                "date_serv": moment(rg.date_serv).format('YYYY-MM-DD'),
+                                "time_serv": rg.time_serv,
+                                "icd_code": rg.icd_code,
+                                "icd_name": rg.icd_name,
+                                "diag_type": rg.diag_type
                             }
                             diagnosis.push(objDiagnosis);
                         }
                         objService.diagnosis = diagnosis;
                     }
 
-                    const rs_procedure = await hisModel.getProcedure(db, hn, dateServe, v.seq)
+                    const rs_procedure = await hisModel.getProcedure(db, hn, dateServ, v.seq)
                     if (rs_procedure.length) {
                         for (const rp of rs_procedure) {
                             const objProcedure = {
@@ -189,13 +218,13 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
                                 "seq": rp.seq,
-                                "date_serv": moment(rp.date_serve).format('YYYY-MM-DD'),
+                                "date_serv": moment(rp.date_serv).format('YYYY-MM-DD'),
                                 "time_serv": rp.time_serv,
                                 "procedure_code": rp.procedure_code,
                                 "procedure_name": rp.procedure_name,
                                 "start_date": moment(rp.start_date).format('YYYY-MM-DD'),
                                 "start_time": rp.start_time,
-                                "end_date": moment(rp.end_date).format('YYYY-MM-DD'),
+                                "end_date": rp.end_date ? moment(rp.end_date).format('YYYY-MM-DD') : rp.end_date,
                                 "end_time": rp.end_time
                             }
                             procedure.push(objProcedure);
@@ -204,7 +233,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_drugs = await hisModel.getDrugs(db, hn, dateServe, v.seq);
+                    const rs_drugs = await hisModel.getDrugs(db, hn, dateServ, v.seq);
                     if (rs_drugs.length) {
                         for (const rd of rs_drugs) {
                             const objDrug = {
@@ -213,7 +242,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
                                 "seq": rd.seq,
-                                "date_serv": moment(rd.date_serve).format('YYYY-MM-DD'),
+                                "date_serv": moment(rd.date_serv).format('YYYY-MM-DD'),
                                 "time_serv": rd.time_serv,
                                 "drug_name": rd.drug_name,
                                 "qty": rd.qty,
@@ -228,7 +257,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                     }
 
 
-                    const rs_lab = await hisModel.getLabs(db, hn, dateServe, v.seq);
+                    const rs_lab = await hisModel.getLabs(db, hn, dateServ, v.seq);
                     if (rs_lab.length) {
                         for (const rl of rs_lab) {
                             const objLab = {
@@ -237,7 +266,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                                 "provider_code": providerCode,
                                 "provider_name": providerName,
                                 "seq": rl.seq,
-                                "date_serv": moment(rl.date_serve).format('YYYY-MM-DD'),
+                                "date_serv": moment(rl.date_serv).format('YYYY-MM-DD'),
                                 "time_serv": rl.time_serv,
                                 "lab_name": rl.lab_name,
                                 "lab_result": rl.lab_result,
@@ -248,39 +277,44 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                         objService.lab = lab;
                     }
 
-
-                    const rs_app = await hisModel.getAppointment(db, hn, dateServe, v.seq);
-                    if (rs_app.length) {
-                        appointment = {
-                            "request_id": requestId,
-                            "uid": uid,
-                            "provider_code": providerCode,
-                            "provider_name": providerName,
-                            "seq": rs_app[0].seq,
-                            "date_serv": moment(rs_app[0].date_serve).format('YYYY-MM-DD'),
-                            "time_serv": rs_app[0].time_serv,
-                            "clinic": rs_app[0].department,
-                            "appoint_date": moment(rs_app[0].date).format('YYYY-MM-DD'),
-                            "appoint_time": rs_app[0].time,
-                            "detail": rs_app[0].detail
+                    const rs_apps = await hisModel.getAppointment(db, hn, dateServ, v.seq);
+                    if (rs_apps && rs_apps.length > 0) {
+                        for (const rs_app of rs_apps) {
+                            const objAppointment = {
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rs_app.seq,
+                                "date_serv": moment(rs_app.date_serv).format('YYYY-MM-DD'),
+                                "time_serv": rs_app.time_serv,
+                                "clinic": rs_app.department,
+                                "appoint_date": moment(rs_app.date).format('YYYY-MM-DD'),
+                                "appoint_time": rs_app.time,
+                                "detail": rs_app.detail
+                            }
+                            appointment.push(objAppointment);
                         }
                         objService.appointment = appointment;
                     }
 
-                    const rs_refer = await hisModel.getRefer(db, hn, dateServe, v.seq);
-                    if (rs_refer.length) {
-                        refer = {
-                            "request_id": requestId,
-                            "uid": uid,
-                            "provider_code": providerCode,
-                            "provider_name": providerName,
-                            "seq": rs_refer[0].seq,
-                            "date_serv": moment(rs_refer[0].date_serve).format('YYYY-MM-DD'),
-                            "time_serv": rs_refer[0].time_serv,
-                            "to_provider_code": rs_refer[0].depto_provider_codeartment,
-                            "to_provider_name": rs_refer[0].to_provider_name,
-                            "reason": rs_refer[0].refer_cause,
-                            "start_date": moment(rs_refer[0].date_serv).format('YYYY-MM-DD')
+                    const rs_refers = await hisModel.getRefer(db, hn, dateServ, v.seq);
+                    if (rs_refers && rs_refers.length > 0) {
+                        for (const rs_refer of rs_refers) {
+                            const objRefer = {
+                                "request_id": requestId,
+                                "uid": uid,
+                                "provider_code": providerCode,
+                                "provider_name": providerName,
+                                "seq": rs_refer.seq,
+                                "date_serv": moment(rs_refer.date_serv).format('YYYY-MM-DD'),
+                                "time_serv": rs_refer.time_serv,
+                                "to_provider_code": rs_refer.depto_provider_codeartment,
+                                "to_provider_name": rs_refer.to_provider_name,
+                                "reason": rs_refer.refer_cause,
+                                "start_date": moment(rs_refer.date_serv).format('YYYY-MM-DD')
+                            }
+                            refer.push(objRefer);
                         }
                         objService.refer = refer;
                     }
@@ -293,6 +327,7 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
                 res.send({ ok: false });
             }
         } catch (error) {
+            console.log(error);
             res.send({ ok: false, error: error.message });
         }
     } else {
@@ -300,4 +335,20 @@ router.get('/view/:hn/:dateServe/:request_id/:uid', async (req: Request, res: Re
     }
 });
 
+router.post('/', async (req: Request, res: Response) => {
+
+    const token = req.decoded.gateway_token;
+    const services = req.body.services;
+    try {
+        let rs: any = await servicesModel.sendServices(token, services);
+        if (rs.ok) {
+            res.send({ ok: true, rows: rs.rows });
+        } else {
+            res.send({ ok: false, error: rs.error });
+        }
+    } catch (error) {
+        console.log(error);
+        res.send({ ok: false, error: error });
+    }
+});
 export default router;
