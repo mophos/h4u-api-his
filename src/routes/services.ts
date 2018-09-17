@@ -111,6 +111,7 @@ router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Res
     let providerCode;
     let providerName;
     let profile = [];
+
     let providerCodeToken = req.decoded.provider_code;
     if (requestId && hn && dateServ && uid) {
         try {
@@ -123,7 +124,6 @@ router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Res
             if (rs_profile.length) {
                 profile = rs_profile;
             }
-
             const rs_vaccine: any = await hisModel.getVaccine(db, hn);
             if (rs_vaccine.length) {
                 let vaccines: any = [];

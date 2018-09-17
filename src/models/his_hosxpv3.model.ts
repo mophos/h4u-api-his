@@ -125,6 +125,7 @@ export class HisHosxpv3Model {
       .innerJoin('ovst as o', 'o.vn', 'h.vn')
       .innerJoin('lab_items as ls', 'ls.lab_items_code', 'l.lab_items_code')
       .where('h.vn', vn)
+      .whereNotNull('l.lab_order_result');
   }
 
   getVaccine(db: Knex, hn: any) {
