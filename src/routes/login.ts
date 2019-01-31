@@ -9,33 +9,39 @@ const jwtModel = new JwtModel();
 
 
 router.post('/', async (req, res, next) => {
-  const db = req.db;
+  // const db = req.db;
   const username: any = req.body.username;
   const password: any = req.body.password;
   try {
-    let rs: any = await loginModel.smartHealhtLogin(username, password);
-    console.log(rs);
-
-    if (rs) {
-      if (rs.jwt_token) {
-        let payload = {
-          fullname: `${rs.user.name} ${rs.user.last_name}`,
-          job_position: rs.user.job_position,
-          email: rs.user.email,
-          enabled: rs.user.enabled,
-          token: rs.jwt_token,
-          hospcode: rs.user.code
-        }
+    let rs: any = await loginModel.h4uLogin(username, password);
+    if (rs.ok) {
+      if (rs.token) {
+        let deToken = jwtModel.decode(rs.token);
+        let payload: any = {};
+        payload.gateway_token = rs.token;
+        payload.fullname = deToken.fullname
+        payload.job_position = deToken.job_position;
+        payload.email = deToken.email;
+        payload.enabled = deToken.enabled;
+        payload.hospcode = deToken.code;
+        payload.provider_code = deToken.provider_code;
+        payload.provider_name = deToken.provider_name;
+        payload.status = deToken.status;
+        payload.is_admin = deToken.is_admin;
+        payload.is_staff = deToken.is_staff;
+        payload.permissions = deToken.permissions;
+        payload.is_member = deToken.status;
         let token = jwtModel.sign(payload);
         res.send({ ok: true, token: token });
       } else {
         res.send({ ok: false, error: `status: ${rs.status} - ${rs.message}` });
       }
     } else {
-      res.send({ ok: false, error: 'เกิดข้อผิดพลาด' })
+      res.send({ ok: false, error: rs.error });
     }
   } catch (error) {
     console.log(error);
+    res.send({ ok: false, error: error });
   }
 });
 

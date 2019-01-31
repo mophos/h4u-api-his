@@ -12,19 +12,19 @@ import Knex = require('knex');
 
 export class HisHosxppcuModel {
 
-  getHospital(db: Knex, hn: any) {
+  getHospital(db: Knex, providerCode: any, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
   getProfile(db: Knex, hn: any) {
     return db('patient')
-    .select('pname as title_name', 'fname as first_name', 'lname as last_name')
-    .where('hn', hn)
+      .select('pname as title_name', 'fname as first_name', 'lname as last_name')
+      .where('hn', hn)
   }
 
   getServices(db: Knex, hn, dateServe) {
     return db('ovst as v')
-      .select('v.vn as seq','v.vstdate as date_serve', 'v.vsttime as time_serv')
+      .select('v.vn as seq', 'v.vstdate as date_serv', 'v.vsttime as time_serv')
       .where('v.hn', hn)
       .where('v.vstdate', dateServe)
   }
@@ -84,7 +84,7 @@ export class HisHosxppcuModel {
   getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('referout as r')
       .select('o.vn as seq', 'o.vstdate as date_serv',
-        'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name','c.name as refer_cause')
+        'o.vsttime as time_serv', 'r.refer_hospcode as to_provider_code', 'h.name as to_provider_name', 'c.name as refer_cause')
       .innerJoin('refer_cause as c', 'c.id', 'r.refer_cause')
       .innerJoin('ovst as o ', 'o.vn', 'r.vn')
       .innerJoin('hospcode as h', 'h.hospcode', 'r.refer_hospcode')
@@ -114,14 +114,14 @@ export class HisHosxppcuModel {
 
   getVaccine(db: Knex, hn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serv,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`l.vaccine_date as date_serv,'' as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')
       .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
       .where('o.hn', hn)
       .union(function () {
-        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
+        this.select(db.raw(`o.vstdate as date_serv,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
           .innerJoin('ovst as o', 'o.vn', 'l.vn')
           .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
           .from('ovst_vaccine as l')

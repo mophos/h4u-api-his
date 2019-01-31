@@ -12,15 +12,15 @@ import Knex = require('knex');
 
 export class HisHosxpv3Model {
 
-  getHospital(db: Knex, hn: any) {
+  getHospital(db: Knex, providerCode: any, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
-  
+
   getProfile(db: Knex, hn: any) {
     return db('patient')
-    .select('pname as title_name', 'fname as first_name', 'lname as last_name')
-    .where('hn', hn)
+      .select('hn', 'cid', 'pname as title_name', 'fname as first_name', 'lname as last_name')
+      .where('hn', hn)
   }
 
   // getServices(db: Knex, hn, dateServe) {
@@ -44,24 +44,17 @@ export class HisHosxpv3Model {
 
   getChronic(db: Knex, hn: any) {
     return db('person_chronic as pc')
-      .select('pc.regdate as start_date', 'pc.icd10 as icd10_code', 'i.name as icd_name')
+      .select('pc.regdate as start_date', 'pc.icd10 as icd_code', 'i.name as icd_name')
       .leftOuterJoin('person as pe', 'pe.person_id', '=', 'pc.person_id')
       .leftOuterJoin('patient as pa', 'pa.cid', '=', 'pe.cid')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'pc.icd10')
       .where('pa.hn', hn);
   }
 
-  getDiagnosis(db: Knex, hn: any ,dateServe:any, vn: any) {
-    // console.log( db('ovstdiag as o')
-    // .select('o.vn as seq', 'o.vstdate as date_serv',
-    //   'o.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_desc', 't.name as diag_type')
-    // .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
-    // .leftOuterJoin('diagtype as t', 't.diagtype', 'o.diagtype')
-    // .where('o.vn', vn)
-    // .andWhere('i.code', '=', 'o.icd10').toString())
+  getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ovstdiag as o')
       .select('o.vn as seq', 'o.vstdate as date_serv',
-        'o.vsttime as time_serv', 'o.icd10 as icd_code', 'i.name as icd_desc', 't.name as diag_type')
+        'o.vsttime as time_serv', 'o.icd10 as icd_code', db.raw('if(i.tname is not null,i.tname,i.name) as icd_name'), 't.name as diag_type')
       .join('icd101 as i', 'i.code', '=', 'o.icd10')
       .join('diagtype as t', 't.diagtype', 'o.diagtype')
       .where('o.vn', vn);
@@ -126,23 +119,25 @@ export class HisHosxpv3Model {
   getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('lab_order as l')
       .select('o.vstdate as date_serv', 'o.vsttime as time_serv',
-        'o.vn as seq', 'l.lab_items_name_ref as lab_name', 'l.lab_order_result as lab_result',
-        'l.lab_items_normal_value_ref as standard_result')
+        'o.vn as seq', 'ls.lab_items_name as lab_name', 'l.lab_order_result as lab_result',
+        db.raw('ifnull(ls.lab_items_normal_value,"") as standard_result'))
       .innerJoin('lab_head as h', 'h.lab_order_number', 'l.lab_order_number')
       .innerJoin('ovst as o', 'o.vn', 'h.vn')
+      .innerJoin('lab_items as ls', 'ls.lab_items_code', 'l.lab_items_code')
       .where('h.vn', vn)
+      .whereNotNull('l.lab_order_result');
   }
 
   getVaccine(db: Knex, hn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`l.vaccine_date as date_serve,'' as time_serv,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`l.vaccine_date as date_serv,'' as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')
       .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
       .where('o.hn', hn)
       .union(function () {
-        this.select(db.raw(`o.vstdate as date_serve,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
+        this.select(db.raw(`o.vstdate as date_serv,o.vsttime as time_serv,v.vaccine_code,v.vaccine_name`))
           .innerJoin('ovst as o', 'o.vn', 'l.vn')
           .innerJoin('person_vaccine as v', 'v.person_vaccine_id', 'l.person_vaccine_id')
           .from('ovst_vaccine as l')

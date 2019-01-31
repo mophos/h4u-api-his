@@ -37,7 +37,7 @@ export class HisHiModel {
     }
 
 
-    getHospital(db: Knex, hn: any) {
+    getHospital(db: Knex, providerCode: any, hn: any) {
         return db('setup as s')
             .select('s.hcode as provider_code', 'h.namehosp as provider_name')
             .leftJoin('hospcode as h', 'h.off_id', '=', 's.hcode')
@@ -51,7 +51,8 @@ export class HisHiModel {
 
     getChronic(db: Knex, hn: any) {
         return db('chronic as c')
-            .select('c.chronic as icd_code', 'i.name_t as icd_name', 'c.date_diag as start_date')
+            .select('c.chronic as icd_code', 'c.date_diag as start_date')
+            .select(db.raw(`IF(i.name_t!='', i.name_t, "-") as icd_name`))
             .innerJoin('icd101 as i', 'i.icd10', '=', 'c.chronic')
             .where('c.pid', hn);
     }
@@ -59,9 +60,11 @@ export class HisHiModel {
 
     getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('ovstdx as o')
-            .select('o.vn as seq', 'ovst.vstdttm as date_serv', 'o.icd10 as icd_code', 'o.icd10name as icd_desc', 'o.cnt as diag_type')
+            .select('o.vn as seq', 'ovst.vstdttm as date_serv', 'o.icd10 as icd_code', 'o.cnt as diag_type')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
+            .select(db.raw(`IF(o.icd10name!='', o.icd10name, i.icd10name) as icd_name`))
             .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
+            .innerJoin('icd101 as i', 'i.icd10', '=', 'o.icd10')
             .where('o.vn', seq);
     }
 
@@ -78,11 +81,14 @@ export class HisHiModel {
 
     async getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
         let data = await db.raw(`
-        select p.vn as seq,p.prscdate as date_serv,
+        select p.vn as seq,
+        DATE_FORMAT(date(p.prscdate),'%Y%m%d') as date_serv,
         DATE_FORMAT(time(p.prsctime),'%h:%i:%s') as time_serv, 
-        pd.nameprscdt as drug_name,pd.qty as qty, med.pres_unt as unit ,
-        IF(m.doseprn1!='', m.doseprn1, "") as usage_line1 ,
-        IF(m.doseprn2!='', m.doseprn2, "") as usage_line2,
+        pd.nameprscdt as drug_name,
+        pd.qty as qty, 
+        med.pres_unt as unit ,
+        IF(m.doseprn1!='', m.doseprn1, 'no list') as usage_line1 ,
+        IF(m.doseprn2!='', m.doseprn2, 'no list') as usage_line2,
         '' as usage_line3
         FROM prsc as p 
         Left Join prscdt as pd ON pd.PRSCNO = p.PRSCNO 
@@ -177,10 +183,12 @@ export class HisHiModel {
         o.vn as seq,
         DATE_FORMAT(date(o.vstdttm),'%Y%m%d') as date_serv,	
         DATE_FORMAT(time(o.nrxtime),'%h:%i:%s') as time_serv, 
-        p.icd9cm as procedcode,	
-        p.icd9name as procedname,
+        p.icd9cm as procedure_code,	
+        p.icd9name as procedure_name,
         DATE_FORMAT(date(p.opdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time
+        DATE_FORMAT(time(p.opdttm),'%h:%i:%s') as start_time,
+        DATE_FORMAT(date(p.opdttm),'%Y%m%d') as end_date,
+        '00:00:00' as end_time
     from
         hi.ovst o 
     inner join 
@@ -197,17 +205,19 @@ export class HisHiModel {
     where 
     o.vn = '${seq}' and p.an = 0 
     group by 
-        p.vn,p.icd9cm 
+        p.vn,procedure_code
     UNION 
     SELECT 
         o.hn as pid,
         o.vn as seq,
         DATE_FORMAT(date(o.vstdttm),'%Y%m%d') as date_serv,
         DATE_FORMAT(time(o.nrxtime),'%h:%i:%s') as time_serv, 
-        i.ICD10TM as procedcode,
-        i.name_Tx as procedname,
+        i.ICD10TM as procedure_code,
+        i.name_Tx as procedure_name,
         DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as start_date,	
-        DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time
+        DATE_FORMAT(time(dt.vstdttm),'%h:%i:%s') as start_time,
+        DATE_FORMAT(date(dt.vstdttm),'%Y%m%d') as end_date,
+        '00:00:00' as end_time
     
     FROM
         hi.dtdx 
@@ -223,7 +233,7 @@ export class HisHiModel {
     where 
         o.vn = '${seq}'
     group by 
-        dtdx.dn,procedcode
+        dtdx.dn,procedure_code
         `);
         return data[0];
     }
