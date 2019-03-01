@@ -5,7 +5,7 @@ const dbName = process.env.HIS_DB_NAME;
 export class HisSsbModel {
 
   async getHospital(db: Knex, providerCode:any, hn: any) {
-    let data = await db.raw(`SELECT CODE as provider_code,right(THAINAME,LEN(THAINAME)-1) as provider_name from SYSCONFIG WHERE CTRLCODE='20010' and CODE='10672'`);
+    let data = await db.raw(`SELECT CODE as provider_code,right(THAINAME,LEN(THAINAME)-1) as provider_name from SYSCONFIG WHERE CTRLCODE='20010' and CODE='${providerCode}'`);
     return data[0];
   }
 
