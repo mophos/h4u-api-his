@@ -16,6 +16,8 @@ import { HisHospitalOsModel } from './../models/his_hospitalos.model';
 import { HisMbaseModel } from './../models/his_mbase.model';
 import { ServicesModel } from './../models/services'
 import { HospitalosModel } from './../models/his_hospital_os';
+import { HisNanhospModel } from './../models/his_nanhospitalsute.model';
+
 const servicesModel = new ServicesModel();
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
@@ -95,6 +97,9 @@ switch (provider) {
         break;
     case 'hospitalos':
         hisModel = new HospitalosModel();
+        break;
+    case 'nanhis':
+        hisModel = new HisNanhospModel();
         break;
     default:
     // hisModel = new HisModel();
