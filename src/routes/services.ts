@@ -11,6 +11,7 @@ import { HisHomcModel } from './../models/his_homc.model';
 import { HisBudhospModel } from './../models/his_budhosp.model';
 import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
 import { HisSsbModel } from './../models/his_ssb.model';
+import { HisSsb2Model } from './../models/his_ssb2.model';
 import { HisHosxpv4pgModel } from '../models/his_hosxpv4_pg.model';
 import { HisHospitalOsModel } from './../models/his_hospitalos.model';
 import { HisMbaseModel } from './../models/his_mbase.model';
@@ -53,6 +54,9 @@ switch (provider) {
         break;
     case 'ssb':
         hisModel = new HisSsbModel();
+        break;
+    case 'ssb2':
+        hisModel = new HisSsb2Model();
         break;
     case 'infod':
         // hisModel = new HisInfodModel();
