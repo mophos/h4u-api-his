@@ -3,13 +3,13 @@ export class HisSsb2Model {
 
   async getHospital(db: Knex, providerCode: any, hn: any) {
     let data = await db.raw(`SELECT CODE as provider_code,right(THAINAME,LEN(THAINAME)-1) as provider_name from SYSCONFIG WHERE CTRLCODE='20010' and CODE='${providerCode}'`);
-    return data[0];
+    return data;
   }
 
   async getProfile(db: Knex, hn: any) {
     let data = await db.raw(`SELECT '' as title_name,right(FIRSTname,len(FIRSTname)-1) as first_name,
 	    right(lastname,len(lastname)-1) as last_name from PATIENT_NAME where HN = '${hn}' and suffix='0'`);
-    return data[0];
+    return data;
   }
 
   async getVaccine(db: Knex, hn: any) {
@@ -18,14 +18,14 @@ export class HisSsb2Model {
 	    '' as vaccine_code,'' as vaccine_name 
 	    from VNMST 
 	    where VNMST.HN = '${hn}' `);
-    return data[0];
+    return data;
   }
 
   async getChronic(db: Knex, hn: any) {
     let data = await db.raw(`select top 1 '' as icd_code,'' as icd_name,'2018-05-05' as start_date
 	    from VNMST 
 	    where VNMST.HN = '${hn}'`);
-    return data[0];
+    return data;
   }
 
   async getAllergyDetail(db: Knex, hn: any) {
@@ -35,7 +35,7 @@ export class HisSsb2Model {
 	    inner join SSBSTOCK.DBO.STOCK_MASTER on PATIENT_ALLERGIC.MEDICINE = SSBSTOCK.DBO.STOCK_MASTER.STOCKCODE
 	    inner join SYSCONFIG on PATIENT_ALLERGIC.ADVERSEREACTIONS1 = SYSCONFIG.CODE and SYSCONFIG.CTRLCODE = '20028'
 	    where HN='${hn}'`);
-    return data[0];
+    return data;
   }
 
   async getServices(db: Knex, hn: any, dateServe: any) {
@@ -47,7 +47,7 @@ export class HisSsb2Model {
 	    from VNPRES 
 	    inner join VNMST on VNPRES.VISITDATE = VNMST.VISITDATE and VNPRES.VN = VNMST.VN
 	    where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
-    return data[0];
+    return data;
   }
 
   async getDiagnosis(db: Knex, hn: any, dateServe: any) {
@@ -66,13 +66,13 @@ export class HisSsb2Model {
 	    inner join VNMST on VNDIAG.VISITDATE = VNMST.VISITDATE and VNDIAG.VN = VNMST.VN
 	    inner join ICD_MASTER on VNDIAG.ICDCODE = ICD_MASTER.ICDCODE
 	    where VNMST.hn = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
-    return data[0];
+    return data;
   }
 
   async getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     let data = await db.raw(`select top 1 ''  as seq,'${dateServe}' as date_serv,'' as time_serv,'' as to_provider_code,'' as to_provider_name,'' as reason,
     '' as start_date from VNMST where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
-    return data[0];
+    return data;
 
 
   }
@@ -83,7 +83,7 @@ export class HisSsb2Model {
 	    '' as start_date,'' as end_date
 	    from VNMST 
 	    where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
-    return data[0];
+    return data;
   }
 
 
@@ -115,7 +115,7 @@ export class HisSsb2Model {
 	    left outer join SYSCONFIG sysdose on VNMEDICINE.DOSECODE = sysdose.CODE and sysdose.CTRLCODE = '20032'
 	    left outer join SYSCONFIG sysaux on VNMEDICINE.AUXLABEL1 = sysaux.CODE and sysaux.CTRLCODE = '20030'
 	    where LEN(VNMEDICINE.STOCKCODE) >5 and VNMST.HN = '${hn}' and VNMST.VISITDATE  = '${dateServe}'`);
-    return data[0];
+    return data;
   }
 
 
@@ -132,7 +132,7 @@ export class HisSsb2Model {
 	    inner join SYSCONFIG on LABRESULT.LABCODE = SYSCONFIG.CODE and SYSCONFIG.CTRLCODE = '20067'
 	    where HN = '${hn}' and convert(date,convert(char,LABRESULT.RESULTDATETIME)) = '${dateServe}'
 	    AND RESULTDATETIME IS NOT NULL`);
-    return data[0];
+    return data;
   }
 
 
@@ -152,6 +152,6 @@ export class HisSsb2Model {
 	    inner join SYSCONFIG on HNAPPMNT.APPOINTMENTWITHCLINIC = SYSCONFIG.CODE and SYSCONFIG.CTRLCODE = '20016'
 	    inner join SYSCONFIG PROCE on HNAPPMNT.PROCEDURECODE = PROCE.CODE and PROCE.CTRLCODE = '20109'
 	    where hn = '${hn}'`);
-    return data[0];
+    return data;
   }
 }
