@@ -129,7 +129,7 @@ export class HisSuansaranromModel {
 									TIME(tb_lab.REQ_TIME) as time_serv,
 									tb_lab_master.LAB_NAME as lab_name,
 									tb_lab.LAB_RESULT as lab_result,
-									tb_lab_master.NORMAL_RANGE_DESC as standard_result,
+									tb_lab_master.NORMAL_RANGE_DESC as standard_result
 								FROM tb_lab
 								INNER JOIN tb_lab_master ON tb_lab.LAB_CODE = tb_lab_master.LAB_CODE
 								WHERE tb_lab.HN ='${hn}'
