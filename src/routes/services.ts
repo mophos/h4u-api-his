@@ -1,3 +1,4 @@
+import { HisUniversalModel } from './../models/his_universal.model';
 import { HisSuansaranromModel } from '../models/his_suansaranrom.model';
 import { Router, Request, Response } from 'express';
 import * as moment from 'moment';
@@ -111,6 +112,9 @@ switch (provider) {
         break;
     case 'suansaranrom':
         hisModel = new HisSuansaranromModel();
+        break;
+    case 'universal':
+        hisModel = new HisUniversalModel();
         break;
     default:
     // hisModel = new HisModel();
