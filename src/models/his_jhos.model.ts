@@ -9,7 +9,7 @@ export class HisJhosModel {
       .select('o.hospitalcode as hcode', 'o.hospitalname as hname')
   }
 
-  getPtDetail(db: Knex, hn: any) {
+  geProfile(db: Knex, hn: any) {
     return db('patient')
       .select('cid', 'pname as title_name', 'fname as first_name', 'lname as last_name')
       .where('hn', hn);
