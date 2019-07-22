@@ -1,3 +1,4 @@
+import { HisSuansaranromModel } from '../models/his_suansaranrom.model';
 import { Router, Request, Response } from 'express';
 import * as moment from 'moment';
 // model
@@ -105,8 +106,11 @@ switch (provider) {
     case 'nanhis':
         hisModel = new HisNanhospModel();
         break;
-    case 'jvk':
+    case 'jvkk':
         hisModel = new HisJvkModel();
+        break;
+    case 'suansaranrom':
+        hisModel = new HisSuansaranromModel();
         break;
     default:
     // hisModel = new HisModel();
