@@ -10,7 +10,7 @@ import Knex = require('knex');
 //   let data = await db.raw(`select * from opdconfig`);
 // return data[0];
 // }
-export class HisJvkModel {
+export class HisJvkkModel {
 
     async getHospital(db: Knex, providerCode: any, hn: any) {
         // ชื่อสถานพยาบาล

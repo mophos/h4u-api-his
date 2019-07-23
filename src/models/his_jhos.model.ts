@@ -30,7 +30,7 @@ export class HisJhosModel {
 
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ovstdiag as o')
-      .select('o.icd10 as icd_code', 'i.name as icd_name', 'o.diagtype as diage_type')
+      .select('o.icd10 as icd_code', 'i.name as icd_name', 'o.diagtype as diag_type')
       .leftOuterJoin('icd101 as i', 'i.code', '=', 'o.icd10')
       .where('vn', vn);
   }
