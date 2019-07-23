@@ -127,19 +127,9 @@ export class HisJhosModel {
     return db.raw(sql, [vn]);
   }
 
-  getAnc(db: Knex, vn: any) {
-    let sql = `SELECT a.preg_no as ga, a.current_preg_age as anc_no, s.service_result as result
-from person_anc a  
-left outer join person p on p.person_id = a.person_id
-LEFT OUTER JOIN patient e on e.cid=p.cid
-LEFT OUTER JOIN ovst o on o.hn = e.hn
-left outer join person_anc_service s on s.person_anc_id=a.person_anc_id
-where (a.discharge <> 'Y' or a.discharge IS NULL) 
-and o.vn = ? `;
-    return db.raw(sql, [vn]);
-  }
 
-  getVacine(db: Knex, vn: any) {
+
+  getVaccine(db: Knex, vn: any) {
     let sql = `SELECT v.vaccine_code, v.vaccine_name
     FROM person_vaccine_list l 
     LEFT OUTER JOIN person p on p.person_id=l.person_id
