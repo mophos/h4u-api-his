@@ -15,7 +15,7 @@ export class HisUniversalModel {
 
   getServices(db: Knex, hn: any, dateServe: any) {
     return db('h4u_service')
-      .select('hn', 'seq', 'date_serve', 'time_serve')
+      .select('hn', 'seq', 'date_serve as date_serv', 'time_serve as time_serv')
       .where('hn', hn)
       .where('date_serve', dateServe)
 
@@ -52,7 +52,7 @@ export class HisUniversalModel {
 
   async getProcedure(db: Knex, hn: any, dateServe: any, seq: any) {
     return db('h4u_procedure')
-      .select('procedure_code', 'procedure_name', 'date_serve', 'time_serve', 'start_date',
+      .select('procedure_code', 'procedure_name', 'date_serve as date_serv', 'time_serve as time_serv', 'start_date',
         'start_time', 'end_date', 'end_time')
       .where('hn', hn)
       .where('date_serve', dateServe)
@@ -69,7 +69,7 @@ export class HisUniversalModel {
 
   getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
     return db('h4u_lab')
-      .select('lab_name', 'lab_result', 'standard_result', 'time_serve', 'date_serve')
+      .select('lab_name', 'lab_result', 'standard_result', 'time_serve as time_serv', 'date_serve as date_serv')
       .where('hn', hn)
       .where('date_serve', dateServe)
       .where('seq', seq);
@@ -86,7 +86,7 @@ export class HisUniversalModel {
 
   getVaccine(db: Knex, hn: any) {
     return db('h4u_vaccine')
-      .select('date_serve', 'time_serve', 'vaccine_code', 'vaccine_name')
+      .select('date_serve as date_serv', 'time_serve as time_serv', 'vaccine_code', 'vaccine_name')
       .where('hn', hn);
   }
 
