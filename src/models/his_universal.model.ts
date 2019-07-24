@@ -29,14 +29,14 @@ export class HisUniversalModel {
 
   getChronic(db: Knex, hn: any) {
     return db('h4u_chronic')
-      .select('icd_code', 'icd_name', 'start_date')
+      .select('icd_code', 'icd_name', 'start_date', 'time_serve as time_serv')
       .where('hn', hn);
   }
 
 
   getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
     return db('h4u_diagnosis')
-      .select('icd_code', 'icd_name', 'diag_type')
+      .select('icd_code', 'icd_name', 'diag_type', 'date_serve as date_serv', 'time_serve as time_serv')
       .where('hn', hn)
       .where('date_serve', dateServe)
       .where('seq', seq);
@@ -44,7 +44,7 @@ export class HisUniversalModel {
 
   getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
     return db('h4u_refer')
-      .select('hcode_to', 'name_to', 'reason')
+      .select('hcode_to', 'name_to', 'reason', 'time_serve as time_serv', 'date_serve as date_serv')
       .where('hn', hn)
       .where('date_serve', dateServe)
       .where('seq', seq);
@@ -61,7 +61,7 @@ export class HisUniversalModel {
 
   getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
     return db('h4u_drug')
-      .select('drug_name', 'qty', 'unit', 'usage_line1', 'usage_line2', 'usage_line3')
+      .select('drug_name', 'date_serve as date_serv', 'time_serve as time_serv', 'qty', 'unit', 'usage_line1', 'usage_line2', 'usage_line3')
       .where('hn', hn)
       .where('date_serve', dateServe)
       .where('seq', seq);
@@ -78,7 +78,7 @@ export class HisUniversalModel {
 
   getAppointment(db: Knex, hn: any, dateServe: any, seq: any) {
     return db('h4u_appointment')
-      .select('date', 'time', 'department', 'detail')
+      .select('date', 'time', 'department', 'detail', 'date_serve as date_serv', 'time_serve as time_serv')
       .where('hn', hn)
       .where('date_serve', dateServe)
       .where('seq', seq);
