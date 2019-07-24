@@ -45,7 +45,7 @@ export class HisHiModel {
 
     getAllergyDetail(db: Knex, hn: any) {
         return db('allergy')
-            .select('namedrug', 'detail')
+            .select('namedrug as drug_name', 'detail as symptom')
             .where('hn', hn);
     }
 
