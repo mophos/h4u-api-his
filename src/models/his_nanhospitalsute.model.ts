@@ -162,7 +162,7 @@ export class HisNanhospModel {
   getAppointment(db: Knex, hn: any, dateServ: any, vn: any) {
     return db('opd_book as b')
       .select('b.book_visit as seq', 'b.input_date as date_serv', 'b.input_time as time_serv',
-        's.name_serv as department', 'b.book_date as date', 'b.book_time as time', 'null as detail')
+        's.name_serv as department', 'b.book_date as date', 'b.book_time as time', db.raw('null as detail'))
       .join('service_code as s', 'b.book_serv', 's.code_serv')
       .where('b.book_visit', vn);
   }
