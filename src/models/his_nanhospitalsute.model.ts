@@ -54,7 +54,7 @@ export class HisNanhospModel {
   }
 
   async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
-    let data = await db.raw(`SELECT p.visit_code as seq,p.dateopd as date_serv,i.icd9_cm as procedure_code,i.name_tm as procedure_name,'00:00:00' as time_serve,
+    let data = await db.raw(`SELECT p.visit_code as seq,p.dateopd as date_serv,i.icd9_cm as procedure_code,i.name_tm as procedure_name,'00:00:00' as time_serv,
     p.dateopd as start_date,'00:00:00' as start_time,p.dateopd as end_date,'00:00:00' as end_time
     FROM OOPyymm_n as p LEFT JOIN icd9_tm as i ON(p.oper=i.icd9_cm) WHERE p.visit_code = ?
     `, [vn]);
