@@ -32,20 +32,20 @@ export class HisNanhospModel {
 
   getAllergyDetail(db: Knex, hn: any) {
     return db('adr as d')
-      .select('IFNULL(i.drugthai,i.drugname) as drug_name', 'd.remark as symptom')
+      .select(db.raw('IFNULL(i.drugthai,i.drugname) as drug_name'), 'd.remark as symptom')
       .join('inventory_ipd as i', 'd.drugcode', 'i.drugcode')
       .where('d.hn', hn).andWhere(db.raw('d.orduse<>"ยกเลิก"'));
   }
 
   getChronic(db: Knex, hn: any) {
     return db('tb_register_dx')
-      .select('date(date_diag) as start_date', 'icd10 as icd_code', 'diag_name as icd_name')
+      .select(db.raw('date(date_diag) as start_date'), 'icd10 as icd_code', 'diag_name as icd_name',db.raw('date(time_diag) as time_serv'))
       .where('hn', hn);
   }
 
   getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('visit as v')
-      .select('v.code_visit as seq', 'date(v.day_arr) as date_serv',
+      .select('v.code_visit as seq', db.raw('date(v.day_arr) as date_serv'),
         'v.time as time_serv', 'd.diag as icd_code', 'i.name_tm as icd_name', 't.name as diag_type')
       .join('ODXyymm_n as d', 'v.code_visit', '=', 'd.visit_code')
       .join('icd10_tm as i', 'd.diag', '=', 'i.icd10_tm')
@@ -54,34 +54,30 @@ export class HisNanhospModel {
   }
 
   async getProcedure(db: Knex, hn: any, dateServe: any, vn: any) {
-    let data = await db.raw(`SELECT p.visit_code as seq,p.drugcode as procedure_code,p.drugname as procedure_name,p.date as date_serv,
-    time(p.order_time) as time_serv,p.date as start_date,time(p.order_time) as start_time,p.date as end_date,
-    time(p.order_time) as end_time
-    FROM prsclist_opd as p
-    LEFT JOIN inventory_ipd as i ON(p.drugcode=i.drugcode)
-    #LEFT JOIN visit as v ON()
-    WHERE p.visit_code = ? AND p.grouptype NOT LIKE 'ZZZ%'
+    let data = await db.raw(`SELECT p.visit_code as seq,p.dateopd as date_serv,i.icd9_cm as procedure_code,i.name_tm as procedure_name,'00:00:00' as time_serv,
+    p.dateopd as start_date,'00:00:00' as start_time,p.dateopd as end_date,'00:00:00' as end_time
+    FROM OOPyymm_n as p LEFT JOIN icd9_tm as i ON(p.oper=i.icd9_cm) WHERE p.visit_code = ?
     `, [vn]);
     return data[0];
   }
 
   getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('ORFyymm as r')
-      .select('r.visit_code as seq', 'date(v.day_arr) as date_serv',
-        'time(v.time) as time_serv', 'r.refer as to_provider_code', 'concat(h.off_name2,h.off_name1) as to_provider_name',
-        'r.estimation as refer_cause')
+      .select('r.visit_code as seq', db.raw('date(v.day_arr) as date_serv'),
+        db.raw('time(v.time) as time_serv'), 'r.refer as hcode_to', db.raw('concat(h.off_name2,h.off_name1) as name_to'),
+        'r.estimation as reason')
       .innerJoin('hospcode as h', 'r.refer', 'h.off_id')
       .innerJoin('visit as v', 'r.visit_code', 'v.code_visit')
       .where('r.visit_code', vn).andWhere('r.refertype', '2');
   }
 
   async getDrugs(db: Knex, hn: any, dateServe: any, vn: any) {
-    let data = await db.raw(`SELECT p.visit_code as seq,p.drugcode as procedure_code,p.drugname as procedure_name,p.date as date_serv,
+    let data = await db.raw(`SELECT p.visit_code as seq,p.drugcode as drug_code,p.drugname as drug_name,p.date as date_serv,
     time(p.order_time) as time_serv,p.date as start_date,time(p.order_time) as start_time,p.date as end_date,
-    time(p.order_time) as end_time
+    time(p.order_time) as end_time, p.quant as qty,p.useunit as unit,if(p.drgucmmt <> '', p.drgucmmt, p.drug_use) as usage_line1,
+		if(p.drgucmmt <> '', p.drug_use, '') as usage_line2,'' as usage_line3
     FROM prsclist_opd as p
     LEFT JOIN inventory_ipd as i ON(p.drugcode=i.drugcode)
-    #LEFT JOIN visit as v ON()
     WHERE p.visit_code = ? AND p.grouptype LIKE 'ZZZ%'
     `, [vn]);
     return data[0];
@@ -154,7 +150,7 @@ export class HisNanhospModel {
 
   getVaccine(db: Knex, hn: any) {
     return db('pcc_epi as e')
-      .select('e.vcdate as date_serv', 'null as time_serv', 'e.vcode as vaccine_code', '.protect as vaccine_name')
+      .select('e.vcdate as date_serv', db.raw('"00:00:00" as time_serv'), 'e.vcode as vaccine_code', 'v.protect as vaccine_name')
       .innerJoin('pcc_vaccine as v', 'e.vcode', 'v.id')
       .where('e.hn', hn)
   }
@@ -162,7 +158,7 @@ export class HisNanhospModel {
   getAppointment(db: Knex, hn: any, dateServ: any, vn: any) {
     return db('opd_book as b')
       .select('b.book_visit as seq', 'b.input_date as date_serv', 'b.input_time as time_serv',
-        'c.name as department', 'b.book_date as date', 'b.book_time as time', 'null as detail')
+        's.name_serv as department', 'b.book_date as date', 'b.book_time as time', db.raw('null as detail'))
       .join('service_code as s', 'b.book_serv', 's.code_serv')
       .where('b.book_visit', vn);
   }
