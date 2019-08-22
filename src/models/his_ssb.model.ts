@@ -4,7 +4,7 @@ const dbName = process.env.HIS_DB_NAME;
 
 export class HisSsbModel {
 
-  async getHospital(db: Knex, providerCode:any, hn: any) {
+  async getHospital(db: Knex, providerCode: any, hn: any) {
     let data = await db.raw(`SELECT CODE as provider_code,right(THAINAME,LEN(THAINAME)-1) as provider_name from SYSCONFIG WHERE CTRLCODE='20010' and CODE='${providerCode}'`);
     return data[0];
   }
@@ -15,21 +15,21 @@ export class HisSsbModel {
     return data[0];
   }
 
-  async getVaccine(db: Knex, hn: any) {
-    let data = await db.raw(`select top 1 '2018-05-05' as date_serv,
-    '' as time_serv,
-    '' as vaccine_code,'' as vaccine_name 
-    from VNMST 
-    where VNMST.HN = '${hn}' `);
-    return data[0];
-  }
+  // async getVaccine(db: Knex, hn: any) {
+  //   let data = await db.raw(`select top 1 '2018-05-05' as date_serv,
+  //   '' as time_serv,
+  //   '' as vaccine_code,'' as vaccine_name 
+  //   from VNMST 
+  //   where VNMST.HN = '${hn}' `);
+  //   return data[0];
+  // }
 
-  async getChronic(db: Knex, hn: any) {
-    let data = await db.raw(`select top 1 '' as icd_code,'' as icd_name,'2018-05-05' as start_date
-    from VNMST 
-    where VNMST.HN = '${hn}'`);
-    return data[0];
-  }
+  // async getChronic(db: Knex, hn: any) {
+  //   let data = await db.raw(`select top 1 '' as icd_code,'' as icd_name,'2018-05-05' as start_date
+  //   from VNMST 
+  //   where VNMST.HN = '${hn}'`);
+  //   return data[0];
+  // }
 
   async getAllergyDetail(db: Knex, hn: any) {
     let data = await db.raw(`select SUBSTRING(STOCK_MASTER.ENGLISHNAME,2,LEN(STOCK_MASTER.ENGLISHNAME)) as drug_name,
@@ -80,14 +80,14 @@ export class HisSsbModel {
 
   }
 
-  async getProcedure(db: Knex, hn: any, dateServe: any, vn:any) {
-    let data = await db.raw(`select top 1 '' as seq ,
-    '' as date_serv, '' as time_serv,'' as procedure_code,'' as icd_name,
-    '' as start_date,'' as end_date
-    from VNMST 
-    where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
-    return data[0];
-  }
+  // async getProcedure(db: Knex, hn: any, dateServe: any, vn:any) {
+  //   let data = await db.raw(`select top 1 '' as seq ,
+  //   '' as date_serv, ,'' as procedure_code,'' as icd_name,
+  //   '' as start_date,'' as end_date
+  //   from VNMST 
+  //   where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
+  //   return data[0];
+  // }
 
   async getDrugs(db: Knex, hn: any, dateServe: any) {
     let data = await db.raw(`SELECT VNMST.hn+''+ VNMST.VN as seq,

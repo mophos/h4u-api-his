@@ -114,7 +114,7 @@ export class HisHosxppcuModel {
 
   getVaccine(db: Knex, hn: any) {
     return db('person_vaccine_list as l')
-      .select(db.raw(`l.vaccine_date as date_serv,'' as time_serv,v.vaccine_code,v.vaccine_name`))
+      .select(db.raw(`l.vaccine_date as date_serv,'00:00:00' as time_serv,v.vaccine_code,v.vaccine_name`))
       .innerJoin('person as p', 'p.person_id', 'l.person_id')
       .innerJoin('patient as e', 'e.cid', 'p.cid')
       .innerJoin('ovst as o', 'o.hn', 'e.hn')

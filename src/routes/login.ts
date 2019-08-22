@@ -19,6 +19,7 @@ router.post('/', async (req, res, next) => {
         let deToken = jwtModel.decode(rs.token);
         let payload: any = {};
         payload.gateway_token = rs.token;
+        payload.smarthealth_token = deToken.smarthealth_token;
         payload.fullname = deToken.fullname
         payload.job_position = deToken.job_position;
         payload.email = deToken.email;

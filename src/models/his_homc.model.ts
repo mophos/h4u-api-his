@@ -75,7 +75,7 @@ export class HisHomcModel {
   }
 
   async getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
-    let data = await db.raw(`select r.RegNo as seq,r.ReferDate as date_serv,'' as time_serv,r.ReferHCODE as to_provider_code,h.OFF_NAME2 as to_provider_name,s.REASON_DESC as reason,
+    let data = await db.raw(`select r.RegNo as seq,r.ReferDate as date_serv,'00:00:00' as time_serv,r.ReferHCODE as to_provider_code,h.OFF_NAME2 as to_provider_name,s.REASON_DESC as reason,
     '' as start_date from Refer r left join HOSPCODE h on r.ReferHCODE=h.OFF_ID 
     left join REFERRS s on r.ReferReason=s.REASON_CODE where r.Hn='${hn}' and r.ReferDate='${dateServe}'`);
     //return db.raw(sql, [vn]);
