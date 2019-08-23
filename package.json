@@ -7,7 +7,6 @@
     "build": "npx tsc"
   },
   "dependencies": {
-    "@types/knex": "0.0.65",
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
@@ -28,7 +27,7 @@
     "request": "^2.87.0",
     "serve-favicon": "^2.4.1",
     "tedious": "^2.2.4",
-    "typescript": "^2.9.2"
+    "typescript": "^3.5.3"
   },
   "devDependencies": {
     "@types/body-parser": "1.16.1",
