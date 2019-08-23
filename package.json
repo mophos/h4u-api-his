@@ -7,7 +7,7 @@
     "build": "npx tsc"
   },
   "dependencies": {
-    "@types/knex": "0.16.1",
+    "@types/knex": "0.0.65",
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
@@ -22,7 +22,7 @@
     "mssql": "^4.1.0",
     "mysql": "^2.16.0",
     "node-mssql-connector": "^1.2.0",
-    "oracledb": "4.0.1",
+    "oracledb": "4.1.0",
     "pg": "^7.4.3",
     "pm2": "^2.10.4",
     "request": "^2.87.0",
