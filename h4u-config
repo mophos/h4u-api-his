@@ -3,13 +3,13 @@ jhos, pmk, meedee, spdc, homc, budhosp,hospitalos
 
 // Database Client = mysql, mssql, pg, oracledb
 
-HIS_PROVIDER=universal
-DB_HOST=203.157.103.125
+HIS_PROVIDER=ezhosp
+DB_HOST=192.168.0.218
 DB_CLIENT=mysql
 DB_PORT=3306
-DB_NAME=universal
-DB_USER=root
-DB_PASSWORD=##Mmis@mmis
+DB_NAME=hospdata
+DB_USER=user1
+DB_PASSWORD=user123
 DB_CHARSET=utf8
 
-SECRET_KEY=YourSecretKey
+SECRET_KEY=lkilomgl!@#$%
