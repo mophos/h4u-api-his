@@ -125,15 +125,19 @@ export class HisEzhospModel {
 
     getProcedure(knex: Knex, hn: any, dateServe: any, seq: any) {
         return knex
-            .select('op.vn as visitno', 
+            .select(
+                    'op.hn as pid', 
+                    'op.vn as seq', 
                     'visit.date as date_serv',
                     'visit.time as time_serv',
-                    'op.hn as pid', 
-                    'op as procedcode',
-                    'desc as procedname', 
-                    'icd_9 as icdcm', 'op.dr')
-            .select(knex.raw(" '' as start_date "))
-            .select(knex.raw(" '' as start_time "))
+                    'op as procedure_code',
+                    'desc as procedure_name', 
+                    //'icd_9 as icdcm',
+                     'op.dr')
+            .select(knex.raw(" visit.date as start_date "))
+            .select(knex.raw(" visit.time as start_time "))
+            .select(knex.raw(" visit.date as end_date "))
+            .select(knex.raw(" visit.time as end_time "))
             .from('view_opd_op as op')
             .leftJoin('opd_visit as visit', 'op.vn', 'visit.vn')
             .where('op.hn', "=", hn);
