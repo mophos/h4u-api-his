@@ -93,9 +93,14 @@ export class HisEzhospModel {
         return db
             .from('view_lab_result as lab')
             .leftJoin('opd_visit as visit', 'lab.vn', 'visit.vn')
-            .select('visit.vn as seq', 'visit.date as date_serv',
-                'visit.time as time_serv', 'lab_code as lab_test', 'lab.lab_name',
+            .select(
+                'visit.vn as seq', 
+                'visit.date as date_serv',
+                //'visit.time as time_serv', 
+                'lab_code as lab_test', 
+                'lab.lab_name',
                 'lab.result as lab_result')
+            .select(db.raw("DATE_FORMAT(time(visit.time),'%h:%i:%s') as time_serv"))
             .select(db.raw("concat(lab.minresult, ' - ' , lab.maxresult,' ',lab.unit) as standard_result"))
             .where('visit.hn', "=", hn)
             .where('visit.date', "=", dateServe);
@@ -125,15 +130,22 @@ export class HisEzhospModel {
 
     getProcedure(knex: Knex, hn: any, dateServe: any, seq: any) {
         return knex
-            .select('op.vn as visitno', 
-                    'visit.date as date_serv',
-                    'visit.time as time_serv',
+            .select(
                     'op.hn as pid', 
-                    'op as procedcode',
-                    'desc as procedname', 
-                    'icd_9 as icdcm', 'op.dr')
-            .select(knex.raw(" '' as start_date "))
-            .select(knex.raw(" '' as start_time "))
+                    'op.vn as seq', 
+                    'visit.date as date_serv',
+                    //'visit.time as time_serv',
+                    'op as procedure_code',
+                    'desc as procedure_name', 
+                    //'icd_9 as icdcm',
+                     'op.dr')
+            .select(knex.raw(" if(visit.time is null or visit.time ='' , '00:00:00', visit.time) as time_serv "))
+            .select(knex.raw(" visit.date as start_date "))
+           //.select(knex.raw(" visit.time as start_time "))
+            .select(knex.raw(" if(visit.time is null or visit.time ='' , '00:00:00', visit.time) as start_time "))
+            .select(knex.raw(" visit.date as end_date "))
+            //.select(knex.raw(" visit.time as end_time "))
+            .select(knex.raw(" '00:00:00' as end_time"))
             .from('view_opd_op as op')
             .leftJoin('opd_visit as visit', 'op.vn', 'visit.vn')
             .where('op.hn', "=", hn);
