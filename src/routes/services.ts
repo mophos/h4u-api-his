@@ -122,10 +122,10 @@ switch (provider) {
 }
 
 // ห้ามแก้ไข // 
-router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Response) => {
+router.get('/view/:request_id/:uid', async (req: Request, res: Response) => {
     let db = req.db;
-    let hn = req.params.hn;
-    let dateServ = req.params.dateServ;
+    let hn = req.query.hn;
+    let dateServ = req.query.dateServ;
     let uid = req.params.uid;
     let requestId = req.params.request_id;
     let objService: any = {};
