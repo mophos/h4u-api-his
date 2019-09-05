@@ -12,7 +12,7 @@ import Knex = require('knex');
 // }
 export class HisMkhospitalModel {
 
-  getHospital(db: Knex, providerCode: any, hn: any) {
+  getHospital(db: Knex, providerCode: any, hn: any = null) {
     return db('hospital')
       .select('code as provider_code', 'name as provider_name')
       .limit(1);
@@ -43,7 +43,7 @@ export class HisMkhospitalModel {
       .where('hn', hn);
   }
 
-  getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
+  getDiagnosis(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('diagnosis')
       .select('seq', 'date_serv', 'icd_code', 'icd_name', 'diag_type', 'time_serv')
       .where('seq', vn);
@@ -55,7 +55,7 @@ export class HisMkhospitalModel {
       .where('seq', vn);
   }
 
-  getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
+  getDrugs(db: Knex, hn: any, dateServe: any, vn: any) {
     return db('drugs')
       .select('seq', 'date_serv', 'time_serv', 'drug_name', 'qty', 'unit', 'usage_line1', 'usage_line2', 'usage_line3')
       .where('seq', vn);
