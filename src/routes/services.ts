@@ -1,28 +1,36 @@
 import { Router, Request, Response } from 'express';
 import * as moment from 'moment';
 // model
+import { HisBudhospModel } from './../models/his_budhosp.model';
 import { HisEzhospModel } from './../models/his_ezhosp.model';
-import { HisJhcisModel } from './../models/his_jhcis.model';
+import { HisHiModel } from './../models/his_hi.model';
+import { HisHomcModel } from './../models/his_homc.model';
+import { HisHospitalOsModel } from './../models/his_hospitalos.model';
+import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
 import { HisHosxpv3Model } from './../models/his_hosxpv3.model';
 import { HisHosxpv4Model } from './../models/his_hosxpv4.model';
-import { HisHiModel } from './../models/his_hi.model';
-import { HisJhosModel } from './../models/his_jhos.model';
-import { HisHomcModel } from './../models/his_homc.model';
-import { HisBudhospModel } from './../models/his_budhosp.model';
-import { HisHosxppcuModel } from './../models/his_hosxp_pcu.model';
-import { HisSsbModel } from './../models/his_ssb.model';
 import { HisHosxpv4pgModel } from '../models/his_hosxpv4_pg.model';
-import { HisHospitalOsModel } from './../models/his_hospitalos.model';
+import { HisJhcisModel } from './../models/his_jhcis.model';
+import { HisJhosModel } from './../models/his_jhos.model';
+import { HisJvkkModel } from '../models/his_jvkk.model';
 import { HisMbaseModel } from './../models/his_mbase.model';
-import { ServicesModel } from './../models/services'
+import { HisNanhospModel } from './../models/his_nanhospitalsute.model';
+import { HisSsb2Model } from './../models/his_ssb2.model';
+import { HisSsbModel } from './../models/his_ssb.model';
+import { HisSuansaranromModel } from '../models/his_suansaranrom.model';
+import { HisUniversalModel } from './../models/his_universal.model';
 import { HospitalosModel } from './../models/his_hospital_os';
+import { HisMkhospitalModel } from './../models/his_mkhospital.model';
+
+import { ServicesModel } from './../models/services'
+
+
 const servicesModel = new ServicesModel();
 const provider = process.env.HIS_PROVIDER;
 const router: Router = Router();
 
 router.get('/', (req, res, next) => {
     console.log('decoded', req.decoded);
-
     res.send({ title: 'MOPH H4U API' });
 });
 
@@ -53,6 +61,9 @@ switch (provider) {
         break;
     case 'ssb':
         hisModel = new HisSsbModel();
+        break;
+    case 'ssb2':
+        hisModel = new HisSsb2Model();
         break;
     case 'infod':
         // hisModel = new HisInfodModel();
@@ -96,15 +107,30 @@ switch (provider) {
     case 'hospitalos':
         hisModel = new HospitalosModel();
         break;
+    case 'nanhis':
+        hisModel = new HisNanhospModel();
+        break;
+    case 'jvkk':
+        hisModel = new HisJvkkModel();
+        break;
+    case 'suansaranrom':
+        hisModel = new HisSuansaranromModel();
+        break;
+    case 'mkh':
+        hisModel = new HisMkhospitalModel();
+        break;
+    case 'universal':
+        hisModel = new HisUniversalModel();
+        break;
     default:
-    // hisModel = new HisModel();
+        hisModel = new HisUniversalModel();
 }
 
 // ห้ามแก้ไข // 
-router.get('/view/:hn/:dateServ/:request_id/:uid', async (req: Request, res: Response) => {
+router.get('/view/:request_id/:uid', async (req: Request, res: Response) => {
     let db = req.db;
-    let hn = req.params.hn;
-    let dateServ = req.params.dateServ;
+    let hn = req.query.hn;
+    let dateServ = req.query.dateServ;
     let uid = req.params.uid;
     let requestId = req.params.request_id;
     let objService: any = {};

@@ -13,6 +13,7 @@ import servicesRoute from './routes/services';
 import requestsRoute from './routes/requests';
 import staffRoute from './routes/staff';
 import standardRoute from './routes/standard';
+import consentRoute from './routes/consent';
 import * as ejs from 'ejs';
 import { JwtModel } from './models/jwt';
 import Knex = require('knex');
@@ -30,8 +31,12 @@ app.set('view engine', 'html');
 //uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname,'public','favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(bodyParser.raw({ limit: '50mb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
+
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
@@ -51,6 +56,7 @@ let checkAuth = (req, res, next) => {
 
   jwt.verify(token)
     .then((decoded: any) => {
+      req.token = token;
       req.decoded = decoded;
       next();
     }, err => {
@@ -72,14 +78,13 @@ let dbConnection: Knex.MySqlConnectionConfig = {
 
 app.use((req, res, next) => {
   let connectKnexconfig: any;
-  if (process.env.DB_CLIENT === 'mssql') {
+  if (process.env.DB_CLIENT === 'mssql' || process.env.DB_CLIENT == 'oracledb') {
     connectKnexconfig = {
       client: process.env.DB_CLIENT,
       connection: dbConnection,
     };
     req.db = Knex(connectKnexconfig);
   } else if (process.env.DB_CLIENT === 'pg') {
-    console.log("MSSQL Connect");
     connectKnexconfig = {
       client: process.env.DB_CLIENT,
       searchPath: ['knex', 'public'],
@@ -113,6 +118,7 @@ app.use('/services', checkAuth, servicesRoute);
 app.use('/requests', checkAuth, requestsRoute);
 app.use('/staff', checkAuth, staffRoute);
 app.use('/standard', checkAuth, standardRoute);
+app.use('/consents', checkAuth, consentRoute)
 
 
 

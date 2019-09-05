@@ -4,47 +4,32 @@ const dbName = process.env.HIS_DB_NAME;
 
 export class HisSsbModel {
 
-  async getHospital(db: Knex, providerCode:any, hn: any) {
-    let data = await db.raw(`SELECT CODE as provider_code,right(THAINAME,LEN(THAINAME)-1) as provider_name from SYSCONFIG WHERE CTRLCODE='20010' and CODE='10672'`);
-    return data;
+  async getHospital(db: Knex, providerCode: any, hn: any) {
+    let data = await db.raw(`SELECT CODE as provider_code,right(THAINAME,LEN(THAINAME)-1) as provider_name from SYSCONFIG WHERE CTRLCODE='20010' and CODE='${providerCode}'`);
+    return data[0];
   }
 
   async getProfile(db: Knex, hn: any) {
     let data = await db.raw(`SELECT '' as title_name,right(FIRSTname,len(FIRSTname)-1) as first_name,
     right(lastname,len(lastname)-1) as last_name from PATIENT_NAME where HN = '${hn}' and suffix='0'`);
-    return data;
+    return data[0];
   }
 
-  async getVaccine(db: Knex, hn: any) {
-    let data = await db.raw(`select top 1 '2018-05-05' as date_serv,
-    '' as time_serv,
-    '' as vaccine_code,'' as vaccine_name 
-    from VNMST 
-    where VNMST.HN = '${hn}' `);
-   
-    // console.log('Vaccine', data);
-    return data;
-  }
+  // async getVaccine(db: Knex, hn: any) {
+  //   let data = await db.raw(`select top 1 '2018-05-05' as date_serv,
+  //   '' as time_serv,
+  //   '' as vaccine_code,'' as vaccine_name 
+  //   from VNMST 
+  //   where VNMST.HN = '${hn}' `);
+  //   return data[0];
+  // }
 
-  async getChronic(db: Knex, hn: any) {
-    let data = await db.raw(`select top 1 '' as icd_code,'' as icd_name,'2018-05-05' as start_date
-    from VNMST 
-    where VNMST.HN = '${hn}'`);
-    return data;
-        // let data = await db.raw(`select distinct p.ICDCode as icd_code,ic.DES as icd_name--,p.VisitDate as start_date
-    // from PATDIAG p
-    // left join OPD_H o on(o.hn = p.Hn and o.regNo = p.regNo) 
-    // left join ICD101 ic on(ic.CODE = p.ICDCode)
-    // where o.hn='${hn}' and  p.DiagType in('I') and p.dxtype = '1'
-    // and
-    // ( p.ICDCode between 'I60' and 'I698' or p.ICDCode between 'J45' and 'J46' or p.ICDCode between 'I10' and 'I159'
-    // or p.ICDCode between 'A15' and 'A199' or p.ICDCode between 'E10' and 'E149' or p.ICDCode between 'F30' and 'F399'
-    // or p.ICDCode between 'J43' and 'J449' or p.ICDCode between 'J429' and 'J429' or p.ICDCode between 'I20' and 'I259'
-    // or p.ICDCode between 'I05' and 'I099' or p.ICDCode between 'I26' and 'I289' or p.ICDCode between 'I30' and 'I528'
-    // or p.ICDCode between 'G80' and 'G839' or p.ICDCode between 'D50' and 'D649' or p.ICDCode between 'N17' and 'N19'
-    // )`);
-    // return data;
-  }
+  // async getChronic(db: Knex, hn: any) {
+  //   let data = await db.raw(`select top 1 '' as icd_code,'' as icd_name,'2018-05-05' as start_date
+  //   from VNMST 
+  //   where VNMST.HN = '${hn}'`);
+  //   return data[0];
+  // }
 
   async getAllergyDetail(db: Knex, hn: any) {
     let data = await db.raw(`select SUBSTRING(STOCK_MASTER.ENGLISHNAME,2,LEN(STOCK_MASTER.ENGLISHNAME)) as drug_name,
@@ -53,7 +38,7 @@ export class HisSsbModel {
     inner join STOCK_MASTER on PATIENT_ALLERGIC.MEDICINE = STOCK_MASTER.STOCKCODE
     inner join SYSCONFIG on PATIENT_ALLERGIC.ADVERSEREACTIONS1 = SYSCONFIG.CODE and SYSCONFIG.CTRLCODE = '20028'
     where HN='${hn}'`);
-    return data;
+    return data[0];
   }
 
   async getServices(db: Knex, hn: any, dateServe: any) {
@@ -65,7 +50,7 @@ export class HisSsbModel {
     from VNPRES 
     inner join VNMST on VNPRES.VISITDATE = VNMST.VISITDATE and VNPRES.VN = VNMST.VN
     where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
-    return data;
+    return data[0];
   }
 
   async getDiagnosis(db: Knex, hn: any, dateServe: any) {
@@ -84,25 +69,25 @@ export class HisSsbModel {
     inner join VNMST on VNDIAG.VISITDATE = VNMST.VISITDATE and VNDIAG.VN = VNMST.VN
     inner join ICD_MASTER on VNDIAG.ICDCODE = ICD_MASTER.ICDCODE
     where VNMST.hn = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
-    return data;
+    return data[0];
   }
 
   async getRefer(db: Knex, hn: any, dateServe: any, vn: any) {
     let data = await db.raw(`select top 1 ''  as seq,'${dateServe}' as date_serv,'' as time_serv,'' as to_provider_code,'' as to_provider_name,'' as reason,
     '' as start_date from VNMST 
     where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
-    return data;
+    return data[0];
 
   }
 
-  async getProcedure(db: Knex, hn: any, dateServe: any, vn:any) {
-    let data = await db.raw(`select top 1 '' as seq ,
-    '' as date_serv, '' as time_serv,'' as procedure_code,'' as icd_name,
-    '' as start_date,'' as end_date
-    from VNMST 
-    where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
-    return data;
-  }
+  // async getProcedure(db: Knex, hn: any, dateServe: any, vn:any) {
+  //   let data = await db.raw(`select top 1 '' as seq ,
+  //   '' as date_serv, ,'' as procedure_code,'' as icd_name,
+  //   '' as start_date,'' as end_date
+  //   from VNMST 
+  //   where VNMST.HN = '${hn}' and VNMST.VISITDATE = '${dateServe}'`);
+  //   return data[0];
+  // }
 
   async getDrugs(db: Knex, hn: any, dateServe: any) {
     let data = await db.raw(`SELECT VNMST.hn+''+ VNMST.VN as seq,
@@ -132,7 +117,7 @@ export class HisSsbModel {
     left outer join SYSCONFIG sysdose on VNMEDICINE.DOSECODE = sysdose.CODE and sysdose.CTRLCODE = '20032'
     left outer join SYSCONFIG sysaux on VNMEDICINE.AUXLABEL1 = sysaux.CODE and sysaux.CTRLCODE = '20030'
     where LEN(VNMEDICINE.STOCKCODE) >5 and VNMST.HN = '${hn}' and VNMST.VISITDATE  = '${dateServe}'`);
-    return data;
+    return data[0];
   }
 
   async getLabs(db: Knex, hn: any, dateServe: any, vn: any) {
@@ -148,8 +133,7 @@ export class HisSsbModel {
     inner join SYSCONFIG on LABRESULT.LABCODE = SYSCONFIG.CODE and SYSCONFIG.CTRLCODE = '20067'
     where HN = '${hn}' and convert(date,convert(char,LABRESULT.RESULTDATETIME)) = '${dateServe}'
     AND RESULTDATETIME IS NOT NULL`);
-    console.log('LAB ===========================>', data);
-    return data;
+    return data[0];
   }
 
   async getAppointment(db: Knex, hn: any, dateServe: any) {
@@ -170,6 +154,6 @@ export class HisSsbModel {
     inner join SYSCONFIG PROCE on HNAPPMNT.PROCEDURECODE = PROCE.CODE and PROCE.CTRLCODE = '20109'
 
     where hn = '${hn}'`);
-    return data;
+    return data[0];
   }
 }

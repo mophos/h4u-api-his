@@ -12,7 +12,7 @@ import Knex = require('knex');
 
 export class HisHosxpv4Model {
 
-  getHospital(db: Knex, providerCode:any, hn: any) {
+  getHospital(db: Knex, providerCode: any, hn: any) {
     return db('opdconfig as o')
       .select('o.hospitalcode as provider_code', 'o.hospitalname as provider_name')
   }
@@ -40,7 +40,7 @@ export class HisHosxpv4Model {
   async getChronic(db: Knex, hn: any) {
     let sql = await db.raw(`select c.icd10 as icd_code,c.name as icd_name,cm.regdate as start_date
     FROM clinicmember cm
-    LEFT OUTER JOIN clinic c on c.clinic=cm.clinic where cm.hn = ?`, hn);
+    LEFT OUTER JOIN clinic c on c.clinic=cm.clinic where cm.hn = ? and cm.regdate is not null`, hn);
     return sql[0];
   }
 
