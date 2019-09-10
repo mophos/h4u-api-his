@@ -20,6 +20,8 @@ import { HisSsbModel } from './../models/his_ssb.model';
 import { HisSuansaranromModel } from '../models/his_suansaranrom.model';
 import { HisUniversalModel } from './../models/his_universal.model';
 import { HospitalosModel } from './../models/his_hospital_os';
+import { HisMkhospitalModel } from './../models/his_mkhospital.model';
+
 import { ServicesModel } from './../models/services'
 import { HisUniversalSchemaModel } from './../models/his_universal_schema.model';
 
@@ -114,6 +116,9 @@ switch (provider) {
     case 'suansaranrom':
         hisModel = new HisSuansaranromModel();
         break;
+    case 'mkh':
+        hisModel = new HisMkhospitalModel();
+        break;
     case 'universal':
         hisModel = new HisUniversalModel();
         break;
@@ -121,7 +126,7 @@ switch (provider) {
         hisModel = new HisUniversalSchemaModel();
         break;
     default:
-    // hisModel = new HisModel();
+        hisModel = new HisUniversalModel();
 }
 
 // ห้ามแก้ไข // 
