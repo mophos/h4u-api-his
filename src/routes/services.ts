@@ -21,7 +21,7 @@ import { HisSuansaranromModel } from '../models/his_suansaranrom.model';
 import { HisUniversalModel } from './../models/his_universal.model';
 import { HospitalosModel } from './../models/his_hospital_os';
 import { ServicesModel } from './../models/services'
-
+import { HisUniversalSchemaModel } from './../models/his_universal_schema.model';
 
 const servicesModel = new ServicesModel();
 const provider = process.env.HIS_PROVIDER;
@@ -116,6 +116,9 @@ switch (provider) {
         break;
     case 'universal':
         hisModel = new HisUniversalModel();
+        break;
+    case 'universal_schema':
+        hisModel = new HisUniversalSchemaModel();
         break;
     default:
     // hisModel = new HisModel();
