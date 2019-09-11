@@ -21,9 +21,8 @@ import { HisSuansaranromModel } from '../models/his_suansaranrom.model';
 import { HisUniversalModel } from './../models/his_universal.model';
 // import { HospitalosModel } from './../models/his_hospital_os';
 import { HisMkhospitalModel } from './../models/his_mkhospital.model';
-
-import { ServicesModel } from './../models/services'
 import { HisUniversalSchemaModel } from './../models/his_universal_schema.model';
+import { ServicesModel } from './../models/services'
 
 const servicesModel = new ServicesModel();
 const provider = process.env.HIS_PROVIDER;
