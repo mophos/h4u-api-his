@@ -1,10 +1,10 @@
 // HIS Provider = hosxpv3, hosxpv4, hosxpv4pg, hi, infod, ssb, himpro, jhcis, hosxppcu, hospitalos,
-jhos, pmk, meedee, spdc, homc, budhosp,hospitalos
+jhos, pmk, meedee, spdc, homc, budhosp,hospitalos,universal,universal_schema
 
 // Database Client = mysql, mssql, pg, oracledb
 
 HIS_PROVIDER=universal_schema
-SCHEMA=KAMOL
+DB_SCHEMA=KAMOL
 DB_HOST=192.168.99.250
 DB_CLIENT=oracledb
 DB_PORT=1521

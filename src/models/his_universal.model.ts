@@ -78,7 +78,7 @@ export class HisUniversalModel {
 
   getAppointment(db: Knex, hn: any, dateServe: any, seq: any) {
     return db('h4u_appointment')
-      .select('date', 'time', 'department', 'detail', 'date_serve as date_serv', 'time_serve as time_serv')
+      .select('appointment_date', 'appointment_time', 'department', 'detail', 'date_serve as date_serv', 'time_serve as time_serv')
       .where('hn', hn)
       .where('date_serve', dateServe)
       .where('seq', seq);
