@@ -15,14 +15,10 @@ export class HisUniversalSchemaModel {
   }
 
   getServices(db: Knex, hn: any, dateServe: any) {
-    console.log(hn);
-
-    let sql = db(`${schema}.H4U_SERVICE`)
-      .select('HN', 'SEQ', 'DATE_SERV AS DATE_SERV', 'TIME_SERV AS TIME_SERV')
+    return db(`${schema}.H4U_SERVICE`)
+      .select('HN', 'SEQ', 'DATE_SERVE AS DATE_SERV', 'TIME_SERVE AS TIME_SERV')
       .where('HN', hn)
-      .where('DATE_SERV', dateServe)
-    console.log(sql.toString());
-    return sql;
+      .where('DATE_SERVE', dateServe)
 
 
   }
@@ -84,7 +80,7 @@ export class HisUniversalSchemaModel {
 
   getAppointment(db: Knex, hn: any, dateServe: any, seq: any) {
     return db(`${schema}.H4U_APPOINTMENT`)
-      .select('APPOINTMENT_DATE', 'APPOINTMENT_TIME', 'DEPARTMENT', 'DETAIL', 'DATE_SERVE AS DATE_SERV', 'TIME_SERVE AS TIME_SERV')
+      .select('APPOINTMENT_DATE as DATE', 'APPOINTMENT_TIME as TIME', 'DEPARTMENT', 'DETAIL', 'DATE_SERVE AS DATE_SERV', 'TIME_SERVE AS TIME_SERV')
       .where('HN', hn)
       .where('DATE_SERVE', dateServe)
       .where('SEQ', seq);
