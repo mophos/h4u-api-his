@@ -22,6 +22,7 @@ import { HisUniversalModel } from './../models/his_universal.model';
 // import { HospitalosModel } from './../models/his_hospital_os';
 import { HisMkhospitalModel } from './../models/his_mkhospital.model';
 import { HisUniversalSchemaModel } from './../models/his_universal_schema.model';
+import { HisPmkSchemaModel } from './../models/his_pmk_schema.model';
 import { ServicesModel } from './../models/services'
 
 const servicesModel = new ServicesModel();
@@ -86,7 +87,7 @@ switch (provider) {
         hisModel = new HisJhosModel();
         break;
     case 'pmk':
-        // hisModel = new HisPmkModel();
+        hisModel = new HisPmkSchemaModel();
         break;
     case 'meedee':
         // hisModel = new HisMdModel();
@@ -139,7 +140,6 @@ router.get('/view/:request_id/:uid', async (req: Request, res: Response) => {
     let providerCode;
     let providerName;
     let profile = [];
-
     let providerCodeToken = req.decoded.provider_code;
     if (requestId && hn && dateServ && uid) {
         try {
@@ -208,7 +208,6 @@ router.get('/view/:request_id/:uid', async (req: Request, res: Response) => {
             }
 
             let rs_services: any = await hisModel.getServices(db, hn, dateServ);
-            // console.log('Service : ', rs_services);
             if (rs_services.length) {
                 const diagnosis = [];
                 const drugs = [];

@@ -1,22 +1,23 @@
 import Knex = require('knex');
-const schema = process.env.SCHEMA;
+const schema = process.env.DB_SCHEMA;
 export class HisUniversalSchemaModel {
 
   getHospital(db: Knex, providerCode: any, hn: any) {
     return db(`${schema}.H4U_HOSPITAL`)
-      .select('PROVIDER_CODE', 'PROVIDER_NAME')
+      .select('PROVIDER_CODE as provider_code', 'PROVIDER_NAME as provider_name')
       .where('PROVIDER_CODE', providerCode)
   }
 
   getProfile(db: Knex, hn: any) {
     return db(`${schema}.H4U_PROFILE`)
-      .select('HN', 'CID', 'TITLE_NAME', 'FIRST_NAME', 'LAST_NAME')
+      .select('HN as hn', 'CID as cid', 'TITLE_NAME as title_name',
+        'FIRST_NAME as first_name', 'LAST_NAME as last_name')
       .where('HN', hn)
   }
 
   getServices(db: Knex, hn: any, dateServe: any) {
     return db(`${schema}.H4U_SERVICE`)
-      .select('HN', 'SEQ', 'DATE_SERVE AS DATE_SERV', 'TIME_SERVE AS TIME_SERV')
+      .select('HN as hn', 'SEQ as seq', 'DATE_SERVE AS date_serv', 'TIME_SERVE AS time_serv')
       .where('HN', hn)
       .where('DATE_SERVE', dateServe)
 
@@ -25,20 +26,22 @@ export class HisUniversalSchemaModel {
 
   getAllergyDetail(db: Knex, hn: any) {
     return db(`${schema}.H4U_ALLERGY`)
-      .select('DRUG_NAME', 'SYMPTOM')
+      .select('DRUG_NAME as drug_name', 'SYMPTOM as symptom')
       .where('HN', hn);
   }
 
   getChronic(db: Knex, hn: any) {
     return db(`${schema}.H4U_CHRONIC`)
-      .select('ICD_CODE', 'ICD_NAME', 'START_DATE', 'TIME_SERVE AS TIME_SERV')
+      .select('ICD_CODE as icd_code', 'ICD_NAME as icd_name',
+        'START_DATE as start_date', 'TIME_SERVE AS time_serv')
       .where('HN', hn);
   }
 
 
   getDiagnosis(db: Knex, hn: any, dateServe: any, seq: any) {
     return db(`${schema}.H4U_DIAGNOSIS`)
-      .select('ICD_CODE', 'ICD_NAME', 'DIAG_TYPE', 'DATE_SERVE AS DATE_SERV', 'TIME_SERVE AS TIME_SERV')
+      .select('ICD_CODE as icd_code', 'ICD_NAME as icd_name', 'DIAG_TYPE as diag_type',
+        'DATE_SERVE AS date_serv', 'TIME_SERVE AS time_serv')
       .where('HN', hn)
       .where('DATE_SERVE', dateServe)
       .where('SEQ', seq);
@@ -46,7 +49,8 @@ export class HisUniversalSchemaModel {
 
   getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
     return db(`${schema}.H4U_REFER`)
-      .select('HCODE_TO', 'NAME_TO', 'REASON', 'TIME_SERVE AS TIME_SERV', 'DATE_SERVE AS DATE_SERV')
+      .select('HCODE_TO as hcode_to', 'NAME_TO as name_to', 'REASON as reason',
+        'TIME_SERVE AS time_serv', 'DATE_SERVE AS date_serv')
       .where('HN', hn)
       .where('DATE_SERVE', dateServe)
       .where('SEQ', seq);
@@ -54,8 +58,9 @@ export class HisUniversalSchemaModel {
 
   async getProcedure(db: Knex, hn: any, dateServe: any, seq: any) {
     return db(`${schema}.H4U_PROCEDURE`)
-      .select('PROCEDURE_CODE', 'PROCEDURE_NAME', 'DATE_SERVE AS DATE_SERV', 'TIME_SERVE AS TIME_SERV', 'START_DATE',
-        'START_TIME', 'END_DATE', 'END_TIME')
+      .select('PROCEDURE_CODE as procedure_code', 'PROCEDURE_NAME as procedure_name',
+        'DATE_SERVE AS date_serv', 'TIME_SERVE AS time_serv', 'START_DATE as start_date',
+        'START_TIME as start_time', 'END_DATE as end_date', 'END_TIME as end_time')
       .where('HN', hn)
       .where('DATE_SERVE', dateServe)
       .where('SEQ', seq);
@@ -63,7 +68,8 @@ export class HisUniversalSchemaModel {
 
   getDrugs(db: Knex, hn: any, dateServe: any, seq: any) {
     return db(`${schema}.H4U_DRUG`)
-      .select('DRUG_NAME', 'DATE_SERVE AS DATE_SERV', 'TIME_SERVE AS TIME_SERV', 'QTY', 'UNIT', 'USAGE_LINE1', 'USAGE_LINE2', 'USAGE_LINE3')
+      .select('DRUG_NAME as drug_name', 'DATE_SERVE AS date_serv', 'TIME_SERVE AS time_serv',
+        'QTY as qty', 'UNIT as unit', 'USAGE_LINE1 as usage_line1', 'USAGE_LINE2 as usage_line2', 'USAGE_LINE3 as usage_line3')
       .where('HN', hn)
       .where('DATE_SERVE', dateServe)
       .where('SEQ', seq);
@@ -71,7 +77,8 @@ export class HisUniversalSchemaModel {
 
   getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
     return db(`${schema}.H4U_LAB`)
-      .select('LAB_NAME', 'LAB_RESULT', 'STANDARD_RESULT', 'TIME_SERVE AS TIME_SERV', 'DATE_SERVE AS DATE_SERV')
+      .select('LAB_NAME as lab_name', 'LAB_RESULT as lab_result', 'STANDARD_RESULT as standard_result',
+        'TIME_SERVE AS time_serv', 'DATE_SERVE AS date_serv')
       .where('HN', hn)
       .where('DATE_SERVE', dateServe)
       .where('SEQ', seq);
@@ -80,7 +87,8 @@ export class HisUniversalSchemaModel {
 
   getAppointment(db: Knex, hn: any, dateServe: any, seq: any) {
     return db(`${schema}.H4U_APPOINTMENT`)
-      .select('APPOINTMENT_DATE as DATE', 'APPOINTMENT_TIME as TIME', 'DEPARTMENT', 'DETAIL', 'DATE_SERVE AS DATE_SERV', 'TIME_SERVE AS TIME_SERV')
+      .select('APPOINTMENT_DATE as date', 'APPOINTMENT_TIME as time', 'DEPARTMENT as department',
+        'DETAIL as detail', 'DATE_SERVE AS date_serv', 'TIME_SERVE AS time_serv')
       .where('HN', hn)
       .where('DATE_SERVE', dateServe)
       .where('SEQ', seq);
@@ -88,7 +96,8 @@ export class HisUniversalSchemaModel {
 
   getVaccine(db: Knex, hn: any) {
     return db(`${schema}.H4U_VACCINE`)
-      .select('DATE_SERVE AS DATE_SERV', 'TIME_SERVE AS TIME_SERV', 'VACCINE_CODE', 'VACCINE_NAME')
+      .select('DATE_SERVE AS date_serv', 'TIME_SERVE AS time_serv',
+        'VACCINE_CODE as vaccine_code', 'VACCINE_NAME as vaccine_name')
       .where('HN', hn);
   }
 
