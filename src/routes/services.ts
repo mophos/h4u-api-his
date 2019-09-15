@@ -140,8 +140,6 @@ router.get('/view/:request_id/:uid', async (req: Request, res: Response) => {
     let providerCode;
     let providerName;
     let profile = [];
-    hn = '100051/50';
-    dateServ = '2010-09-01';
     let providerCodeToken = req.decoded.provider_code;
     if (requestId && hn && dateServ && uid) {
         try {
@@ -210,7 +208,6 @@ router.get('/view/:request_id/:uid', async (req: Request, res: Response) => {
             }
 
             let rs_services: any = await hisModel.getServices(db, hn, dateServ);
-            // console.log('Service : ', rs_services);
             if (rs_services.length) {
                 const diagnosis = [];
                 const drugs = [];
