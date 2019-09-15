@@ -22,6 +22,7 @@ import { HisUniversalModel } from './../models/his_universal.model';
 // import { HospitalosModel } from './../models/his_hospital_os';
 import { HisMkhospitalModel } from './../models/his_mkhospital.model';
 import { HisUniversalSchemaModel } from './../models/his_universal_schema.model';
+import { HisPmkSchemaModel } from './../models/his_pmk_schema.model';
 import { ServicesModel } from './../models/services'
 
 const servicesModel = new ServicesModel();
@@ -86,7 +87,7 @@ switch (provider) {
         hisModel = new HisJhosModel();
         break;
     case 'pmk':
-        // hisModel = new HisPmkModel();
+        hisModel = new HisPmkSchemaModel();
         break;
     case 'meedee':
         // hisModel = new HisMdModel();
@@ -139,7 +140,8 @@ router.get('/view/:request_id/:uid', async (req: Request, res: Response) => {
     let providerCode;
     let providerName;
     let profile = [];
-
+    hn = '100051/50';
+    dateServ = '2010-09-01';
     let providerCodeToken = req.decoded.provider_code;
     if (requestId && hn && dateServ && uid) {
         try {
