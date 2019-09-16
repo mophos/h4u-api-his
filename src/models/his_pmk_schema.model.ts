@@ -82,8 +82,7 @@ export class HisPmkSchemaModel {
         db.raw(`to_char(TIME_SERVE,'HH24:MI:SS') as time_serv`))
       .where('HN', hn)
       .whereRaw(`to_char(DATE_SERVE,'YYYY-MM-DD')=?`, [dateServe])
-      .where('OPD_NO', seq);
-    // .where('SEQ', seq);
+      .where('SEQ', seq);
   }
 
   getLabs(db: Knex, hn: any, dateServe: any, seq: any) {
@@ -99,8 +98,7 @@ export class HisPmkSchemaModel {
 
   getAppointment(db: Knex, hn: any, dateServe: any, seq: any) {
     return db(`${schema}.H4U_APPOINTMENT`)
-      .select('D_DATE as date', 'D_TIME as time', 'DEPARTMENT as department', 'DETAIL as detail',
-        // .select('APPOINTMENT_DATE as date', 'APPOINTMENT_TIME as time', 'DEPARTMENT as department', 'DETAIL as detail',
+      .select('APPOINTMENT_DATE as date', 'APPOINTMENT_TIME as time', 'DEPARTMENT as department', 'DETAIL as detail',
         db.raw(`to_char(DATE_SERVE,'YYYY-MM-DD') as date_serv`),
         db.raw(`to_char(TIME_SERVE,'HH24:MI:SS') as time_serv`))
       .where('HN', hn)
