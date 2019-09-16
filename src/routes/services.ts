@@ -246,7 +246,7 @@ router.get('/view/:request_id/:uid', async (req: Request, res: Response) => {
                                 "provider_name": providerName,
                                 "seq": rp.seq,
                                 "date_serv": moment(rp.date_serv || rp.DATE_SERV).format('YYYY-MM-DD'),
-                                "time_serv": rp.time_serv,
+                                "time_serv": rp.time_serv || rp.TIME_SERV,
                                 "procedure_code": rp.procedure_code,
                                 "procedure_name": rp.procedure_name,
                                 "start_date": moment(rp.start_date || rp.START_DATE).format('YYYY-MM-DD'),
