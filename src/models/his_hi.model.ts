@@ -70,7 +70,7 @@ export class HisHiModel {
 
     getRefer(db: Knex, hn: any, dateServe: any, seq: any) {
         return db('orfro as o')
-            .select('o.vn as seq', 'o.vstdate as date_serv', 'o.rfrlct as hcode_to', 'h.namehosp as name_to', 'f.namerfrcs as reason')
+            .select('o.vn as seq', 'o.vstdate as date_serv', 'o.rfrlct as depto_provider_codeartment', 'h.namehosp as to_provider_name', 'f.namerfrcs as refer_cause')
             .select(db.raw(`time(ovst.vstdttm) as time_serv`))
             .leftJoin('hospcode as h', 'h.off_id', '=', 'o.rfrlct')
             .innerJoin('ovst', 'ovst.vn', '=', 'o.vn')
@@ -222,7 +222,7 @@ export class HisHiModel {
     FROM
         hi.dtdx 
     INNER JOIN 
-        hi.icd9dent as i on dtdx.dttx=i.code_tx
+        hi.icd9dent as i on dtdx.dttx=i.ICD10TM
     INNER JOIN 
         hi.dt on dtdx.dn=dt.dn
     INNER JOIN
