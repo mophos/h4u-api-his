@@ -22,6 +22,7 @@ import { HisUniversalModel } from './../models/his_universal.model';
 // import { HospitalosModel } from './../models/his_hospital_os';
 import { HisMkhospitalModel } from './../models/his_mkhospital.model';
 import { HisUniversalSchemaModel } from './../models/his_universal_schema.model';
+import { HisUniversalSchemaLowerModel } from '../models/his_universal_schema_lower.model';
 import { HisPmkSchemaModel } from './../models/his_pmk_schema.model';
 import { ServicesModel } from './../models/services'
 
@@ -124,6 +125,9 @@ switch (provider) {
         break;
     case 'universal_schema':
         hisModel = new HisUniversalSchemaModel();
+        break;
+    case 'universal_schema_lower':
+        hisModel = new HisUniversalSchemaLowerModel();
         break;
     default:
         hisModel = new HisUniversalModel();
