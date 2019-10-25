@@ -142,14 +142,12 @@ export class HisHiModel {
         let data = await db.raw(`select 
         o.vstdttm as date_serv,
         DATE_FORMAT(time(o.drxtime),'%h:%i:%s') as time_serv, 
-        cv.NEW as vaccine_code, 
+        h.vac as vaccine_code, 
         h.namehpt as vaccine_name
         from 
         hi.epi e 
         inner join 
         hi.ovst o on e.vn = o.vn 
-        inner join 
-        hi.cvt_vacc cv on e.vac = cv.OLD  
         left join 
         hi.hpt as h on e.vac=h.codehpt
         where 
