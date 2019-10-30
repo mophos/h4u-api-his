@@ -145,6 +145,7 @@ export class HisSuansaranromModel {
 		tb_appointment.APPOINTMENT_DATE as date,
 		TIME(tb_appointment.APPOINTMENT_TIME_FROM) AS time,
 		tb_department.DEPARTMENT_NAME as department,
+		TIME(tb_appointment.MODIFY_DATE) as time_serv,
 		IF(CONCAT(tb_appointment_master.DESCRIPTION,':',tb_appointment.BEFORE_APPOINTMENT) IS NULL,'-',CONCAT(tb_appointment_master.DESCRIPTION,':',tb_appointment.BEFORE_APPOINTMENT)) as detail
 		FROM
 		tb_appointment
@@ -153,7 +154,6 @@ export class HisSuansaranromModel {
 		WHERE tb_appointment.HN =?
 		AND tb_appointment.APPOINTMENT_DATE = ?`, [hn, dateServe]);
 		return data[0];
-
 	}
 
 	async getVaccine(db: Knex, hn: any) {
