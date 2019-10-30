@@ -63,6 +63,7 @@ export class HisSuansaranromModel {
 	async getDiagnosis(db: Knex, hn: any, dateServe: any) {
 		let data = await db.raw(`SELECT
 		tb_opd_fu_diag.DIAG_DATE AS dateServe,
+		TIME(tb_opd_fu_diag.MODIFY_DATE) AS time_serv,
 		tb_opd_fu_diag.DIAG_CODE AS icd_code,
 		ref_diagcode.DESCRIPTION AS icd_name,
 		ref_diagtype.DESCRIPTION AS diage_type
